@@ -2,7 +2,6 @@
 # DeclarePackageAutoDocumentation("indefinite", "doc");
 ReadPkg("indefinite", "lib/Fractions.g");
 ReadPkg("indefinite", "lib/FileFormalism.g");
-ReadPkg("indefinite", "lib/QNfundamental.g");
 ReadPkg("indefinite", "lib/Fundamental.g");
 ReadPkg("indefinite", "lib/PrintingFacilities.g");
 ReadPkg("indefinite", "lib/PositivitySymmetricMatrices.g");
