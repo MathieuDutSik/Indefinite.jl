@@ -1,0 +1,43 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+
+my $uu=scalar(@ARGV);
+if ($uu ne 1)
+{
+    print "Usage: ./svWrite [File]\n";
+    die;
+}
+my $File=$ARGV[0];
+
+open(INFILE, $File);
+my @RESULT=<INFILE>;
+close(INFILE);
+
+for (my $iLine=1; $iLine<=scalar(@RESULT); $iLine++)
+{
+    if ($iLine eq scalar(@RESULT))
+    {
+	my @UU=split(" ", $RESULT[$iLine-1]);
+	for (my $iCol=1; $iCol<=scalar(@UU); $iCol++)
+	{
+	    print " ";
+	    $_=$UU[$iCol-1];
+	    s/\n//;
+	    my $esl=$_;
+	    my @VV=split("/", $esl);
+	    if (scalar(@VV) eq 2)
+	    {
+		$esl=$VV[0]/$VV[1];
+	    }
+            print $esl;
+	}
+	print "\n";
+    }
+    else
+    {
+	print $RESULT[$iLine-1];
+    }
+}

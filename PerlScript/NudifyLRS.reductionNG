@@ -1,0 +1,72 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+# This script takes the output of glrs
+# and create a sequence of files to be
+# loaded sequencially by GAP
+
+my $nbE=0;
+while(1)
+{
+    my $let=getc();
+    if ($let eq "\n")
+    {
+	$nbE++;
+    }
+    if ($nbE eq 3)
+    {
+	last;
+    }
+}
+
+my $uu=scalar(@ARGV);
+if ($uu ne 1)
+{
+    print "NudifyLRS.reductionNG is used as\n";
+    print "NudifyLRS.reductionNG FileEXT < [File]\n";
+    print "\n";
+    print "It splits large lists of lines\n";
+    print "into small file\n";
+    die;
+}
+my $random = rand(10000);
+my $FileData = "nudifylrs_reduction_ng_part2_".$random;
+my $FileMetaData = "nudifylrs_reduction_ng_part1_".$random;
+open(OUT1, "> ".$FileData);
+
+my $print=0;
+
+my $nbR=0;
+my $typical = "unset";
+while(<STDIN>)
+{
+    my $Chain=$_;
+    if ($nbR eq 4)
+    {
+	$print=1;
+	$typical=$Chain;
+    }
+    if ($Chain eq "end\n")
+    {
+	$print=0;
+    }
+    if ($print eq 1)
+    {
+	print OUT1 $Chain;
+    }
+    $nbR=$nbR+1;
+}
+close(OUT1);
+
+my @L=split(" ", $typical);
+my $nbCol=scalar(@L);
+my $nbLine=$nbR-10;
+open(OUT2, "> ".$FileMetaData);
+print OUT2 $nbLine." ".$nbCol."\n";
+close(OUT2);
+
+my $FileFinal=$ARGV[0];
+my $order="cat ".$FileMetaData." ".$FileData." > ".$FileFinal." && rm -f ".$FileData." ".$FileMetaData;
+system $order;

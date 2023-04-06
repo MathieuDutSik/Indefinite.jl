@@ -1,0 +1,74 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+my $uu=scalar(@ARGV);
+
+if ($uu ne 2)
+{
+    print "ConvertPariIsotrop [input] [output]\n";
+    die;
+}
+
+my $InputFile=$ARGV[0];
+my $OutputFile=$ARGV[1];
+
+open(INFILE, $InputFile) or die "impossible to open InputFile=".$InputFile."\n";
+my @B=<INFILE>;
+close(INFILE);
+
+#
+
+my $nbLine=scalar(@B);
+my $LastLine=$B[$nbLine-2];
+my @SPL = split(";", $LastLine);
+my @C = split("", $LastLine);
+my $strReturn;
+if (scalar(@SPL) eq 1)
+{
+    my $HasLastBracket = 0;
+    my $strO = "";
+    for (my $i=0; $i<scalar(@C); $i++)
+    {
+        my $eChar = $C[$i];
+        if ($HasLastBracket eq 0)
+        {
+            $strO = $strO.$eChar;
+        }
+        if ($eChar eq "]")
+        {
+            $HasLastBracket = 1;
+        }
+    }
+    $strReturn = "[".$strO."]";
+}
+else
+{
+    my $strRW = "";
+    for (my $i=0; $i<scalar(@C); $i++)
+    {
+        my $eChar = $C[$i];
+        if ($eChar ne "[" && $eChar ne "]" && $eChar ne "\n")
+        {
+            $strRW=$strRW.$eChar
+        }
+    }
+    my @SPLB = split(";", $strRW);
+    my $strMat = "[";
+    for (my $i=0; $i<scalar(@SPLB); $i++)
+    {
+        if ($i > 0)
+        {
+            $strMat = $strMat.",";
+        }
+        $strMat=$strMat."[".$SPLB[$i]."]";
+    }
+    $strMat = $strMat."]";
+    $strReturn = "TransposedMat(".$strMat.")";
+}
+
+open(OUT, "> ".$OutputFile);
+print OUT "return ".$strReturn.";\n";
+close(OUT);
+

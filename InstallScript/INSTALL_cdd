@@ -1,0 +1,58 @@
+#!/usr/bin/perl -w
+
+use Cwd;
+$TheDirPWD = getcwd;
+
+@ListProg=("scdd_gmp", "lcdd_gmp", "testlp2_gmp", "redcheck_gmp", "adjacency_gmp");
+$nbProg=0;
+foreach (@ListProg)
+{
+    $eProg=$_;
+    $eProgFull="ExternalProg/cdd_install/bin/".$eProg;
+    if (-e $eProgFull)
+    {
+	$nbProg++;
+    }
+}
+$NeedCompil=1;
+if ($nbProg eq scalar(@ListProg))
+{
+    $NeedCompil=0;
+}
+if ($NeedCompil eq 1)
+{
+    $PrefixCDD=$TheDirPWD."/ExternalProg/cdd_install";
+    $PrefixGMP=$TheDirPWD."/ExternalProg/gmp_install";
+    $PrefixLD="LDFLAGS=\"-L".$PrefixGMP."/lib\"";
+    $PrefixINC="CPPFLAGS=\"-I".$PrefixGMP."/include\"";
+    $order="(cd ExternalProg/cddlib-094g_mod && ./configure --prefix=".$PrefixCDD." ".$PrefixLD." ".$PrefixINC." && make && make install)";
+    print $order."\n";
+    if (system($order) != 0) {
+	die "Error when compiling\n";
+    }
+}
+foreach (@ListProg)
+{
+    $eProg=$_;
+    $eProgFull="ExternalProg/cdd_install/bin/".$eProg;
+    if (!(-e $eProgFull))
+    {
+	print "Compilation of ".$eProgFull." failed\n";
+	exit -1;
+    }
+}
+print "\nCOMPILED cddlib-094g_mod\n\n";
+
+
+foreach(@ListProg)
+{
+    $eProg=$_;
+    $order="(cd ExternalProg/Binaries && ln -sf ../cdd_install/bin/".$eProg.")";
+    print $order."\n";
+    if (system($order) != 0) {
+	print "Error when linking\n";
+	exit -1;
+    }
+}
+
+exit 0;

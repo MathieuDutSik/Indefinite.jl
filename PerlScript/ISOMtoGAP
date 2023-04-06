@@ -1,0 +1,35 @@
+#!/usr/bin/perl -w
+
+
+@B=<>;
+$nbLine=scalar(@B);
+$dim=$nbLine-1;
+
+$FirstLine=$dim."\n";
+if ($B[0] eq $FirstLine)
+{
+    print "return [";
+    for ($iLin=1; $iLin<=$dim; $iLin++)
+    {
+	print "[";
+	@UL=split(" ", $B[$iLin]);
+	for ($iCol=1; $iCol<=$dim; $iCol++)
+	{
+	    print $UL[$iCol-1];
+	    if ($iCol<$dim)
+	    {
+		print ",";
+	    }
+	}
+	print "]";
+	if ($iLin<$dim)
+	{
+	    print ",";
+	}
+    }
+    print "];\n";
+}
+else
+{
+	print "return false;\n";
+}

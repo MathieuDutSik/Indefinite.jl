@@ -1,0 +1,16 @@
+#!/usr/bin/perl -w
+
+$File=$ARGV[0];
+
+open(INFILE, $File);
+@RESUL=<INFILE>;
+close(INFILE);
+
+if (scalar(@RESUL)>0)
+{
+    print "return false;\n";
+}
+else
+{
+    print "return true;\n";
+}

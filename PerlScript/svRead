@@ -1,0 +1,46 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+my $uu=scalar(@ARGV);
+if ($uu ne 1)
+{
+    print "svRead [input]\n";
+    die;
+}
+my $File=$ARGV[0];
+
+open(INFILE, $File);
+my @RESULT=<INFILE>;
+close(INFILE);
+if (scalar(@RESULT) == 0)
+{
+    print "We should have at least one line in RESULT of the file=".$File."\n";
+    die;
+}
+
+my $nbEntry=$RESULT[0];
+
+print "return [";
+for (my $iVect=1; $iVect<=$nbEntry; $iVect++)
+{
+    my $line=$RESULT[$iVect];
+    my @SSE=split(":", $line);
+    my @SSF=split(" ", $SSE[1]);
+    print "[";
+    for (my $iCol=1; $iCol<=scalar(@SSF); $iCol++)
+    {
+	print $SSF[$iCol-1];
+	if ($iCol<scalar(@SSF))
+	{
+	    print ",";
+	}
+    }
+    print "]";
+    if ($iVect < $nbEntry)
+    {
+	print ",";
+    }
+}
+print "];\n";

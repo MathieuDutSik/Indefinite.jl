@@ -1,0 +1,142 @@
+\documentclass[12pt]{amsart}
+\usepackage{amsfonts, amsmath, latexsym, epsfig}
+\usepackage{amssymb}
+\usepackage{epsf}
+\usepackage{url}
+
+
+\newcommand{\sfA}{\ensuremath{\mathsf{A}}}
+\newcommand{\RR}{\ensuremath{\mathbb{R}}}
+\newcommand{\NN}{\ensuremath{\mathbb{N}}}
+\newcommand{\QQ}{\ensuremath{\mathbb{Q}}}
+\newcommand{\CC}{\ensuremath{\mathbb{C}}}
+\newcommand{\ZZ}{\ensuremath{\mathbb{Z}}}
+\newcommand{\TT}{\ensuremath{\mathbb{T}}}
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Q}{\ensuremath{\mathbb{Q}}}
+\newcommand{\C}{\ensuremath{\mathbb{C}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\T}{\ensuremath{\mathbb{T}}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{algorithm}{Algorithm}
+\newtheorem{lemma}{Lemma}
+\newtheorem{problem}{Problem}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{claim}{Claim}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+\def\QuotS#1#2{\leavevmode\kern-.0em\raise.2ex\hbox{$#1$}\kern-.1em/\kern-.1em\lower.25ex\hbox{$#2$}}
+
+
+\urlstyle{sf}
+
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\Sym}{Sym}
+\DeclareMathOperator{\Isom}{Isom}
+\DeclareMathOperator{\vertt}{vert}
+\DeclareMathOperator{\conv}{conv}
+\DeclareMathOperator{\SC}{SC}
+\DeclareMathOperator{\SL}{SL}
+\DeclareMathOperator{\GL}{GL}
+\DeclareMathOperator{\PSL}{PSL}
+\DeclareMathOperator{\Out}{Out}
+\DeclareMathOperator{\Min}{Min}
+\DeclareMathOperator{\Dom}{Dom}
+\DeclareMathOperator{\cone}{cone}
+\DeclareMathOperator{\Stab}{Stab}
+
+
+\begin{document}
+
+\author{Mathieu Dutour Sikiri\'c}
+\address{Mathieu Dutour Sikiri\'c, Rudjer Boskovi\'c Institute, Bijenicka 54, 10000 Zagreb, Croatia}
+\email{mathieu.dutour@gmail.com}
+
+
+\title{Manual of the GAP package {\tt indefinite}}
+\date{}
+
+\maketitle
+\tableofcontents
+
+\section{Installation}
+
+A priori the system works only on unix/linux systems.
+You need to follow the following steps:
+\begin{enumerate}
+\item The archive {\bf polyhedral.tar.gz} can be downloaded from
+\url{http://mathieudutour.altervista.org/Polyhedral/index.html}
+
+\item Previous to using polyhedral you need to install the GAP computer package (from \url{http://www.gap-system.org/}).
+
+\item The archive {\bf polyhedral.tar.gz} should be untarred in the {\bf pkg} directory of GAP.
+
+\item Your File {\bf .gap/gap.ini} must contain the following line:
+\begin{verbatim}
+SetUserPreference( "InfoPackageLoadingLevel", 4 ); # for additional debugging informations
+SetUserPreference( "PackagesToLoad", [ "polyhedral"]);
+\end{verbatim}
+if you have no other needed packages. If the file is not existent then you need to create it.
+
+\item Then one needs to run the {\bf configure} perl script in the {\bf polyhedral} directory in order to compile the external programs.
+\end{enumerate}
+
+
+\section{Introduction}
+The package {\tt polyhedral} is designed to be used for doing all kinds
+of computations related to polytopes and use their symmetry groups in
+the course of the computation.
+There are very many different functions but I will try here to explain
+them as good as I can.
+
+In order to install it, you should
+\begin{enumerate}
+\item Install {\tt GAP}.
+\item Download {\tt indefinite.tar.gz} from 
+{\url{http://www.liga.ens.fr/~dutour/Polyhedral}}
+\item Unpack it in the directory {\tt pkg/} of the gap distribution.
+\item Do {\tt ./configure} in order to compile the external programs.
+\end{enumerate}
+
+
+
+
+\subsection{Indefinite lattice functions}
+
+{\bf General functions}
+\begin{enumerate}
+\item The function
+\begin{verbatim}
+INDEF_FORM_GetOrbitRepresentative:=function(Qmat, X)
+\end{verbatim}
+returns the orbit representative of vectors of norm $X$ in the lattice. if $X=0$ then the primitive isotropic vectors are returned.
+\item The function
+\begin{verbatim}
+INDEF_FORM_StabilizerVector:=function(Qmat, v)
+\end{verbatim}
+returns the stabilizer of a vector in an indefinite lattice.
+\item The function
+\begin{verbatim}
+INDEF_FORM_EquivalenceVector:=function(Qmat1, Qmat2, v1, v2)
+\end{verbatim}
+tests for equivalence of vectors v1 and v2 in their respective indefinite forms
+\item The function
+\begin{verbatim}
+INDEF_FORM_AutomorphismGroup:=function(Qmat)
+\end{verbatim}
+computes the automorphism group of the indefinite quadratic form.
+\item The function
+\begin{verbatim}
+INDEF_FORM_TestEquivalence:=function(Qmat1, Qmat2)
+\end{verbatim}
+test for equivalence of two indefinite quadratic forms.
+\end{enumerate}
+
+
+
+
+
+\end{document}

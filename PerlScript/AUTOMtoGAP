@@ -1,0 +1,85 @@
+#!/usr/bin/perl -w
+
+@B=<>;
+@C=split("", $B[0]);
+$nbDefMat="";
+for ($i=1; $i<=scalar(@C)-2; $i++)
+{
+    $nbDefMat=$nbDefMat.$C[$i];
+}
+
+
+
+@C=split("x", $B[1]);
+if (scalar(@C) eq 2)
+{
+    $dim=$C[0];
+}
+else
+{
+    @C=split("d", $B[1]);
+    $dim=$C[0];
+#
+#    $_=$B[3];
+#    s/\n//;
+#    @D=split("#", $_);
+#    $nbMat=$D[1];
+#
+#    $pos=4;
+}
+for ($iLine=2; $iLine<=scalar(@B); $iLine++)
+{
+    @UVL=split("", $B[$iLine-1]);
+    if ($UVL[0] eq "#")
+    {
+	$_=$B[$iLine-1];
+	s/\n//;
+	@D=split("#", $_);
+	$nbMat=$D[1];
+	$pos=$iLine;
+    }
+}
+#print "dim=".$dim."\n";
+#print "nbMat=".$nbMat."\n";
+
+
+print "return rec(ListMat:=[";
+for ($iMat=1; $iMat<=$nbMat; $iMat++)
+{
+    print "[";
+    for ($iLin=1; $iLin<=$dim; $iLin++)
+    {
+	$pos++;
+        print "[";
+        @UL=split(" ", $B[$pos]);
+        for ($iCol=1; $iCol<=$dim; $iCol++)
+        {
+            print $UL[$iCol-1];
+            if ($iCol<$dim)
+            {
+                print ",";
+            }
+        }
+        print "]";
+        if ($iLin<$dim)
+        {
+            print ",";
+        }
+    }
+    print "]";
+    $pos++;
+    if ($iMat<$nbMat)
+    {
+	print ",";
+    }
+}
+print "], order:=";
+$_=$B[$pos+1];
+s/\n//;
+@E=split("=", $_);
+@E2=split(" ", $E[1]);
+for ($iF=1; $iF<=scalar(@E2); $iF++)
+{
+    print $E2[$iF-1];
+}
+print ");\n";

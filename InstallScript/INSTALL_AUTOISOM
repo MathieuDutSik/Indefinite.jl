@@ -1,0 +1,34 @@
+#!/usr/bin/perl -w
+$eProg1="ExternalProg/export.V2.5/src/AUTO";
+$eProg2="ExternalProg/export.V2.5/src/ISOM";
+$test=0;
+if (-e $eProg1 && -e $eProg2)
+{$test=1;}
+if ($test eq 0)
+{
+    $order="(cd ExternalProg/export.V2.5 && ./configure && make)";
+    print $order."\n";
+    if (system($order) != 0) {
+	die "Error when compiling\n";
+    }
+}
+if (!(-e $eProg1) || !(-e $eProg2))
+{
+    print "Compilation of ".$eProg1." or ".$eProg2." failed\n";
+    exit -1;
+}
+print "\nCOMPILED export.V2.5 (AUTO/ISOM)\n\n";
+
+$order="(cd ExternalProg/Binaries && ln -sf ../export.V2.5/src/AUTO)";
+print $order."\n";
+if (system($order) != 0) {
+    die "Error when linking\n";
+}
+
+$order="(cd ExternalProg/Binaries && ln -sf ../export.V2.5/src/ISOM)";
+print $order."\n";
+if (system($order) != 0) {
+    die "Error when linking\n";
+}
+
+exit 0;
