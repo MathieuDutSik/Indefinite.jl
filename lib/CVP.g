@@ -1,8 +1,5 @@
-FileSV:=Filename(DirectoriesPackagePrograms("indefinite"),"sv");
-FileSV_gmp_read:=Filename(DirectoriesPackagePrograms("indefinite"),"sv_gmp_read");
 FileSV_exact:=Filename(DirectoriesPackagePrograms("indefinite"),"sv_exact");
 FileSVRead:=Filename(DirectoriesPackagePrograms("indefinite"),"svRead");
-FileSVWrite:=Filename(DirectoriesPackagePrograms("indefinite"),"svWrite");
 
 
 CVPdimension1_Integral:=function(GramMat, eV)
@@ -29,7 +26,7 @@ end;
 
 
 Kernel_CVPVallentinProgramIntegral:=function(GramMat, eV, recOption)
-  local eFileIn, FilePreIn, FileOut, FileGap, FileErr, test, n, output, i, j, reply, iVect, eNorm, TheNorm, ListVect, TheReply, eReply, eVint, eVdiff, TheOption, CommSV, TheComm, TheReturn, opt, eStr, fStr;
+  local eFileIn, FilePreIn, FileOut, FileGap, FileErr, test, n, output, i, j, reply, iVect, eNorm, TheNorm, ListVect, TheReply, eReply, eVint, eVdiff, CommSV, TheComm, TheReturn, eStr, fStr;
   FilePreIn:=Filename(POLYHEDRAL_tmpdir, "SVvallentin.prein");
   FileOut:=Filename(POLYHEDRAL_tmpdir, "SVvallentin.out");
   FileGap:=Filename(POLYHEDRAL_tmpdir, "SVvallentin.Gap");
@@ -58,37 +55,14 @@ Kernel_CVPVallentinProgramIntegral:=function(GramMat, eV, recOption)
   fStr:=Concatenation(fStr, "\n");
   WriteAll(output, fStr);
   CloseStream(output);
-#  TheOption:="Use gmp_read";
-#  TheOption:="Use real";
-#  Exec(FileSVWrite, " ", FilePreIn, " > ", FileIn);
-#  Exec("cat ", FilePreIn);
-#  Exec("cat ", FileIn);
   eFileIn:=FilePreIn;
-  if IsBound(recOption.UseExactArithmetic) then
-    if recOption.UseExactArithmetic then
-      opt:=1;
-    else
-      opt:=2;
-    fi;
-  else
-    opt:=2;
-  fi;
-  opt:=1;
-  if opt=1 then
-    CommSV:=FileSV_exact;
-  else
-    CommSV:=FileSV_gmp_read;
-  fi;
+  CommSV:=FileSV_exact;
   if IsBound(recOption.MaxVector) then
     CommSV:=Concatenation(CommSV, " -s", String(recOption.MaxVector));
   fi;
   TheComm:=Concatenation(CommSV, " -M -c < ", eFileIn, " > ", FileOut, " 2> ", FileErr);
-#  Print("TheComm=", TheComm, "\n");
-#  Error("Let us stop for a walk");
   Exec(TheComm);
-#  Print("Step 2\n");
   Exec(FileSVRead, " ", FileOut, " > ", FileGap);
-#  Print("Step 3\n");
   reply:=ReadAsFunction(FileGap)();
   for iVect in [1..Length(reply)]
   do
@@ -104,7 +78,7 @@ Kernel_CVPVallentinProgramIntegral:=function(GramMat, eV, recOption)
         if eNorm<TheNorm then
           ListVect:=[eReply];
           TheNorm:=eNorm;
-        fi;        
+        fi;
       fi;
     fi;
   od;
@@ -133,7 +107,6 @@ General_CVPVallentinProgram_Rational:=function(GramMatIn, eV, recOption)
   if First(eV, x->IsRat(x)=false)<>fail then
     Error("Calling with nonrational eV");
   fi;
-#  Print("Begin CVPVallentinProgramIntegral\n");
   n:=Length(GramMat);
   if IsIntegralVector(eV) then
     return rec(ListVect:=[eV], TheNorm:=0);
@@ -174,7 +147,7 @@ end;
 
 
 Kernel_ClosestAtDistanceVallentinProgram:=function(GramMat, eV, TheDist, recOption)
-  local eFileIn, FilePreIn, FileOut, FileGap, FileErr, test, n, output, i, j, reply, eVect, TheNorm, ListVect, eVwork, eInfoRed, TheOption, CommSV, TheComm, opt, fStr, eNorm;
+  local eFileIn, FilePreIn, FileOut, FileGap, FileErr, test, n, output, i, j, reply, eVect, TheNorm, ListVect, eVwork, eInfoRed, CommSV, TheComm, fStr, eNorm;
   if IsPositiveDefiniteSymmetricMatrix(GramMat)=false then
     Error("Matrix should be positive definite");
   fi;
@@ -220,42 +193,16 @@ Kernel_ClosestAtDistanceVallentinProgram:=function(GramMat, eV, TheDist, recOpti
   WriteAll(output, fStr);
   CloseStream(output);
   #
-  # 
-  #
-  TheOption:="Use gmp_read";
-#  TheOption:="Use real";
-#  Exec(FileSVWrite, " ", FilePreIn, " > ", FileIn);
-#  Exec("cat ", FilePreIn);
-#  Exec("cat ", FileIn);
-  if IsBound(recOption.UseExactArithmetic) then
-    if recOption.UseExactArithmetic then
-      opt:=1;
-    else
-      opt:=2;
-    fi;
-  else
-    opt:=2;
-  fi;
-  opt:=1;
-  if opt=1 then
-    CommSV:=FileSV_exact;
-  else
-    CommSV:=FileSV_gmp_read;
-  fi;
+  CommSV:=FileSV_exact;
   eFileIn:=FilePreIn;
   if IsBound(recOption.MaxVector) then
     CommSV:=Concatenation(CommSV, " -s", String(recOption.MaxVector));
   fi;
   TheComm:=Concatenation(CommSV, " -M -l < ", eFileIn, " > ", FileOut, " 2> ", FileErr);
-#  Print("TheComm=", TheComm, "\n");
   Exec(TheComm);
-#  Print(NullMat(5));
-  #
-  # 
   #
   Exec(FileSVRead, " ", FileOut, " > ", FileGap);
   reply:=ReadAsFunction(FileGap)();
-#  Print("reply=", reply, "\n");
   ListVect:=[];
   if eV*eV=0 then
     for eVect in reply
@@ -296,7 +243,7 @@ DualLLLReducedGramMat:=function(GramMat)
   if InvRemainder<>bTrans*GramMat*TransposedMat(bTrans) then
     Error("Logical error 2");
   fi;
-  return rec(remainder:=InvRemainder, 
+  return rec(remainder:=InvRemainder,
              transformation:=bTrans);
 end;
 
@@ -306,28 +253,20 @@ General_ClosestAtDistanceVallentinProgram:=function(GramMat, eV, TheDist, recOpt
   if IsIntegralMat(GramMat)=false then
     Error("The Gram Matrix should be integral");
   fi;
-#  res:=LLLReducedGramMat(GramMat);
   res:=DualLLLReducedGramMat(GramMat);
   TheRemainder:=res.remainder;
   TheTransform:=res.transformation;
   InvTrans:=Inverse(TheTransform);
-#  Print("TheRemainder=\n");
-#  PrintArray(TheRemainder);
   if InvTrans*TheRemainder*TransposedMat(InvTrans)<>GramMat then
     Error("Error in LLL computation");
   fi;
   eVP:=eV*InvTrans;
   eVPnear:=List(eVP, NearestInteger);
   eVPdiff:=eVP - eVPnear;
-#  Print("TheRemainder=\n");
-#  PrintArray(TheRemainder);
-#  Print("eVPdiff=", eVPdiff, "\n");
   TheSol:=Kernel_ClosestAtDistanceVallentinProgram(TheRemainder, eVPdiff, TheDist, recOption);
   if Length(TheSol)=0 then
     return [];
   fi;
-#  Print("TheTransform=\n");
-#  PrintArray(TheTransform);
   TheSolRet:=List(TheSol, x->(x+eVPnear)*TheTransform);
   if First(TheSolRet, x->(x-eV)*GramMat*(x-eV) > TheDist)<>fail then
     Error("Short neighbor computation failed\n");
