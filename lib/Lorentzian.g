@@ -1074,7 +1074,7 @@ LORENTZ_GetShortPositiveVector:=function(LorMat)
     while(true)
     do
         LorMat_Pert:=ePerturb * LorMat * TransposedMat(ePerturb);
-        uVect:=EigenvalueFindNegativeVect(-LorMat_Pert);
+        uVect:=FindNegativeVect(-LorMat_Pert);
         eNorm1:=uVect * LorMat_Pert * uVect;
         TheVect:=DirectImprovement(uVect * ePerturb);
         eNorm:=TheVect * LorMat * TheVect;
@@ -1131,7 +1131,7 @@ LORENTZ_GetOnePerfect:=function(LorMat, TheOption)
         while(true)
         do
             TheMatPerturb:=ePerturb * TheMat * TransposedMat(ePerturb);
-            uVect:=EigenvalueFindNegativeVect(TheMatPerturb);
+            uVect:=FindNegativeVect(TheMatPerturb);
             RetVect:=uVect * ePerturb * SpannBasis;
             TheNorm:=RetVect * LorMat * RetVect;
             Print("TheNorm=", TheNorm, "\n");
@@ -1157,9 +1157,7 @@ LORENTZ_GetOnePerfect:=function(LorMat, TheOption)
         fi;
     end;
     CentralVect:=LORENTZ_GetShortPositiveVector(LorMat);
-#    CentralVect:=EigenvalueFindNegativeVect(-LorMat);
     Print("CentralVect=", CentralVect, "\n");
-#  Print(NullMat(5));
     if n > 4 and false then # In that case an isotropic vector
         Print("Running isotropic code\n");
         Viso:=INDEF_FindIsotropic(LorMat);

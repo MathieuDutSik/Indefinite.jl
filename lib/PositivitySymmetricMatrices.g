@@ -1,7 +1,3 @@
-FileNegVect:=Filename(DirectoriesPackagePrograms("indefinite"),"FindNegativeVect");
-FileGetShortVector:=Filename(DirectoriesPackagePrograms("indefinite"),"SHORT_GetShortVector");
-
-
 SymmetricExtractSubMatrix:=function(SymMat, eSet)
   return List(SymMat{eSet}, x->x{eSet});
 end;
@@ -161,9 +157,6 @@ GetSetNegativeOrZeroVector:=function(SymMat)
       eVect:=ListWithIdenticalEntries(n,0);
       eVect[i]:=1;
       fVect:=eVect*TheRec.Transform;
-      if fVect*SymMat*fVect>0 then
-        Error("Major matrix error");
-      fi;
       eMax:=Maximum(List(fVect, AbsInt));
       Add(TheSet, fVect/eMax);
     fi;
@@ -191,101 +184,6 @@ GetSomeNegativeVector:=function(SymMat)
 end;
 
 
-SHORT_WriteEigenvalueProblem:=function(FileName, TheMat, CritNorm, StrictIneq, NeedNonZero)
-  local output, n, i, j, StrictIneq_i, NeedNonZero_i;
-  output:=OutputTextFile(FileName, true);
-  n:=Length(TheMat);
-  AppendTo(output, " ", n, " ", n, "\n");
-  for i in [1..n]
-  do
-    for j in [1..n]
-    do
-      AppendTo(output, " ", TheMat[i][j]);
-    od;
-    AppendTo(output, "\n");
-  od;
-  StrictIneq_i:=0;
-  if StrictIneq then
-    StrictIneq_i:=1;
-  fi;
-  NeedNonZero_i:=0;
-  if NeedNonZero then
-    NeedNonZero_i:=1;
-  fi;
-  AppendTo(output, StrictIneq_i, "\n");
-  AppendTo(output, NeedNonZero_i, "\n");
-  AppendTo(output, CritNorm, "\n");
-  CloseStream(output);
-end;
-
-
-SHORT_GetShortVector_InfinitePrecision:=function(TheMat, CritNorm, StrictIneq, NeedNonZero)
-  local FileInput, FileOutput, TheCommand, TheResult;
-  FileInput :=Filename(POLYHEDRAL_tmpdir,"InfPrec_Input");
-  FileOutput:=Filename(POLYHEDRAL_tmpdir,"InfPrec_Output");
-  RemoveFileIfExist(FileInput);
-  RemoveFileIfExist(FileOutput);
-  SHORT_WriteEigenvalueProblem(FileInput, TheMat, CritNorm, StrictIneq, NeedNonZero);
-  #
-  TheCommand:=Concatenation(FileGetShortVector, " ", FileInput, " ", FileOutput);
-  Print("TheCommand=", TheCommand, "\n");
-  Exec(TheCommand);
-  #
-  TheResult:=ReadAsFunction(FileOutput)();
-  RemoveFileIfExist(FileInput);
-  RemoveFileIfExist(FileOutput);
-  return TheResult;
-end;
-
-
-EigenvalueFindNegativeVect_GSL:=function(GramMat)
-  local FileMat, FileRes, output, TheRead, RetVect;
-  if FileNegVect=fail then
-    return GetSomeNegativeVector(GramMat);
-  fi;
-  FileMat:=Filename(POLYHEDRAL_tmpdir,"MatF");
-  FileRes:=Filename(POLYHEDRAL_tmpdir,"ResF");
-  RemoveFileIfExist(FileMat);
-  RemoveFileIfExist(FileRes);
-  output:=OutputTextFile(FileMat, true);;
-  AppendTo(output, Length(GramMat), "\n");
-  WriteMatrix(output, RemoveFractionMatrix(GramMat));
-  CloseStream(output);
-  #
-  Exec(FileNegVect, " ", FileMat, " ", FileRes);
-  TheRead:=ReadAsFunction(FileRes)();
-  if TheRead.pos_semidef=true then
-    if IsPositiveSymmetricMatrix(GramMat)=true then
-      Error("The matrix is positive semidefinite. Cannot work");
-    fi;
-    Print("The matrix has a negative vector but double precision\n");
-    Print("cannot find a negative vector\n");
-    RemoveFileIfExist(FileMat);
-    RemoveFileIfExist(FileRes);
-    return GetSomeNegativeVector(GramMat);
-  fi;
-  RemoveFileIfExist(FileMat);
-  RemoveFileIfExist(FileRes);
-  RetVect:=TheRead.eVect;
-  if RetVect*GramMat*RetVect >= 0 then
-    Print("Probably floating point problem. Wrong norm\n");
-    Print("Using exact arithmetics\n");
-    return GetSomeNegativeVector(GramMat);
-  fi;
-  return RetVect;
-end;
-
-
-EigenvalueFindNegativeVect:=function(GramMat)
-  local StrictIneq, NeedNonZero, CritNorm, opt_chosen;
-  opt_chosen:=1;
-  if opt_chosen=1 then
-    return EigenvalueFindNegativeVect_GSL(GramMat);
-  fi;
-  if opt_chosen=2 then
-    StrictIneq:=true;
-    NeedNonZero:=true;
-    CritNorm:=0;
-    return SHORT_GetShortVector_InfinitePrecision(GramMat, CritNorm, StrictIneq, NeedNonZero);
-  fi;
+FindNegativeVect:=function(GramMat)
+  return GetSomeNegativeVector(GramMat);
 end;
