@@ -1,6 +1,4 @@
-
-
-FindDelaunayPolytope_Rational:=function(GramMat)
+FindDelaunayPolytope:=function(GramMat)
   local GramMatInt, n, ListCosetRed, ListCosetDiff, ListRelevantPoints, i, V, DefiningInequality, TheRandomDirection, TheLP, eVect, TheNorm, TheCVP, ListInequalities, eEnt, RetEXT;
   Print("Beginning of FindDelaunayPolytope\n");
   GramMatInt:=RemoveFractionMatrix(GramMat);
@@ -21,7 +19,7 @@ FindDelaunayPolytope_Rational:=function(GramMat)
   while(true)
   do
     ListInequalities:=List(ListRelevantPoints, DefiningInequality);
-    TheLP:=LinearProgramming_Rational(ListInequalities, TheRandomDirection);
+    TheLP:=LinearProgramming(ListInequalities, TheRandomDirection);
     eVect:=ListWithIdenticalEntries(n,0);
     for eEnt in TheLP.primal_solution
     do
@@ -44,13 +42,4 @@ FindDelaunayPolytope_Rational:=function(GramMat)
     od;
     Print("|ListRelevantPoints|=", Length(ListRelevantPoints), "\n");
   od;
-end;
-
-
-FindDelaunayPolytope:=function(GramMat)
-  local Nval;
-  if IsMatrixRational(GramMat)=true then
-    return FindDelaunayPolytope_Rational(GramMat);
-  fi;
-  Error("You have to build your own arithmetic");
 end;
