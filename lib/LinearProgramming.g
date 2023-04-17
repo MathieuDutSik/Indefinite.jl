@@ -7,7 +7,7 @@ FileTestlp2:=Filename(DirectoriesPackagePrograms("indefinite"),"testlp2_gmp");
 # realizing that linear programming is quite complex.
 # Basically, everything is outputed, everything is read
 # and you have to make interpretations yourself.
-LinearProgramming_Rational:=function(InequalitySet, ToBeMinimized)
+LinearProgramming:=function(InequalitySet, ToBeMinimized)
   local FileIne, FileLps, FileErr, FileGap, FileDdl, FileLog, outputCdd, input, eLine, TheLP, TheDim, eVect, eSum, eEnt, nbIneq, TheCommand1, TheCommand2;
   FileIne:=Filename(POLYHEDRAL_tmpdir, "LP.ine");
   FileLps:=Filename(POLYHEDRAL_tmpdir, "LP.lps");
@@ -15,7 +15,6 @@ LinearProgramming_Rational:=function(InequalitySet, ToBeMinimized)
   FileGap:=Filename(POLYHEDRAL_tmpdir, "LP.gap");
   FileDdl:=Filename(POLYHEDRAL_tmpdir, "LP.ddl");
   FileLog:=Filename(POLYHEDRAL_tmpdir, "LP.log");
-#  Print("FileIne=", FileIne, "\n");
   RemoveFileIfExist(FileIne);
   RemoveFileIfExist(FileLps);
   RemoveFileIfExist(FileErr);
@@ -24,7 +23,6 @@ LinearProgramming_Rational:=function(InequalitySet, ToBeMinimized)
   RemoveFileIfExist(FileLog);
   TheDim:=Length(InequalitySet[1]);
   nbIneq:=Length(InequalitySet);
-#  Print("nbIneq=", nbIneq, "  TheDim=", TheDim, "\n");
   for eVect in InequalitySet
   do
     if Length(eVect)<>TheDim then
@@ -46,11 +44,9 @@ LinearProgramming_Rational:=function(InequalitySet, ToBeMinimized)
   CloseStream(outputCdd);
   #
   TheCommand1:=Concatenation(FileTestlp2, " ", FileIne, " 2> ", FileErr, " > ", FileLog);
-#  Print("TheCommand1=", TheCommand1, "\n");
   Exec(TheCommand1);
   #
   TheCommand2:=Concatenation(Filelpcddcleaner, " < ", FileLog, " > ", FileGap);
-#  Print("TheCommand2=", TheCommand2, "\n");
   Exec(TheCommand2);
   #
   TheLP:=ReadAsFunction(FileGap)();
@@ -59,11 +55,9 @@ LinearProgramming_Rational:=function(InequalitySet, ToBeMinimized)
   fi;
   TheLP.method:="cdd";
   if IsBound(TheLP.dual_direction) then
-#    Print("TheLP.dual_direction=", TheLP.dual_direction, "\n");
     eSum:=ListWithIdenticalEntries(TheDim,0);
     for eEnt in TheLP.dual_direction
     do
-#      Print("eIneq=", InequalitySet[eEnt[1]], "\n");
       eSum:=eSum+InequalitySet[eEnt[1]]*AbsInt(eEnt[2]);
     od;
     if eSum[1] >= 0 then
@@ -86,8 +80,6 @@ LinearProgramming_Rational:=function(InequalitySet, ToBeMinimized)
     TheLP.eVect:=eVect;
     TheLP.TheVert:=Concatenation([1], eVect);
   fi;
-#  Print("Copy the files here\n");
-#  Print(NullMat(5));
   RemoveFileIfExist(FileIne);
   RemoveFileIfExist(FileLps);
   RemoveFileIfExist(FileErr);
@@ -96,16 +88,6 @@ LinearProgramming_Rational:=function(InequalitySet, ToBeMinimized)
   RemoveFileIfExist(FileLog);
   return TheLP;
 end;
-
-
-LinearProgramming:=function(InequalitySet, ToBeMinimized)
-  local Nval;
-  if IsMatrixRational(InequalitySet) and IsVectorRational(ToBeMinimized) then
-    return LinearProgramming_Rational(InequalitySet, ToBeMinimized);
-  fi;
-  Error("You have to build your own arithmetic or use LinearProgrammingGeneralCode");
-end;
-
 
 GetPolytopizationInfo:=function(FAC)
   local eSet, FACred, dimRed, ListIneq, ToBeMinimized, eFac, eIneq, TheLP, eVect, eEnt, eMatBig, eBasis, eMatTrans, NewListIneq, eProd, fIneq;
