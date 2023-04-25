@@ -1,4 +1,3 @@
-FileConvertPariIsotropOutput:=Filename(DirectoriesPackagePrograms("indefinite"),"ConvertPariIsotrop");
 FileIndefiniteReduction:=Filename(DirectoriesPackagePrograms("indefinite"),"IndefiniteReduction");
 
 
@@ -78,89 +77,38 @@ INDEF_GetIndefinitesubset:=function(M)
 end;
 
 
-INDEF_FindIsotropic_Kernel:=function(M)
-    local n, FileInput, FileOutput, FileRead, FileErr, RecGRPcone, output, TheRec, TheCommand1, TheCommand2, eVect, ListCorrect, ListNorm, MinNorm, pos, eRes, FullVect, ClearFiles;
-    n:=Length(M);
-    FileInput :=Filename(POLYHEDRAL_tmpdir,"Isotrop.pari");
-    FileOutput:=Filename(POLYHEDRAL_tmpdir,"Isotrop.out");
-    FileRead:=Filename(POLYHEDRAL_tmpdir,"Isotrop.read");
-    FileErr:=Filename(POLYHEDRAL_tmpdir,"Isotrop.err");
-    RemoveFileIfExist(FileInput);
-    #
-    TheRec:=INDEF_GetIndefinitesubset(M);
-    #
-    output:=OutputTextFile(FileInput, true);
-    AppendTo(output, "M=");
-    PARI_PrintMatrix(output, TheRec.Mred);
-    AppendTo(output, "\n");
-    AppendTo(output, "eR = iferr(qfsolve(M),E,[],errname(E)==\"e_IMPL\")\n");
-    AppendTo(output, "print(eR)\n");
-    AppendTo(output, "quit\n");
-    CloseStream(output);
-    #
-    TheCommand1:=Concatenation("gp ", FileInput, " > ", FileOutput, " 2> ", FileErr);
-#    Print("TheCommand1=", TheCommand1, "\n");
-    Exec(TheCommand1);
-#    Print("TheCommand1 has been executed\n");
-    #
-    TheCommand2:=Concatenation(FileConvertPariIsotropOutput, " ", FileOutput, " ", FileRead);
-#    Print("TheCommand2=", TheCommand2, "\n");
-    Exec(TheCommand2);
-    #
-    eRes:=ReadAsFunction(FileRead)();
-    ClearFiles:=function()
-        RemoveFileIfExist(FileInput);
-        RemoveFileIfExist(FileOutput);
-        RemoveFileIfExist(FileRead);
-        RemoveFileIfExist(FileErr);
-    end;
-    ListCorrect:=[];
-    for eVect in eRes
+MatrixToOscarString:=function(M)
+    local TheStr, IsFirst, eLine, eVal;
+    TheStr:="[";
+    IsFirst:=true;
+    for eLine in M
     do
-        if Length(eVect) = Length(TheRec.Mred) then
-            FullVect:=ListWithIdenticalEntries(Length(M),0);
-            FullVect{TheRec.subset}:=eVect;
-            if FullVect * M * FullVect = 0 then
-                Add(ListCorrect, FullVect);
+        for eVal in eLine
+        do
+            if IsFirst=false then
+                TheStr:=Concatenation(TheStr, ",");
             fi;
-        fi;
+            IsFirst:=false;
+            TheStr:=Concatenation(TheStr, String(eVal));
+        od;
     od;
-    if Length(ListCorrect) = 0 then
-        Print("gp seems to have failed. Vector is not isotrop");
-#        SaveDebugInfo("FailureIsotropSearch", M);
-        ClearFiles();
-        return fail;
-    fi;
-    ListNorm:=List(ListCorrect, Norm_L1);
-    MinNorm:=Minimum(ListNorm);
-    pos:=Position(ListNorm, MinNorm);
-    ClearFiles();
-    return ListCorrect[pos];
+    TheStr:=Concatenation(TheStr, "]");
+    return TheStr;
 end;
 
 
+
 INDEF_FindIsotropic:=function(M)
-    local n_iter, n, ThePerturb, ePerturb, Mtest, TheReply, OneIso, eScal;
-    n_iter:=0;
-    n:=Length(M);
-    ThePerturb:=IdentityMat(n);
-    while(true)
-    do
-        ePerturb:=GetRandomMatrixPerturbation(n);
-        ThePerturb:=ePerturb * ThePerturb;
-        Mtest:=ThePerturb * M * TransposedMat(ThePerturb);
-        TheReply:=INDEF_FindIsotropic_Kernel(Mtest);
-        if TheReply<>fail then
-            OneIso:=TheReply * ThePerturb;
-            eScal:=OneIso * M * OneIso;
-            if eScal<>0 then
-                Error("The eScal should be zero");
-            fi;
-            return OneIso;
-        fi;
-        n_iter:=n_iter+1;
-        Print("Retrying at n_iter=", n_iter, "\n");
-    od;
+    local dim, M_str, m, q, reply, v, eList, eVect;
+    dim:=Length(M);
+    M_str:=MatrixToOscarString(M);
+    m := Oscar.matrix(Oscar.QQ, dim, dim, JuliaEvalString("[2,1,1,0]"));
+    q := Oscar.quadratic_space(Oscar.QQ, m);
+    reply := Oscar.is_isotropic_with_vector(q);
+    v:=reply[2];
+    eList:=JuliaToGAP(IsList, v);
+    eVect:=List(eList, Oscar.GAP.julia_to_gap);
+    return RemoveFraction(eVect);
 end;
 
 
