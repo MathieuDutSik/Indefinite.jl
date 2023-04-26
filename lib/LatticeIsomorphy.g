@@ -248,15 +248,6 @@ ArithmeticAutomorphismMatrixFamily_Souvignier:=function(TheOption, ListMat, SVR)
   CloseStream(output);
   # not completely satisfying here ...
   Exec(FileAUTO32, TheOption, ChainOption, " < ", FileIn, " > ", FileOut, "2>", FileError32);
-#  Exec(FileAUTO64, TheOption, ChainOption, " < ", FileIn, " > ", FileOut, "2>", FileError);
-  if IsEmptyFile(FileError32)=false then
-    Print("Error at 32 bit arithmetic, trying 64 bits...\n");
-    RemoveFile(FileOut);
-    Exec(FileAUTO64, TheOption, ChainOption, " < ", FileIn, " > ", FileOut, "2>", FileError64);
-    if IsEmptyFile(FileError64)=false then
-      Error("Error also at 64 bits in ArithmeticAutomorphismMatrixFamily_Souvignier");
-    fi;
-  fi;
   Exec(FileAUTOMtoGAP, " ", FileOut, " > ", FileGap);
   REP:=ReadAsFunction(FileGap)();
   TheMatrixGRP:=Group(REP.ListMat);
@@ -455,14 +446,6 @@ ArithmeticEquivalenceMatrixFamily_Souvignier:=function(TheOption, ListMat1, SVR1
   CloseStream(output);
   # not completely satisfying here ...
   Exec(FileISOM32, TheOption, ChainOption, " ", FileIn, " > ", FileOut, " 2>", FileError32);
-  if IsEmptyFile(FileError32)=false then
-    Print("Error at 32 bit arithmetic, trying 64 bits...\n");
-    RemoveFile(FileOut);
-    Exec(FileISOM64, TheOption, ChainOption, " ", FileIn, " > ", FileOut, " 2>", FileError64);
-    if IsEmptyFile(FileError64)=false then
-      Error("Error also at 64 bits in ArithmeticEquivalenceMatrixFamily_Souvignier");
-    fi;
-  fi;
   Exec(FileISOMtoGAP, " ", FileOut, " > ", FileGap);
   REP:=ReadAsFunction(FileGap)();
   if REP=false then

@@ -106,9 +106,6 @@ SymmetryGroupVertexColoredGraphAdjList:=function(ListAdjacency, ThePartition)
   if IsExistingFile(FileRead)=false then
       Error("The file FileRead is missing");
   fi;
-  if IsEmptyFile(FileError)=false then
-    Error("Nonempty error file in SymmetryGroupColoredGraph");
-  fi;
   TheGroup:=ReadAsFunction(FileRead)();
 #  Print(NullMat(5));
   RemoveFile(FileNauty);
@@ -133,9 +130,6 @@ SymmetryGroupVertexColoredGraphAdjList_Scalable:=function(eRecGraph)
   CloseStream(output);
   Exec(FileDR2, " < ", FileNauty, " > ", FileDR, " 2>", FileError);
   Exec(FileNautyGroupGAP, " < ", FileDR, " > ", FileRead);
-  if IsEmptyFile(FileError)=false then
-    Error("Nonempty error file in SymmetryGroupColoredGraph");
-  fi;
   TheGroup:=ReadAsFunction(FileRead)();;
 #  Print(NullMat(5));
   RemoveFile(FileNauty);
@@ -166,9 +160,6 @@ EquivalenceVertexColoredGraphAdjList:=function(ListAdjacency1, ListAdjacency2, T
   CloseStream(output);
   Exec(FileDR2, " < ", FileNauty, " > ", FileDR, " 2>", FileError);
   Exec(FileNautyIsoOutputGAP, " ", FileDR, " > ", FileRead);
-  if IsEmptyFile(FileError)=false then
-    Error("Error in EquivalenceVertexColoredGraphAdjList");
-  fi;
   TheReply:=ReadAsFunction(FileRead)();
   RemoveFile(FileNauty);
   RemoveFile(FileDR);
@@ -195,9 +186,6 @@ EquivalenceVertexColoredGraphAdjList_Scalable:=function(eRecGraph1, eRecGraph2)
   CloseStream(output);
   Exec(FileDR2, " < ", FileNauty, " > ", FileDR, " 2>", FileError);
   Exec(FileNautyIsoOutputGAP, " ", FileDR, " > ", FileRead);
-  if IsEmptyFile(FileError)=false then
-    Error("Error in EquivalenceVertexColoredGraphAdjList_Scalable");
-  fi;
   TheReply:=ReadAsFunction(FileRead)();
   RemoveFile(FileNauty);
   RemoveFile(FileDR);

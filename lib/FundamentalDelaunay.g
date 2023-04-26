@@ -1,3 +1,13 @@
+FuncRandomDirection:=function(n, siz)
+  local eList, i;
+  eList:=[0];
+  for i in [1..n]
+  do
+    Add(eList, Random([-siz..siz]));
+  od;
+  return eList;
+end;
+
 FindDelaunayPolytope:=function(GramMat)
   local GramMatInt, n, ListCosetRed, ListCosetDiff, ListRelevantPoints, i, V, DefiningInequality, TheRandomDirection, TheLP, eVect, TheNorm, TheCVP, ListInequalities, eEnt, RetEXT;
   Print("Beginning of FindDelaunayPolytope\n");

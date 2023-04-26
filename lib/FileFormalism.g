@@ -1,6 +1,3 @@
-FileIsEmptyFile:=Filename(DirectoriesPackagePrograms("indefinite"),"IsEmptyFile");
-
-
 RemoveFileIfExist:=function(FileName)
     local eFile;
     if IsString(FileName) then
@@ -43,16 +40,6 @@ IsExistingFilePlusTouch:=function(FileName)
   fi;
   FileTouch:=Concatenation(FileName, "_touch");
   return IsExistingFile(FileTouch);
-end;
-
-
-IsEmptyFile:=function(FileName)
-  local FileRep, TheRep;
-  FileRep:=Filename(POLYHEDRAL_tmpdir, "FileInterpretation");
-  Exec(FileIsEmptyFile, " ", FileName, " > ", FileRep);
-  TheRep:=ReadAsFunction(FileRep)();
-  RemoveFile(FileRep);
-  return TheRep;
 end;
 
 
