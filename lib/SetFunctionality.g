@@ -42,80 +42,13 @@ end;
 
 
 GetDiscriminatingSet:=function(GroupExt, nbCall)
-  local TimeEvaluation, FuncGenerationRandomizedFamily, FuncComputeOdisc, TheOperatingSet, Odisc, FuncConsiderAppending, MaxSize;
+  local FuncComputeOdisc, TheOperatingSet, Odisc, MaxSize;
   TheOperatingSet:=MovedPoints(GroupExt);
   if Length(TheOperatingSet)> 400 then
     MaxSize:=1;
   else
     MaxSize:=2;
   fi;
-  TimeEvaluation:=function(DiscrSet, RandomSubsets)
-    local TheDate1, TheDate2, ListOrbit, FuncInsert, eSet;
-    TheDate1:=GetDate();
-    ListOrbit:=[];
-    FuncInsert:=function(eInc)
-      local TheInv, eOrb;
-      TheInv:=__FuncInvariant_Ksets(DiscrSet, eInc);
-      for eOrb in ListOrbit
-      do
-        if TheInv=eOrb.TheInv then
-          if RepresentativeAction(GroupExt, eInc, eOrb.Inc, OnSets)<>fail then
-            return;
-          fi;
-        fi;
-      od;
-      Add(ListOrbit, rec(TheInv:=TheInv, Inc:=eInc));
-    end;
-    for eSet in RandomSubsets
-    do
-      FuncInsert(eSet);
-    od;
-    TheDate2:=GetDate();
-    return TheDate2-TheDate1;
-  end;
-  FuncGenerationRandomizedFamily:=function(size)
-    local i, a, eSub, ListSub, aSubSize, u, eG, nb1, nb2;
-    a:=Length(TheOperatingSet);
-    if a mod 2=0 then
-      aSubSize:=a/2;
-    else
-      aSubSize:=(a-1)/2;
-    fi;
-    ListSub:=[];
-    if size>50 then
-      nb1:=3;
-      nb2:=50;
-    elif size>10 then
-      nb1:=10;
-      nb2:=size;
-    else
-      nb1:=50;
-      nb2:=3;
-    fi;
-    for i in [1..nb1]
-    do
-      eSub:=RandomSubset(TheOperatingSet, aSubSize);
-      for u in [1..nb2]
-      do
-        eG:=Random(GroupExt);
-        Add(ListSub, OnSets(eSub, eG));
-      od;
-    od;
-    return ListSub;
-  end;
-  FuncConsiderAppending:=function(TheOrbit, Odisc1, Ord)
-    local Odisc2, ListSub, time1, time2;
-    Odisc2:=ShallowCopy(Odisc1);
-    Add(Odisc2, TheOrbit);
-    ListSub:=FuncGenerationRandomizedFamily(Ord);
-    time1:=TimeEvaluation(Odisc1, ListSub);
-    time2:=TimeEvaluation(Odisc2, ListSub);
-    if (time2>time1) then
-      return "no";
-    else
-      return "yes";
-    fi;
-  end;
   FuncComputeOdisc:=function()
     local Odisc, iSize, O, Maxi, iOrb, Posi, UVL, eOrb, test, Ord;
     Ord:=Order(GroupExt);
@@ -135,12 +68,7 @@ GetDiscriminatingSet:=function(GroupExt, nbCall)
         UVL:=O{Difference([1..Length(O)], [Posi])};
         for eOrb in UVL
         do
-          test:=FuncConsiderAppending(eOrb, Odisc, Ord);
-          if test="yes" then
-            Add(Odisc, eOrb);
-          else
-            return Odisc;
-          fi;
+          Add(Odisc, eOrb);
         od;
       fi;
     od;

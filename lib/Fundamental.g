@@ -1,6 +1,3 @@
-FileGetDate:=Filename(DirectoriesPackagePrograms("indefinite"),"GetDate");
-
-
 MatrixToVector:=function(eMat)
     local TheRet, dim, i;
     TheRet:=[];
@@ -161,19 +158,6 @@ IsIntegralMat:=function(eMat)
     od;
   od;
   return true;
-end;
-
-
-GetDate:=function()
-  local FileD1, FileD2, reply;
-  FileD1:=Filename(POLYHEDRAL_tmpdir,"DateFile1");
-  FileD2:=Filename(POLYHEDRAL_tmpdir,"DateFile2");
-  Exec("date +%s > ", FileD1);
-  Exec(FileGetDate, " ", FileD1, " > ", FileD2);
-  reply:=ReadAsFunction(FileD2)();
-  RemoveFile(FileD1);
-  RemoveFile(FileD2);
-  return reply;
 end;
 
 

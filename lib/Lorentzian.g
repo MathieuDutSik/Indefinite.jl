@@ -1264,12 +1264,9 @@ LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
     KillingDelaunay:=RecInput.KillingDelaunay;
   fi;
   WorkingDim:=Length(LorMat);
-  IsBankSave:=function(EllapsedTime, OrdGRP, EXT, TheDepth)
+  IsBankSave:=function(OrdGRP, EXT, TheDepth)
     if TheDepth=0 then
       return false;
-    fi;
-    if EllapsedTime>=600 then
-      return true;
     fi;
     if Length(EXT)<=WorkingDim+5 then
       return false;

@@ -200,7 +200,7 @@ end;
 # the end result is that one can recover an interrupted computation
 # with no error.
 __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, BankFormalism)
-  local RECListOrbit, IsFinished, eOrb, eInc, Ladj, SelectedOrbit, jOrb, MiniINCD, RPL, RPLift, testBank, OrdGRP, TheDim, WorkingSymGroup, LRES, NewData, RedStab, TheDate1, TheDate2, EllapsedTime, NewPathSave, TestNeedMoreSymmetry, ReturnedList, eSetUndone, nbUndone, testSym, fInc;
+  local RECListOrbit, IsFinished, eOrb, eInc, Ladj, SelectedOrbit, jOrb, MiniINCD, RPL, RPLift, testBank, OrdGRP, TheDim, WorkingSymGroup, LRES, NewData, RedStab, TheDate1, TheDate2, NewPathSave, TestNeedMoreSymmetry, ReturnedList, eSetUndone, nbUndone, testSym, fInc;
   if IsCorrectPath(Data.ThePathSave)=false then
     Print("Variable Data.ThePathSave=", Data.ThePathSave, " is incorrect\n");
     Error("It should finish with a /");
@@ -219,7 +219,6 @@ __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, Ba
   if testBank<>false then
     return Data.GroupFormalism.LiftingOrbits(EXT, testBank.ListOrbitFacet, GivenSymmetry, testBank.GRP);
   fi;
-  TheDate1:=GetDate();
   # we would like to use IsBankSave but it is not possible with EllaspedTime
   TestNeedMoreSymmetry:=function(EXT)
     if Length(EXT)> RankMat(EXT)+4 then
@@ -241,12 +240,7 @@ __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, Ba
   OrdGRP:=Data.GroupFormalism.Order(WorkingSymGroup);
   if Data.IsRespawn(OrdGRP, EXT, Data.TheDepth)=false then
     ReturnedList:=Data.DualDescriptionFunction(EXT, Data.GroupFormalism.ToPermGroup(EXT, GivenSymmetry), Data.ThePath);
-    TheDate2:=GetDate();
-    EllapsedTime:=TheDate2-TheDate1;
-    if EllapsedTime > 10 then
-      Print("EllapsedTime=", EllapsedTime, "\n");
-    fi;
-    if Data.IsBankSave(EllapsedTime, OrdGRP, EXT, Data.TheDepth)=true then
+    if Data.IsBankSave(OrdGRP, EXT, Data.TheDepth)=true then
       Print("Before FuncCreateAccount\n");
       BankFormalism.FuncCreateAccount(EXT, GivenSymmetry, ReturnedList);
       Print("After FuncCreateAccount\n");
@@ -301,12 +295,7 @@ __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, Ba
     LRES:=RPL.FuncListOrbitIncidence();
     ReturnedList:=Data.GroupFormalism.LiftingOrbits(EXT, LRES, GivenSymmetry, WorkingSymGroup);
     Print("LRES=", Length(LRES), " |ReturnedList|=", Length(ReturnedList), " |GivenSymmetry|=", Order(GivenSymmetry), " |WorkingSymGroup|=", Order(WorkingSymGroup), "\n");
-    TheDate2:=GetDate();
-    EllapsedTime:=TheDate2-TheDate1;
-    if EllapsedTime > 10 then
-      Print("EllapsedTime=", EllapsedTime, "\n");
-    fi;
-    if Data.IsBankSave(EllapsedTime, OrdGRP, EXT, Data.TheDepth)=true then
+    if Data.IsBankSave(OrdGRP, EXT, Data.TheDepth)=true then
       Print("Before FuncCreateAccount\n");
       BankFormalism.FuncCreateAccount(EXT, WorkingSymGroup, LRES);
       Print("After FuncCreateAccount\n");
