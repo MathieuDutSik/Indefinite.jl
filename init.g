@@ -1,5 +1,6 @@
 # DeclareAutoPackage("indefinite", "1.0", true);
 # DeclarePackageAutoDocumentation("indefinite", "doc");
+ReadPkg("indefinite", "lib/InputOutput.g");
 ReadPkg("indefinite", "lib/Fractions.g");
 ReadPkg("indefinite", "lib/FileFormalism.g");
 ReadPkg("indefinite", "lib/Fundamental.g");

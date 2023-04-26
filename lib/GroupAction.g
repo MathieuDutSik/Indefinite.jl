@@ -489,7 +489,6 @@ LinearSpace_Stabilizer:=function(GRPmatr, TheSpace_pre)
     local result, TheAnswer;
     result:=LinearSpace_Stabilizer_Kernel(GRPmatr, TheSpace_pre);
     TheAnswer:=rec(GRPmatr:=GRPmatr, TheSpace_pre:=TheSpace_pre, result:=result);
-#    SaveDebugInfo("LinearSpace_Stabilizer", TheAnswer);
     return result;
 end;
 
@@ -701,10 +700,8 @@ end;
 
 LinearSpace_Equivalence:=function(GRPmatr, TheSpace1_pre, TheSpace2_pre)
     local result, TheAnswer;
-#    SaveDebugInfo("LinearSpace_Equivalence_Query", rec(GRPmatr:=GRPmatr, TheSpace1_pre:=TheSpace1_pre, TheSpace2_pre:=TheSpace2_pre));
     result:=LinearSpace_Equivalence_Kernel(GRPmatr, TheSpace1_pre, TheSpace2_pre);
     TheAnswer:=rec(GRPmatr:=GRPmatr, TheSpace1_pre:=TheSpace1_pre, TheSpace2_pre:=TheSpace2_pre, result:=result);
-#    SaveDebugInfo("LinearSpace_Equivalence_Result", TheAnswer);
     return result;
 end;
 

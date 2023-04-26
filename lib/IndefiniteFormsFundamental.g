@@ -1,39 +1,10 @@
-FileIndefiniteReduction:=Filename(DirectoriesPackagePrograms("indefinite"),"IndefiniteReduction");
-
-
 IndefiniteReduction:=function(M)
-    local FileI, FileO, FileE, n, output, i, j, eVal, eCommand, TheReply;
-    FileI:=Filename(POLYHEDRAL_tmpdir,"Indefinite.input");
-    FileO:=Filename(POLYHEDRAL_tmpdir,"Indefinite.output");
-    FileE:=Filename(POLYHEDRAL_tmpdir,"Indefinite.error");
-#    Print("FileI=", FileI, "\n");
-#    Print("FileO=", FileO, "\n");
-#    Print("FileE=", FileE, "\n");
-    RemoveFileIfExist(FileI);
-    RemoveFileIfExist(FileO);
-    RemoveFileIfExist(FileE);
-    n:=Length(M);
-    output:=OutputTextFile(FileI, true);
-    AppendTo(output, n, " ", n, "\n");
-    for i in [1..n]
-    do
-        for j in [1..n]
-        do
-            eVal:=M[i][j];
-            AppendTo(output, " ", eVal);
-        od;
-        AppendTo(output, "\n");
-    od;
-    CloseStream(output);
-    #
-    eCommand:=Concatenation(FileIndefiniteReduction, " ", FileI, " ", FileO, " 2> ", FileE);
-#    Print("eCommand=", eCommand, "\n");
-    Exec(eCommand);
-    TheReply:=ReadAsFunction(FileO)();
-    RemoveFileIfExist(FileI);
-    RemoveFileIfExist(FileO);
-    RemoveFileIfExist(FileE);
-    return TheReply;
+    local M_oscar, TheResult_oscar, Mred, B;
+    M_oscar:=MatrixToOscar(M);
+    TheResult_oscar:=Oscar.IndefiniteReduction(M_oscar);
+    Mred:=ReadOscarMatrix(TheResult_oscar[1]);
+    B:=ReadOscarMatrix(TheResult_oscar[2]);
+    return rec(Mred:=Mred, B:=B);
 end;
 
 
@@ -77,37 +48,15 @@ INDEF_GetIndefinitesubset:=function(M)
 end;
 
 
-MatrixToOscarString:=function(M)
-    local TheStr, IsFirst, eLine, eVal;
-    TheStr:="[";
-    IsFirst:=true;
-    for eLine in M
-    do
-        for eVal in eLine
-        do
-            if IsFirst=false then
-                TheStr:=Concatenation(TheStr, ",");
-            fi;
-            IsFirst:=false;
-            TheStr:=Concatenation(TheStr, String(eVal));
-        od;
-    od;
-    TheStr:=Concatenation(TheStr, "]");
-    return TheStr;
-end;
-
-
-
 INDEF_FindIsotropic:=function(M)
     local dim, M_str, m, q, reply, v, eList, eVect;
     dim:=Length(M);
     M_str:=MatrixToOscarString(M);
-    m := Oscar.matrix(Oscar.QQ, dim, dim, JuliaEvalString("[2,1,1,0]"));
+    m := Oscar.matrix(Oscar.QQ, dim, dim, JuliaEvalString(M_str));
     q := Oscar.quadratic_space(Oscar.QQ, m);
     reply := Oscar.is_isotropic_with_vector(q);
     v:=reply[2];
-    eList:=JuliaToGAP(IsList, v);
-    eVect:=List(eList, Oscar.GAP.julia_to_gap);
+    eVect:=OscarVectorToVector(v);
     return RemoveFraction(eVect);
 end;
 

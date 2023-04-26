@@ -1,46 +1,24 @@
-FileSamplingFacet:=Filename(DirectoriesPackagePrograms("indefinite"),"POLY_sampling_facets");
-FileCddLp2:=Filename(DirectoriesPackagePrograms("indefinite"),"POLY_cdd_lp2");
-
-
 #
 # this thing is the end of a long design road.
 # realizing that linear programming is quite complex.
 # Basically, everything is outputed, everything is read
 # and you have to make interpretations yourself.
 LinearProgramming:=function(InequalitySet, ToBeMinimized)
-  local FileIne, FileLps, FileErr, FileGap, FileDdl, FileLog, outputCdd, input, eLine, TheLP, TheDim, eVect, eSum, eEnt, nbIneq, TheCommand1, TheCommand2;
-  FileIne:=Filename(POLYHEDRAL_tmpdir, "LP.listine");
-  FileMin:=Filename(POLYHEDRAL_tmpdir, "LP.tominimize");
-  FileRes:=Filename(POLYHEDRAL_tmpdir, "LP.result");
-  RemoveFileIfExist(FileIne);
-  RemoveFileIfExist(FileMin);
-  RemoveFileIfExist(FileRes);
-  WriteMatrixFile(FileIne, InequalitySet);
-  WriteVectorFile(FileMin, ToBeMinimized);
-  #
-  TheCommand1:=Concatenation(FileCddLp2, " ", FileIne, " ", FileMin, " > ", FileRes);
-  Exec(TheCommand1);
-  #
-  TheLP:=ReadAsFunction(FileRes)();
-  RemoveFileIfExist(FileIne);
-  RemoveFileIfExist(FileMin);
-  RemoveFileIfExist(FileRes);
-  return TheLP;
+    InequalitySet_oscar:=MatrixToOscar(InequalitySet);
+    ToBeMinimized_oscar:=VectorToOscar(ToBeMinimized);
+    #
+    TheResult:=Oscar.LinearProgramming(InequalitySet_oscar, ToBeMinimized_oscar);
+    answer:=TheResult[1];
+    DirectSolution:=OscarVectorToVector(TheResult[2]);
+    DualSolution:=OscarVectorToVector(TheResult[3]);
+    return rec(DirectSolution:=DirectSolution, DualSolution:=DualSolution);
 end;
 
 
 GetInitialRaysGeneral:=function(FAC, command)
-    local FileExt, FileOut;
-    FileExt:=Concatenation(ThePath, "Sampling.ext");
-    FileOut:=Concatenation(ThePath, "Sampling.out");
-    Exec(FileDualDescriptionGroup, " rational ", command, " ", FileExt, " ", FileOut);
-    ListInc:=ReadAsFunction(FileOutput)();
-    if Length(ListInc)=0 then
-        Error("Error in GetInitialRaysGeneral");
-    fi;
-    RemoveFile(FileExt);
-    RemoveFile(FileOut);
-    return ListIncd;
+    FAC_oscar:=MatrixToOscar(FAC);
+    TheResult:=Oscar.POLY_samplingFacets(FAC_oscar, command);
+    return ReadOscarListIncd(TheResult);
 end;
 
 GetInitialRays_LinProg:=function(EXT, nb)

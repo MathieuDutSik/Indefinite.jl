@@ -646,7 +646,6 @@ end;
 
 INDEF_FORM_GetApproximateModel:=function(Qmat)
     local n, FullBasis, QmatRed, Block11, Block12, Block22, TwoPlanes, QmatExt, RecApprox, eEmbed, ListCoset, RecStab_RightCoset, TheRec, ListGenerators, eGen, fGen, NewGen, GetCoveringOrbitRepresentatives, GetOneOrbitRepresentative, Hmat, QmatEichler, TheEmbed, GRPeasy, TheRecEmbed, eProdEmbed;
-#    SaveDebugInfo("INDEF_FORM_GetApproximateModel", rec(Qmat:=Qmat));
     if LORENTZ_IsLorentzian(Qmat) then
         return LORENTZ_ApproximateModel(Qmat);
     fi;
@@ -1253,7 +1252,6 @@ INDEF_FORM_Machinery_AllFct:=function()
             return INDEF_FORM_TestEquivalence_PosNeg(Qmat1, Qmat2);
         fi;
         if Block1.h = 1 then
-#            SaveDebugInfo("LORENTZ_TestIsomorphism", rec(mat1:=Block1.mat, mat2:=Block2.mat));
             test:=LORENTZ_TestIsomorphismLorentzianMatrices(Block1.mat, Block2.mat);
             if test=false then
                 return fail;
@@ -1347,7 +1345,6 @@ INDEF_FORM_Machinery_AllFct:=function()
             return INDEF_FORM_AutomorphismGroup_PosNeg(Qmat);
         fi;
         if eBlock.h = 1 then
-#            SaveDebugInfo("LORENTZ_OrthogonalGroup", eBlock.mat);
             return LORENTZ_OrthogonalGroup(eBlock.mat);
         fi;
         ListGenerators:=[];
@@ -1659,7 +1656,6 @@ INDEF_FORM_Machinery_AllFct:=function()
                 for eRecReprKplane in ListRecReprKplane
                 do
                     if eRecReprKplane.eInv=fRecReprKplane.eInv then
-#                        SaveDebugInfo("INDEF_FORM_Equivalence_IsotropicKplane", rec(Qmat:=Qmat, eRecReprKplane:=eRecReprKplane, fRecReprKplane:=fRecReprKplane));
                         test:=RecF.f_equiv(Qmat, Qmat, eRecReprKplane.ePlane, fRecReprKplane.ePlane);
                         if test<>fail then
                             return;

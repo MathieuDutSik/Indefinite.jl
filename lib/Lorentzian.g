@@ -889,7 +889,6 @@ end;
 #
 LORENTZ_Kernel_Flipping:=function(LorMat, CritSet, eNSPbas, eNSPdir, TheOption)
   local n, EXT, NSP, eVert, eEXT, eNSP, NSPb, eNSPb, eNSPtest, eVectTest, MaxScal, ListTotal, EXTtest, ListIsoTest, NSPtest, eVectB, eNormTest, eVect, OnlyShortest, eDen, aShift, TheLowerBound, TheUpperBound, uVal, vVal, TheMidVal, n_iter, eVectBas, eVectDir, eNormBas, eNormDir, eVectBasDir, eNormBasDir, GetMidVal;
-#  SaveDebugInfo("LORENTZ_Kernel_Flipping", rec(LorMat:=LorMat, CritSet:=CritSet, eNSPbas:=eNSPbas, eNSPdir:=eNSPdir, TheOption:=TheOption));
   Print("Beginning of LORENTZ_Kernel_Flipping\n");
   Print("LorMat=\n");
   PrintArray(LorMat);
@@ -988,7 +987,6 @@ LORENTZ_Kernel_Flipping:=function(LorMat, CritSet, eNSPbas, eNSPdir, TheOption)
     Print(" aShift=", aShift, "\n");
     eVectTest:=RemoveFraction(eNSPtest{[2..n+1]}*Inverse(LorMat));
     MaxScal:=CritSet[1]*LorMat*eVectTest;
-#    SaveDebugInfo("LORENTZ_FindPositiveVectors", rec(LorMat:=LorMat, eVectTest:=eVectTest, MaxScal:=MaxScal, TheOption:=TheOption, OnlyShortest:=OnlyShortest));
     ListTotal:=LORENTZ_FindPositiveVectors(LorMat, eVectTest, MaxScal, TheOption, OnlyShortest);
     if IsSubset(Set(ListTotal), Set(ListIsoTest)) then
       Print("EXIT 2 |ListTotal|=", Length(ListTotal), " NSPtest=", eNSPtest, " MaxScal=", MaxScal, "\n");

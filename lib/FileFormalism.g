@@ -178,18 +178,3 @@ IsExistingFileRecoverablePrevState:=function(FileName)
   fi;
   return false;
 end;
-
-
-SaveDebugInfo:=function(ePrefix, TheData)
-    local n_index, FileSave;
-    n_index:=0;
-    while(true)
-    do
-        FileSave:=Concatenation(ePrefix, String(n_index));
-	if IsExistingFile(FileSave)=false then
-            SaveDataToFile(FileSave, TheData);
-            return;
-        fi;
-        n_index:=n_index+1;
-    od;
-end;
