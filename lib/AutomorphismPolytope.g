@@ -3,6 +3,28 @@ FileGRP_TestEquivalence_ListMat_Subset_EXT:=Filename(DirectoriesPackagePrograms(
 FileGRP_Invariant_ListMat_Subset_EXT:=Filename(DirectoriesPackagePrograms("indefinite"),"GRP_ListMat_Subset_EXT_Invariant");
 
 
+ShortVectorDutourVersion:=function(GramMat, eNorm)
+  local H, eNormRed, GramMatRed, SHV, ListVector, iV, eV;
+  H:=RemoveFractionMatrixPlusCoef(GramMat);
+  eNormRed:=LowerInteger(eNorm*H.TheMult);
+  GramMatRed:=H.TheMat;
+  if IsPositiveDefiniteSymmetricMatrix(GramMatRed)=false then
+    Error("Matrix should be positive definite");
+  fi;
+  SHV:=ShortestVectors(GramMatRed, eNormRed);
+  ListVector:=[];
+  for iV in [1..Length(SHV.vectors)]
+  do
+    if SHV.norms[iV] <= eNormRed then
+      eV:=SHV.vectors[iV];
+      Add(ListVector, eV);
+      Add(ListVector, -eV);
+    fi;
+  od;
+  return ListVector;
+end;
+
+
 __VectorConfigurationFullDim_ScalarMat_AddMat:=function(EXT, ListAddMat)
   local n, Qmat, eEXT, Qinv, ScalarMat, fEXT, eLine, ListMat, LVal;
   n:=Length(EXT[1]);
@@ -192,8 +214,6 @@ end;
 LinPolytope_Automorphism_Scalable:=function(EXT, GramMat)
   local eRecScalColor;
   eRecScalColor:=Get_RecScalColor(EXT, GramMat);
-#  Print("We have eRecScalColor\n");
-#  Print("|EXT|=", Length(EXT), "\n");
   return AutomorphismGroupColoredGraph_Scalable(eRecScalColor);
 end;
 
@@ -380,92 +400,63 @@ end;
 
 
 GetScalarMatrixInvariant_PolytopeStabSubset_AddMat:=function(EXT, EXTsub, ListAddMat)
-    local UseMethod, ListMat, FileI, FileO, output, eInv;
-    UseMethod:="CPP";
-    Print("LinPolytope_AutomorphismStabSubset_AddMat, UseMethod=", UseMethod, "\n");
-    if UseMethod="GAP" then
-        return GetScalarMatrixInvariant_PolytopeStabSubset_AddMat_GAP(EXT, EXTsub, ListAddMat);
-    fi;
-    if UseMethod="CPP" then
-        ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
-        FileI:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.in");
-        FileO:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.out");
-        output:=OutputTextFile(FileI, true);
-        WriteData_ListMat_Subset(output, EXT, EXTsub, ListMat);
-        CloseStream(output);
-        #
-        Exec(FileGRP_Invariant_ListMat_Subset_EXT, " ", FileI, " ", FileO);
-        eInv:=ReadAsFunction(FileO)();
-        RemoveFile(FileI);
-        RemoveFile(FileO);
-        return eInv;
-    fi;
+    local ListMat, FileI, FileO, output, eInv;
+    ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
+    FileI:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.in");
+    FileO:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.out");
+    output:=OutputTextFile(FileI, true);
+    WriteData_ListMat_Subset(output, EXT, EXTsub, ListMat);
+    CloseStream(output);
+    #
+    Exec(FileGRP_Invariant_ListMat_Subset_EXT, " ", FileI, " ", FileO);
+    eInv:=ReadAsFunction(FileO)();
+    RemoveFile(FileI);
+    RemoveFile(FileO);
+    return eInv;
 end;
 
 
 LinPolytope_AutomorphismStabSubset_AddMat:=function(EXT, EXTsub, ListAddMat)
-    local RecTool, UseMethod, output, ListMat, GRP, FileI, FileO;
-    UseMethod:="CPP";
-    Print("LinPolytope_AutomorphismStabSubset_AddMat, UseMethod=", UseMethod, "\n");
-    if UseMethod="GAP" then
-        RecTool:=Get_RecScalColor_Subset_AddMat(EXT, EXTsub, ListAddMat);
-        return AutomorphismGroupColoredGraph_Scalable(RecTool);
-    fi;
-    if UseMethod="CPP" then
-        ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
-        FileI:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.in");
-        FileO:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.out");
-        output:=OutputTextFile(FileI, true);
-        WriteData_ListMat_Subset(output, EXT, EXTsub, ListMat);
-        CloseStream(output);
-        #
-        Exec(FileGRP_ComputeAut_ListMat_Subset_EXT, " ", FileI, " ", FileO);
-        GRP:=ReadAsFunction(FileO)();
-        RemoveFile(FileI);
-        RemoveFile(FileO);
-        return GRP;
-    fi;
+    local output, ListMat, GRP, FileI, FileO;
+    ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
+    FileI:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.in");
+    FileO:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.out");
+    output:=OutputTextFile(FileI, true);
+    WriteData_ListMat_Subset(output, EXT, EXTsub, ListMat);
+    CloseStream(output);
+    #
+    Exec(FileGRP_ComputeAut_ListMat_Subset_EXT, " ", FileI, " ", FileO);
+    GRP:=ReadAsFunction(FileO)();
+    RemoveFile(FileI);
+    RemoveFile(FileO);
+    return GRP;
 end;
 
 
 LinPolytope_IsomorphismStabSubset_AddMat:=function(EXT1, EXTsub1, EXT2, EXTsub2, ListAddMat1, ListAddMat2)
     local RedoneScalarMat1, RedoneScalarMat2, eEquiv, FileI, FileO, ListMat1, ListMat2, output, TheOut, UseMethod;
-    UseMethod:="CPP";
-    Print("LinPolytope_IsomorphismStabSubset_AddMat, UseMethod=", UseMethod, "\n");
-    if UseMethod="GAP" then
-        RedoneScalarMat1:=GetScalarMatrix_PolytopeStabSubset_AddMat(EXT1, EXTsub1, ListAddMat1);
-        RedoneScalarMat2:=GetScalarMatrix_PolytopeStabSubset_AddMat(EXT2, EXTsub2, ListAddMat2);
-        eEquiv:=IsIsomorphicColoredGraph(RedoneScalarMat1, RedoneScalarMat2);
-        if eEquiv=false then
-            return false;
-        fi;
-        return PermList(eEquiv);
-    fi;
-    if UseMethod="CPP" then
-        FileI:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_isom.in");
-        FileO:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_isom.out");
-        ListMat1:=Concatenation([Get_QinvMatrix(EXT1)], ListAddMat1);
-        ListMat2:=Concatenation([Get_QinvMatrix(EXT2)], ListAddMat2);
-        output:=OutputTextFile(FileI, true);
-        WriteData_ListMat_Subset(output, EXT1, EXTsub1, ListMat1);
-        WriteData_ListMat_Subset(output, EXT2, EXTsub2, ListMat2);
-        CloseStream(output);
-        Exec(FileGRP_TestEquivalence_ListMat_Subset_EXT, " ", FileI, " ", FileO);
-        TheOut:=ReadAsFunction(FileO)();
-        RemoveFile(FileI);
-        RemoveFile(FileO);
-        if TheOut=false then
-            return false;
-        else
-            return PermList(TheOut);
-        fi;
+    FileI:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_isom.in");
+    FileO:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_isom.out");
+    ListMat1:=Concatenation([Get_QinvMatrix(EXT1)], ListAddMat1);
+    ListMat2:=Concatenation([Get_QinvMatrix(EXT2)], ListAddMat2);
+    output:=OutputTextFile(FileI, true);
+    WriteData_ListMat_Subset(output, EXT1, EXTsub1, ListMat1);
+    WriteData_ListMat_Subset(output, EXT2, EXTsub2, ListMat2);
+    CloseStream(output);
+    Exec(FileGRP_TestEquivalence_ListMat_Subset_EXT, " ", FileI, " ", FileO);
+    TheOut:=ReadAsFunction(FileO)();
+    RemoveFile(FileI);
+    RemoveFile(FileO);
+    if TheOut=false then
+        return false;
+    else
+        return PermList(TheOut);
     fi;
 end;
 
 
 LinPolytope_Isomorphism_Simple:=function(EXT1, GramMat1, EXT2, GramMat2)
   local eEquiv, ScalarMat1, ScalarMat2;
-#  Print("LinPolytope_Isomorphism |EXT1|=", Length(EXT1), " |EXT2|=", Length(EXT2), "\n");
   ScalarMat1:=EXT1*GramMat1*TransposedMat(EXT1);
   ScalarMat2:=EXT2*GramMat2*TransposedMat(EXT2);
   eEquiv:=IsIsomorphicColoredGraph(ScalarMat1, ScalarMat2);
