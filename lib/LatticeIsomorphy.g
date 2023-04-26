@@ -132,7 +132,6 @@ __ExtractInvariantZBasisShortVectorNoGroup_V1:=function(GramMat)
 end;
 
 
-#__ExtractInvariantZBasisShortVectorNoGroup:=__ExtractInvariantZBasisShortVectorNoGroup_UsingCVP;
 __ExtractInvariantZBasisShortVectorNoGroup:=__ExtractInvariantZBasisShortVectorNoGroup_V1;
 
 
@@ -589,5 +588,4 @@ ArithmeticIsomorphism:=function(ListGramMat1, ListGramMat2)
     return false;
   fi;
   return ArithmeticIsomorphism_Isom(ListGramMat1, ListGramMat2);
-#  return ArithmeticIsomorphism_Nauty(ListGramMat1, ListGramMat2);
 end;

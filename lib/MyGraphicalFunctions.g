@@ -107,7 +107,6 @@ SymmetryGroupVertexColoredGraphAdjList:=function(ListAdjacency, ThePartition)
       Error("The file FileRead is missing");
   fi;
   TheGroup:=ReadAsFunction(FileRead)();
-#  Print(NullMat(5));
   RemoveFile(FileNauty);
   RemoveFile(FileDR);
   RemoveFile(FileRead);
@@ -131,7 +130,6 @@ SymmetryGroupVertexColoredGraphAdjList_Scalable:=function(eRecGraph)
   Exec(FileDR2, " < ", FileNauty, " > ", FileDR, " 2>", FileError);
   Exec(FileNautyGroupGAP, " < ", FileDR, " > ", FileRead);
   TheGroup:=ReadAsFunction(FileRead)();;
-#  Print(NullMat(5));
   RemoveFile(FileNauty);
   RemoveFile(FileDR);
   RemoveFile(FileRead);
