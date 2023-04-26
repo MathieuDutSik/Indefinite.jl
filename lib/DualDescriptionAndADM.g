@@ -110,7 +110,7 @@ BankRecording:=function(DataBank, FuncStabilizer, FuncIsomorphy, FuncInvariant, 
             return rec(GRP:=TheGrp, ListOrbitFacet:=TransListObject);
           else
             NewGrp:=GroupFormalism.GroupUnion(TheGrp, GivenSymmetry);
-            RPL:=GroupFormalism.OrbitGroupFormalism(EXT, NewGrp, "/irrelevant/", false);
+            RPL:=GroupFormalism.OrbitGroupFormalism(EXT, NewGrp);
             for eInc in TransListObject
             do
               RPL.FuncInsert(eInc);
@@ -248,7 +248,7 @@ __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, Ba
   else
     TheDim:=RankMat(EXT)-1;
     Print("RESPAWN a new ADM computation |GRP|=", OrdGRP, " TheDim=", TheDim, " |EXT|=", Length(EXT), "\n");
-    RPL:=Data.GroupFormalism.OrbitGroupFormalism(EXT, WorkingSymGroup, Data.ThePathSave, Data.Saving);
+    RPL:=Data.GroupFormalism.OrbitGroupFormalism(EXT, WorkingSymGroup);
     Print("nbOrbit=", RPL.FuncNumberOrbit(), "\n");
     if RPL.FuncNumberOrbit()=0 then
       for eInc in Data.GetInitialRays(EXT, 10)

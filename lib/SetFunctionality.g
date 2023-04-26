@@ -207,57 +207,14 @@ POLY_GetFunctionSet_MatrixInvariant:=function(EXT, TheGroup, TheLimit)
 end;
 
 
-OrbitGroupFormalism:=function(EXT, TheGroup, Prefix, SavingTrigger, TheFormalism)
-  local TotalNumber, nbUndone, nbOrbit, nbOrbitDone, ListOrbit, FuncGetMinimalUndoneOrbit, FuncInsert, FuncPutOrbitAsDone, FuncListOrbitIncidence, FuncRecord, FuncDirectAppend, FuncNumber, FuncNumberUndone, FuncNumberOrbit, FuncNumberOrbitDone, FileDatabaseCoherent, NbCall, FileNbCall, FileDisc, LoadListOrbit, InvariantUpdate, Odisc, FuncClearFiles, ComputeIntersectionUndone, RbalinskiRank, ComputeRankUndone;
-  if IsCorrectPath(Prefix)=false then
-    Error("Variable Prefix=", Prefix, " should terminate with /");
-  fi;
-  if IsDirectoryPath(Prefix)=false and SavingTrigger then
-    Error("Directory Prefix=", Prefix, " is nonexistent\n");
-  fi;
-  FileDatabaseCoherent:=Concatenation(Prefix, "Coherent");
-  FileNbCall:=Concatenation(Prefix, "NbCall");
-  FileDisc:=Concatenation(Prefix, "Discriminant");
+OrbitGroupFormalism:=function(EXT, TheGroup, TheFormalism)
+  local TotalNumber, nbUndone, nbOrbit, nbOrbitDone, ListOrbit, FuncGetMinimalUndoneOrbit, FuncInsert, FuncPutOrbitAsDone, FuncListOrbitIncidence, FuncRecord, FuncDirectAppend, FuncNumber, FuncNumberUndone, FuncNumberOrbit, FuncNumberOrbitDone, NbCall, InvariantUpdate, Odisc, ComputeIntersectionUndone, RbalinskiRank, ComputeRankUndone;
   TotalNumber:=0;
   nbUndone:=0;
   nbOrbit:=0;
   nbOrbitDone:=0;
   ListOrbit:=[];
   NbCall:=0;
-  #
-  #
-  # For a polytope P the set of vertices not contained in a face F
-  # is connected.
-  # Furthermore any vertex in F is adjacent to at least one vertex not
-  # in F.
-  # This gives a criterion analog to Balinski theorem that we need
-  # to program here.
-  FuncClearFiles:=function()
-    local FileName, File1, File2, File1touch, File2touch, iOrb;
-    RemoveFile(FileDatabaseCoherent);
-    RemoveFileIfExistPlusTouch(Concatenation(FileDisc, "_1"));
-    RemoveFileIfExistPlusTouch(Concatenation(FileDisc, "_2"));
-    RemoveFileIfExistPlusTouch(Concatenation(FileNbCall, "_1"));
-    RemoveFileIfExistPlusTouch(Concatenation(FileNbCall, "_2"));
-    iOrb:=1;
-    while(true)
-    do
-      FileName:=Concatenation(Prefix, "Orbit", String(iOrb));
-      File1:=Concatenation(FileName, "_1");
-      File2:=Concatenation(FileName, "_2");
-      File1touch:=Concatenation(File1, "_touch");
-      File2touch:=Concatenation(File2, "_touch");
-      if IsExistingFile(File1) or IsExistingFile(File2) or IsExistingFile(File1touch) or IsExistingFile(File2touch) then
-        RemoveFileIfExist(File1);
-        RemoveFileIfExist(File2);
-        RemoveFileIfExist(File1touch);
-        RemoveFileIfExist(File2touch);
-      else
-        break;
-      fi;
-      iOrb:=iOrb+1;
-    od;
-  end;
   FuncDirectAppend:=function(WList)
     local eOrb;
     Append(ListOrbit, WList);
@@ -272,68 +229,17 @@ OrbitGroupFormalism:=function(EXT, TheGroup, Prefix, SavingTrigger, TheFormalism
       nbOrbit:=nbOrbit+1;
     od;
   end;
-  LoadListOrbit:=function()
-    local iOrb, WList, FileOrbit, LDR;
-    iOrb:=1;
-    WList:=[];
-    while(true)
-    do
-      FileOrbit:=Concatenation(Prefix, "Orbit", String(iOrb));
-      if IsExistingFileRecoverablePrevState(FileOrbit) then
-        LDR:=ReadAsFunctionRecoverablePrevState(FileOrbit);
-        Add(WList, LDR);
-        iOrb:=iOrb+1;
-      else
-        break;
-      fi;
-    od;
-    FuncDirectAppend(WList);
-  end;
-  if SavingTrigger then
-    if IsExistingFile(FileDatabaseCoherent)=false then
-      Print("The database is not coherent, clear it\n");
-      FuncClearFiles();
-      Odisc:=TheFormalism.FuncGetInitialDisc();
-      SaveDataToFileRecoverablePrevState(FileDisc, Odisc);
-      SaveDataToFileRecoverablePrevState(FileNbCall, NbCall);
-      SaveDataToFile(FileDatabaseCoherent, 0);
-    else
-      Print("The database is coherent, load it\n");
-      Odisc:=ReadAsFunctionRecoverablePrevState(FileDisc);
-      LoadListOrbit();
-      NbCall:=ReadAsFunctionRecoverablePrevState(FileNbCall);
-    fi;
-  else
-    Odisc:=TheFormalism.FuncGetInitialDisc();
-  fi;
+  Odisc:=TheFormalism.FuncGetInitialDisc();
   InvariantUpdate:=function()
-    local iOrb, FileOrbit;
-    if SavingTrigger then
-      Print("Beginning invariant update, please keep program running\n");
-      RemoveFile(FileDatabaseCoherent);
-    fi;
-    if SavingTrigger then
-      SaveDataToFileRecoverablePrevState(FileDisc, Odisc);
-    fi;
+    local iOrb;
     for iOrb in [1..Length(ListOrbit)]
     do
       ListOrbit[iOrb].TheInv:=TheFormalism.FuncInvariant(Odisc, ListOrbit[iOrb].Inc);
-      if SavingTrigger then
-        FileOrbit:=Concatenation(Prefix, "Orbit", String(iOrb));
-        SaveDataToFileRecoverablePrevState(FileOrbit, ListOrbit[iOrb]);
-      fi;
     od;
-    if SavingTrigger then
-      SaveDataToFile(FileDatabaseCoherent, 0);
-      Print("Invariant update finished\n");
-    fi;
   end;
   FuncInsert:=function(Linc)
-    local eOrb, TheInv, iExt, FileOrbit, TheRecord, OrdStab, OrbSize, OdiscNew;
+    local eOrb, TheInv, iExt, TheRecord, OrdStab, OrbSize, OdiscNew;
     NbCall:=NbCall+1;
-    if NbCall mod 20=0 then
-      SaveDataToFileRecoverablePrevStatePlusTest(FileNbCall, NbCall, SavingTrigger);
-    fi;
     OdiscNew:=TheFormalism.FuncInvariantUpdate(Odisc, NbCall);
     if OdiscNew<>Odisc then
       Odisc:=OdiscNew;
@@ -348,7 +254,6 @@ OrbitGroupFormalism:=function(EXT, TheGroup, Prefix, SavingTrigger, TheFormalism
         fi;
       fi;
     od;
-    FileOrbit:=Concatenation(Prefix, "Orbit", String(Length(ListOrbit)+1));
     OrdStab:=TheFormalism.OrderLincStabilizer(Linc);
     OrbSize:=TheFormalism.GroupOrder/OrdStab;
     TheRecord:=rec(Inc:=Linc, TheInv:=TheInv, Status:="NO", OrbSize:=OrbSize);
@@ -356,13 +261,9 @@ OrbitGroupFormalism:=function(EXT, TheGroup, Prefix, SavingTrigger, TheFormalism
     nbUndone:=nbUndone+OrbSize;
     nbOrbit:=nbOrbit+1;
     Add(ListOrbit, TheRecord);
-    SaveDataToFileRecoverablePrevStatePlusTest(FileOrbit, TheRecord, SavingTrigger);
   end;
   FuncPutOrbitAsDone:=function(iOrb)
-    local FileOrbit;
     ListOrbit[iOrb].Status:="YES";
-    FileOrbit:=Concatenation(Prefix, "Orbit", String(iOrb));
-    SaveDataToFileRecoverablePrevStatePlusTest(FileOrbit, ListOrbit[iOrb], SavingTrigger);
     nbUndone:=nbUndone-ListOrbit[iOrb].OrbSize;
     nbOrbitDone:=nbOrbitDone+1;
   end;
@@ -389,9 +290,6 @@ OrbitGroupFormalism:=function(EXT, TheGroup, Prefix, SavingTrigger, TheFormalism
     return eSetReturn;
   end;
   FuncListOrbitIncidence:=function()
-    if SavingTrigger then
-      FuncClearFiles();
-    fi;
     return List(ListOrbit, x->x.Inc);
   end;
   FuncRecord:=function(iOrb)
@@ -485,15 +383,14 @@ OnSetsGroupFormalism:=function(LimitNbVert)
   OnSetsTransformIncidenceList:=function(ListEXT1, ListEXT2, TheEquiv, ListListInc)
     return List(ListListInc, x->OnSets(x, TheEquiv));
   end;
-  MyOrbitGroupFormalism:=function(EXT, TheGroup, Prefix, SavingTrigger)
+  MyOrbitGroupFormalism:=function(EXT, TheGroup)
     local LFC;
     if Order(TheGroup)<=14500 then
       LFC:=POLY_GetFunctionSet_MinimumOrbit(EXT, TheGroup);
     else
-#      LFC:=POLY_GetFunctionSet_Backtrack(EXT, TheGroup);
       LFC:=POLY_GetFunctionSet_MatrixInvariant(EXT, TheGroup, LimitNbVert);
     fi;
-    return OrbitGroupFormalism(EXT, TheGroup, Prefix, SavingTrigger, LFC);
+    return OrbitGroupFormalism(EXT, TheGroup, LFC);
   end;
   BankKeyInformation:=function(EXT, GroupExt)
     return rec(EXT:=EXT, Group:=GroupExt);
