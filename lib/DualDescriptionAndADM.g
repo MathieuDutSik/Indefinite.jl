@@ -134,14 +134,10 @@ __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, Ba
       RedStab:=Data.GroupFormalism.Stabilizer(EXT, WorkingSymGroup, eInc);
       Print("Considering orbit ", SelectedOrbit, " |inc|=", Length(eInc), " Depth=", Data.TheDepth, " |stab|=", Order(RedStab), " dim=", TheDim, "\n");
       RPLift:=__ProjectionLiftingFramework(EXT, eInc);
-      NewPathSave:=Concatenation(Data.ThePathSave, "OrbitRespawn", String(SelectedOrbit), "/");
-      CreateDirectoryPlusTest(NewPathSave, Data.Saving);
       NewData:=ShallowCopy(Data);
       NewData.TheDepth:=NewData.TheDepth+1;
-      NewData.ThePathSave:=NewPathSave;
       Ladj:=__ListFacetByAdjacencyDecompositionMethod(EXT{eInc}, RedStab, NewData, BankFormalism);
       Print("We treat ", Length(Ladj), " orbits\n");
-      RemoveDirectoryPlusTest(NewPathSave, Data.Saving);
       for fInc in Ladj
       do
         RPL.FuncInsert(RPLift.FuncLift(fInc));

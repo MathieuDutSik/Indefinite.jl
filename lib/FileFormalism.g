@@ -15,24 +15,6 @@ RemoveFileIfExist:=function(FileName)
 end;
 
 
-SaveDataToFile:=function(FileName, OBJ)
-  local output;
-  Exec("rm -f ", FileName,"\n");
-  output:=OutputTextFile(FileName, true);;
-  AppendTo(output, "return ", OBJ, ";\n");
-  CloseStream(output);
-end;
-
-
-SaveDataToFilePlusTouch:=function(FileName, OBJ)
-  local FileTouch;
-  FileTouch:=Concatenation(FileName, "_touch");
-  RemoveFileIfExist(FileTouch);
-  SaveDataToFile(FileName, OBJ);
-  SaveDataToFile(FileTouch, 0);
-end;
-
-
 IsExistingFilePlusTouch:=function(FileName)
   local FileTouch;
   if IsExistingFile(FileName)=false then
@@ -40,27 +22,6 @@ IsExistingFilePlusTouch:=function(FileName)
   fi;
   FileTouch:=Concatenation(FileName, "_touch");
   return IsExistingFile(FileTouch);
-end;
-
-
-SaveDataToFilePlusTouchPlusTest:=function(FileName, OBJ, test)
-  if test then
-    SaveDataToFilePlusTouch(FileName, OBJ);
-  fi;
-end;
-
-
-RemoveDirectoryPlusTest:=function(FileDirectory, test)
-  if test then
-    Exec("rm -rf ", FileDirectory);
-  fi;
-end;
-
-
-CreateDirectoryPlusTest:=function(FileDirectory, test)
-  if test then
-    Exec("mkdir -p ", FileDirectory);
-  fi;
 end;
 
 
