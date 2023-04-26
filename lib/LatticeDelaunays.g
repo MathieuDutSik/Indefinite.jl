@@ -83,7 +83,7 @@ end;
 
 
 ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayDatabase)
-  local n, EXT, FuncInsert, iOrb, IsFinished, EST, Adjacencies, EXTnew, TheStab, BF, FilePolyhedralOrb, ListOrbit, eOrb, iOrbAdj, iOrbSelect, ThePath, FileSingleAdjacency, BankPath, FuncClearComputation, MinSize, nbV, IsFirst, TheAdj, TheTestAdj;
+  local n, EXT, FuncInsert, iOrb, IsFinished, EST, Adjacencies, EXTnew, TheStab, BF, ListOrbit, eOrb, iOrbAdj, iOrbSelect, ThePath, FileSingleAdjacency, BankPath, FuncClearComputation, MinSize, nbV, IsFirst, TheAdj, TheTestAdj;
   ThePath:=DataLattice.PathPermanent;
   BankPath:=Concatenation(ThePath, "TheBank/");
   if DataLattice.Saving=true then
@@ -155,8 +155,7 @@ ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayData
       EXT:=DelaunayDatabase.FuncDelaunayGetEXT(iOrbSelect);
       Print("Starting the analysis of Delaunay ", iOrbSelect, " with ", Length(EXT), " vertices\n");
       Print("Beginning the polyhedral computation\n");
-      FilePolyhedralOrb:=Concatenation(ThePath, "ListPOLY/PolyhedralSave", String(iOrbSelect));
-      ListOrbit:=ComputeAndSavePlusTouchPlusTest(FilePolyhedralOrb, x->__ListFacetByAdjacencyDecompositionMethod(EXT, TheStab.PermutationStabilizer, DataPolyhedral, BF), DataLattice.Saving);
+      ListOrbit:=__ListFacetByAdjacencyDecompositionMethod(EXT, TheStab.PermutationStabilizer, DataPolyhedral, BF);
       Print("   Ending the polyhedral computation, |ListOrbit|=", Length(ListOrbit), "\n");
       #
       #

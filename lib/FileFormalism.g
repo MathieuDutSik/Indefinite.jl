@@ -91,24 +91,3 @@ IsExistingFilePlusTouchPlusTest:=function(FileName, test)
     return IsExistingFile(FileTouch);
   fi;
 end;
-
-
-ComputeAndSavePlusTouch:=function(FileName, FCT)
-  local TheData;
-  if IsExistingFilePlusTouch(FileName) then
-    return ReadAsFunction(FileName)();
-  else
-    TheData:=FCT(1);
-    SaveDataToFilePlusTouch(FileName, TheData);
-    return TheData;
-  fi;
-end;
-
-
-ComputeAndSavePlusTouchPlusTest:=function(FileName, FCT, test)
-  if test=false then
-    return FCT(1);
-  else
-    return ComputeAndSavePlusTouch(FileName, FCT);
-  fi;
-end;
