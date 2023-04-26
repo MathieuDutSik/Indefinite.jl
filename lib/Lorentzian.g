@@ -1246,7 +1246,7 @@ end;
 
 
 LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
-  local n, FuncStabilizer, FuncIsomorphy, FuncInvariant, WorkingDim, IsBankSave, IsRespawn, BF, IsSaving, MainPath, ThePathSave, ThePathTmp, PathPermanent, FindAdjacentDelaunay, KillingDelaunay, KillingAdjacency, DataLattice, DataPolyhedral, TheReply, DelaunayDatabase, EXT, eStab, FuncStabilizerDelaunay, FuncIsomorphismDelaunay, MaximalMemorySave, ListFamily, iOrb, TheRec, TheOption, ListVertAnsatz, ListAnsatzInfo, TestNeedMoreSymmetry, testSym, ListAdj, eInv;
+  local n, FuncStabilizer, FuncIsomorphy, FuncInvariant, WorkingDim, IsBankSave, IsRespawn, BF, MainPath, ThePathSave, ThePathTmp, PathPermanent, FindAdjacentDelaunay, KillingDelaunay, KillingAdjacency, DataLattice, DataPolyhedral, TheReply, DelaunayDatabase, EXT, eStab, FuncStabilizerDelaunay, FuncIsomorphismDelaunay, MaximalMemorySave, ListFamily, iOrb, TheRec, TheOption, ListVertAnsatz, ListAnsatzInfo, TestNeedMoreSymmetry, testSym, ListAdj, eInv;
   n:=Length(LorMat)-1;
   FuncStabilizer:=LinPolytope_Automorphism;
   FuncIsomorphy:=LinPolytope_Isomorphism;
@@ -1293,26 +1293,6 @@ LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
     IsRespawn:=RecInput.IsRespawn;
   fi;
   BF:=BankRecording(rec(Saving:=false, BankPath:="/irrelevant/"), FuncStabilizer, FuncIsomorphy, FuncInvariant, OnSetsGroupFormalism(500));
-  IsSaving:=false;
-  if IsBound(RecInput.IsSaving) then
-    IsSaving:=RecInput.IsSaving;
-  fi;
-  MainPath:="/irrelevant/";
-  if IsBound(RecInput.MainPath) then
-    MainPath:=RecInput.MainPath;
-  fi;
-  ThePathSave:=Concatenation(MainPath, "Saving/");
-  if MainPath<>"/irrelevant/" then
-    ThePathTmp:=Concatenation(MainPath, "tmp/");
-  else
-    ThePathTmp:=Filename(POLYHEDRAL_tmpdir, "");
-  fi;
-  PathPermanent:=Concatenation(MainPath, "Permanent/");
-  if IsSaving then
-    Exec("mkdir -p ", ThePathTmp);
-    Exec("mkdir -p ", ThePathSave);
-    Exec("mkdir -p ", PathPermanent);
-  fi;
   TestNeedMoreSymmetry:=function(EXT)
     if Length(EXT) > RankMat(EXT) + 4 then
       return true;
@@ -1328,7 +1308,6 @@ LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
   DataPolyhedral:=rec(IsBankSave:=IsBankSave,
         TheDepth:=0,
         IsRespawn:=IsRespawn,
-        Saving:=IsSaving,
         GetInitialRays:=GetInitialRays_LinProg,
         TestNeedMoreSymmetry:=testSym,
         ThePathSave:=ThePathSave,
@@ -1384,8 +1363,6 @@ LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
     return LORENTZ_DoFlipping(LorMat, EXT, eOrb, TheOption);
   end;
   DataLattice:=rec(n:=n,
-                   Saving:=IsSaving,
-		   PathPermanent:=PathPermanent,
                    KillingDelaunay:=KillingDelaunay,
                    KillingAdjacency:=KillingAdjacency,
                    FindDelaunayPolytope:=FindDelaunayPolytope,
@@ -1396,8 +1373,7 @@ LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
   #
   # The saving business part
   #
-  MaximalMemorySave:=IsSaving;
-  DelaunayDatabase:=DelaunayDatabaseManagement(PathPermanent, IsSaving, MaximalMemorySave);
+  DelaunayDatabase:=DelaunayDatabaseManagement();
   TheReply:=ComputeDelaunayDecomposition(DataLattice, DataPolyhedral, DelaunayDatabase);
   if TheReply<>"all was ok" then
     return TheReply;
