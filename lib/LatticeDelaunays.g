@@ -83,17 +83,10 @@ end;
 
 
 ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayDatabase)
-  local n, EXT, FuncInsert, iOrb, IsFinished, EST, Adjacencies, EXTnew, TheStab, BF, ListOrbit, eOrb, iOrbAdj, iOrbSelect, ThePath, FileSingleAdjacency, BankPath, FuncClearComputation, MinSize, nbV, IsFirst, TheAdj, TheTestAdj;
+  local n, EXT, FuncInsert, iOrb, IsFinished, EST, Adjacencies, EXTnew, TheStab, BF, ListOrbit, eOrb, iOrbAdj, iOrbSelect, ThePath, BankPath, MinSize, nbV, IsFirst, TheAdj, TheTestAdj;
   ThePath:=DataLattice.PathPermanent;
   BankPath:=Concatenation(ThePath, "TheBank/");
-  if DataLattice.Saving=true then
-    Exec("mkdir -p ", BankPath);
-  fi;
   n:=DataLattice.n;
-  FuncClearComputation:=function()
-    BF.FuncClearAccount();
-    DelaunayDatabase.FuncDestroyDatabase();
-  end;
   BF:=BankRecording(rec(Saving:=DataLattice.Saving, BankPath:=BankPath), DataPolyhedral.FuncStabilizer, DataPolyhedral.FuncIsomorphy, DataPolyhedral.FuncInvariant, DataPolyhedral.GroupFormalism);
   FuncInsert:=function(EXT)
     local MyInv, iDelaunay, reply, TheStab, TheEXT, TheTest;
@@ -128,7 +121,6 @@ ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayData
     EXT:=DataLattice.FindDelaunayPolytope();
     EST:=FuncInsert(EXT);
     if EST.success=0 then
-      FuncClearComputation();
       return EST.Reason;
     fi;
   fi;
@@ -167,12 +159,10 @@ ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayData
           EXTnew:=DataLattice.FindAdjacentDelaunay(EXT, eOrb);
           TheTestAdj:=DataLattice.KillingAdjacency(EXT, EXTnew);
           if TheTestAdj<>false then
-            FuncClearComputation();
             return TheTestAdj;
           fi;
           EST:=FuncInsert(EXTnew);
           if EST.success=0 then
-            FuncClearComputation();
             return EST.Reason;
           fi;
           TheAdj:=EST.result;

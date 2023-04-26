@@ -1,21 +1,3 @@
-
-
-Bank_GetSize:=function(ThePrefix)
-  local nbRec, eFileEXT, eFileFAC;
-  nbRec:=0;
-  while(true)
-  do
-    eFileEXT:=Concatenation(ThePrefix, "AccountEXT_", String(nbRec+1));
-    eFileFAC:=Concatenation(ThePrefix, "AccountFAC_", String(nbRec+1));
-    if IsExistingFilePlusTouch(eFileEXT)=false or IsExistingFilePlusTouch(eFileFAC)=false then
-      break;
-    fi;
-    nbRec:=nbRec+1;
-  od;
-  return nbRec;
-end;
-
-
 # this is the program for Bank management
 # it does not assume a fixed EXT set, so as to deal with
 # polyhedral subdivision.
@@ -28,57 +10,16 @@ end;
 # the system is not designed for a large number of accounts, just for
 # a few hundreds accounts.
 BankRecording:=function(DataBank, FuncStabilizer, FuncIsomorphy, FuncInvariant, GroupFormalism)
-  local FuncRetrieveObject, FuncCreateAccount, FuncClearAccount, FuncStab, FileBankRecord, WRL, ListCompleteInformation, ListInvariant, eInv, MinNbVert, nbRec, iRec, FileNameEXT, FileNameINV, eInfoEXT, nbVert;
-  if IsCorrectPath(DataBank.BankPath)=false then
-    Print("Variable DataBank.BankPath=", DataBank.BankPath, " is incorrect\n");
-    Error("It should finish with a /");
-  fi;
-  if IsDirectoryPath(DataBank.BankPath)=false and DataBank.Saving=true then
-    Error("Directory DataBank.BankPath=", DataBank.BankPath, " is nonexistent");
-  fi;
-  if DataBank.Saving then
-    nbRec:=Bank_GetSize(DataBank.BankPath);
-  else
-    nbRec:=0;
-  fi;
+  local FuncRetrieveObject, FuncCreateAccount, FuncStab, WRL, ListCompleteInformation, ListInvariant, eInv, MinNbVert, nbRec, iRec, eInfoEXT, nbVert;
+  nbRec:=0;
   #
   MinNbVert:=-1;
-  if DataBank.Saving then
-    for iRec in [1..nbRec]
-    do
-      FileNameEXT:=Concatenation(DataBank.BankPath, "AccountEXT_", String(iRec));
-      eInfoEXT:=ReadAsFunction(FileNameEXT)();
-      nbVert:=Length(GroupFormalism.BankGetForIsom(eInfoEXT));
-      if iRec=1 then
-        MinNbVert:=nbVert;
-      else
-        MinNbVert:=Minimum(MinNbVert, nbVert);
-      fi;
-    od;
-  else
-    WRL:=[];
-  fi;
+  WRL:=[];
   #
-  if DataBank.Saving=false then
-    ListCompleteInformation:=[];
-  fi;
-  #
+  ListCompleteInformation:=[];
   ListInvariant:=[];
-  for iRec in [1..nbRec]
-  do
-    FileNameINV:=Concatenation(DataBank.BankPath, "AccountINV_", String(iRec));
-    if IsExistingFilePlusTouch(FileNameINV) then
-      eInv:=ReadAsFunction(FileNameINV)();
-    else
-      FileNameEXT:=Concatenation(DataBank.BankPath, "AccountEXT_", String(iRec));
-      eInfoEXT:=ReadAsFunction(FileNameEXT)();
-      eInv:=FuncInvariant(GroupFormalism.BankGetForIsom(eInfoEXT));
-      SaveDataToFilePlusTouch(FileNameINV, eInv);
-    fi;
-    Add(ListInvariant, eInv);
-  od;
   FuncRetrieveObject:=function(EXT, GivenSymmetry)
-    local eChar, iAccount, eTransform, FileName, CompleteAccount, EXTaccount, ListObjectAccount, TransListObject, GRPaccount, TheGrp, NewGrp, eInc, RPL, eInvariant;
+    local eChar, iAccount, eTransform, CompleteAccount, EXTaccount, ListObjectAccount, TransListObject, GRPaccount, TheGrp, NewGrp, eInc, RPL, eInvariant;
     if Length(EXT) < MinNbVert then
       return false;
     fi;
@@ -87,20 +28,10 @@ BankRecording:=function(DataBank, FuncStabilizer, FuncIsomorphy, FuncInvariant, 
     for iAccount in [1..nbRec]
     do
       if eInvariant=ListInvariant[iAccount] then
-        if DataBank.Saving=true then
-          FileNameEXT:=Concatenation(DataBank.BankPath, "AccountEXT_", String(iAccount));
-          eInfoEXT:=ReadAsFunction(FileNameEXT)();
-        else
-          eInfoEXT:=WRL[iAccount];
-        fi;
+        eInfoEXT:=WRL[iAccount];
         eTransform:=FuncIsomorphy(GroupFormalism.BankGetForIsom(eInfoEXT), GroupFormalism.BankGetForIsom(eChar));
         if eTransform<>false then
-          if DataBank.Saving=true then
-            FileName:=Concatenation(DataBank.BankPath, "AccountFAC_", String(iAccount));
-            CompleteAccount:=ReadAsFunction(FileName)();
-          else
-            CompleteAccount:=ListCompleteInformation[iAccount];
-          fi;
+          CompleteAccount:=ListCompleteInformation[iAccount];
           EXTaccount:=GroupFormalism.BankGetVertexSet(eInfoEXT, CompleteAccount);
           ListObjectAccount:=GroupFormalism.BankGetListObject(CompleteAccount);
           TransListObject:=GroupFormalism.TransformIncidenceList(EXTaccount, EXT, eTransform, ListObjectAccount);
@@ -123,7 +54,7 @@ BankRecording:=function(DataBank, FuncStabilizer, FuncIsomorphy, FuncInvariant, 
     return false;
   end;
   FuncCreateAccount:=function(EXT, GroupExt, ListObject)
-    local FileNameFAC, FileNameEXT, FileNameINV, CompleteInfo, eInvariant, eInfoEXT, nbVert;
+    local CompleteInfo, eInvariant, eInfoEXT, nbVert;
     eInfoEXT:=GroupFormalism.BankKeyInformation(EXT, GroupExt);
     nbVert:=Length(eInfoEXT.EXT);
     if nbRec=0 then
@@ -135,86 +66,16 @@ BankRecording:=function(DataBank, FuncStabilizer, FuncIsomorphy, FuncInvariant, 
     nbRec:=nbRec+1;
     #
     CompleteInfo:=GroupFormalism.BankCompleteInformation(EXT, GroupExt, ListObject);
-    if DataBank.Saving then
-      FileNameFAC:=Concatenation(DataBank.BankPath, "AccountFAC_", String(nbRec));
-      SaveDataToFilePlusTouch(FileNameFAC, CompleteInfo);
-    else
-      Add(ListCompleteInformation, CompleteInfo);
-    fi;
-    #
-    if DataBank.Saving then
-      FileNameEXT:=Concatenation(DataBank.BankPath, "AccountEXT_", String(nbRec));
-      SaveDataToFilePlusTouch(FileNameEXT, eInfoEXT);
-    else
-      Add(WRL, eInfoEXT);
-    fi;
-    #
-    if DataBank.Saving then
-      FileNameINV:=Concatenation(DataBank.BankPath, "AccountINV_", String(nbRec));
-      SaveDataToFilePlusTouch(FileNameINV, eInvariant);
-    fi;
+    Add(ListCompleteInformation, CompleteInfo);
+    Add(WRL, eInfoEXT);
     Add(ListInvariant, eInvariant);
   end;
-  FuncClearAccount:=function()
-    local iRec, FileNameFAC, FileNameEXT, FileNameINV;
-    if DataBank.Saving then
-      for iRec in [1..nbRec]
-      do
-        FileNameFAC:=Concatenation(DataBank.BankPath, "AccountFAC_", String(iRec));
-        FileNameEXT:=Concatenation(DataBank.BankPath, "AccountEXT_", String(iRec));
-        FileNameINV:=Concatenation(DataBank.BankPath, "AccountINV_", String(iRec));
-        RemoveFileIfExistPlusTouch(FileNameFAC);
-        RemoveFileIfExistPlusTouch(FileNameEXT);
-        RemoveFileIfExistPlusTouch(FileNameINV);
-      od;
-    else
-      Unbind(WRL);
-      Unbind(ListCompleteInformation);
-    fi;
-    Unbind(ListInvariant);
-  end;
-  return rec(FuncStabilizer:=FuncStabilizer, FuncCreateAccount:=FuncCreateAccount, FuncRetrieveObject:=FuncRetrieveObject, FuncClearAccount:=FuncClearAccount);
+  return rec(FuncStabilizer:=FuncStabilizer, FuncCreateAccount:=FuncCreateAccount, FuncRetrieveObject:=FuncRetrieveObject);
 end;
 
 
-#
-# Data=rec(TheDepth:=...
-#, ThePath:=..., IsBankSave:=false
-#, IsBankSave:=...
-#, IsRespawn:=...
-#, GroupFormalism:=...
-#, DualDescription:=...
-#, Saving:=..., ThePathSave:=...
-# This function computes the polyhedral description (given by incidences)
-# of EXT and returns the orbits up to the symmetry group GivenSymmetry.
-# GivenSymmetry should be used according to the group formalism specified in
-#
-# all tricks in the book are used:
-# ---Bank formalism for storing used data
-# ---Balinski theorem
-# ---Recursive Adjacency decomposition method
-# ---special symmetry groups of faces of the polytope
-#
-# saving system concerns only and exclusively the adjacency decomposition
-# method itself, otherwise no save.
-# the end result is that one can recover an interrupted computation
-# with no error.
 __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, BankFormalism)
   local RECListOrbit, IsFinished, eOrb, eInc, Ladj, SelectedOrbit, jOrb, MiniINCD, RPL, RPLift, testBank, OrdGRP, TheDim, WorkingSymGroup, LRES, NewData, RedStab, TheDate1, TheDate2, NewPathSave, TestNeedMoreSymmetry, ReturnedList, eSetUndone, nbUndone, testSym, fInc;
-  if IsCorrectPath(Data.ThePathSave)=false then
-    Print("Variable Data.ThePathSave=", Data.ThePathSave, " is incorrect\n");
-    Error("It should finish with a /");
-  fi;
-  if IsDirectoryPath(Data.ThePathSave)=false and Data.Saving=true then
-    Error("Directory Data.ThePathSave=", Data.ThePathSave, " is nonexistent");
-  fi;
-  if IsCorrectPath(Data.ThePath)=false then
-    Print("Variable Data.ThePath=", Data.ThePath, " is incorrect\n");
-    Error("It should finish with a /");
-  fi;
-  if IsDirectoryPath(Data.ThePath)=false then
-    Error("Directory Data.ThePath=", Data.ThePath, " is nonexistent");
-  fi;
   testBank:=BankFormalism.FuncRetrieveObject(EXT, GivenSymmetry);
   if testBank<>false then
     return Data.GroupFormalism.LiftingOrbits(EXT, testBank.ListOrbitFacet, GivenSymmetry, testBank.GRP);
