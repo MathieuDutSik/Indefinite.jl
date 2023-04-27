@@ -84,3 +84,17 @@ PermutationGroupToOscar:=function(n, PermGroup)
     PermGroup_oscar := Oscar.matrix(Oscar.ZZ, n, n_gen, JuliaEvalString(TheStr));
     return PermGroup_oscar;
 end;
+
+ReadOscarPermutationGroup:=function(PermGroup_oscar)
+    eListList:=JuliaToGAP(IsList, PermGroup_oscar);
+    if Length(eListList) = 0 then
+        return Group(());
+    fi;
+    PermGens:=[];
+    for eEnt in eListList
+    do
+        eList:=OscarVectorToVector(eEnt);
+        Add(PermGens, PermList(eList));
+    od;
+    return Group(PermGens);
+end;

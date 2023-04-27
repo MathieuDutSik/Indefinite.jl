@@ -25,6 +25,22 @@ ShortVectorDutourVersion:=function(GramMat, eNorm)
 end;
 
 
+LinPolytope_Invariant:=function(EXT)
+    EXT_oscar:=MatrixToOscar(EXT);
+    return Oscar.GRP_LinPolytope_Invariant(EXT_oscar);
+end;
+
+
+LinPolytope_Automorphism_GramMat:=function(EXT, GramMat)
+    EXT_oscar:=MatrixToOscar(EXT);
+    GramMat_oscar:=MatrixToOscar(GramMat);
+    GRP_oscar:=Oscar.GRP_LinPolytope_Automorphism_GramMat(EXT_oscar, GramMat_oscar);
+    return ReadOscarPermutationGroup(GRP_oscar);
+end;
+
+
+
+
 __VectorConfigurationFullDim_ScalarMat_AddMat:=function(EXT, ListAddMat)
   local n, Qmat, eEXT, Qinv, ScalarMat, fEXT, eLine, ListMat, LVal;
   n:=Length(EXT[1]);
@@ -179,21 +195,6 @@ __VectorConfiguration_Invariant_ComputeAdvanced:=function(eTool, eInc)
   return Concatenation(eVect1, eVect2, eVect3);
 end;
 
-
-__VectorConfiguration_Invariant:=function(EXT, TheLimit)
-  local eTool;
-  eTool:=__VectorConfiguration_Invariant_GetTools(EXT, TheLimit);
-  return __VectorConfiguration_Invariant_Compute(eTool, EXT);
-end;
-
-
-LinPolytope_Invariant:=function(EXT)
-  local TheLimit;
-  TheLimit:=500;
-  return __VectorConfiguration_Invariant(EXT, TheLimit);
-end;
-
-
 Get_RecScalColor:=function(EXT, GramMat)
   local GetScalarColor, GetLineColor, nbVert;
   GetScalarColor:=function(i,j)
@@ -208,28 +209,6 @@ Get_RecScalColor:=function(EXT, GramMat)
   return rec(n:=nbVert,
              GetScalarColor:=GetScalarColor,
              GetLineColor:=GetLineColor);
-end;
-
-
-LinPolytope_Automorphism_Scalable:=function(EXT, GramMat)
-  local eRecScalColor;
-  eRecScalColor:=Get_RecScalColor(EXT, GramMat);
-  return AutomorphismGroupColoredGraph_Scalable(eRecScalColor);
-end;
-
-
-LinPolytope_Automorphism_Simple:=function(EXT, GramMat)
-  local ScalarMat;
-  ScalarMat:=EXT*GramMat*TransposedMat(EXT);
-  return AutomorphismGroupColoredGraph(ScalarMat);
-end;
-
-
-LinPolytope_Automorphism_GramMat:=function(EXT, GramMat)
-  if Length(EXT)<700 then
-    return LinPolytope_Automorphism_Simple(EXT, GramMat);
-  fi;
-  return LinPolytope_Automorphism_Scalable(EXT, GramMat);
 end;
 
 
@@ -253,32 +232,29 @@ LinPolytope_Automorphism:=function(EXT)
 end;
 
 
-Get_RecScalColor_Subset_AddMat:=function(EXT, EXTsub, ListAddMat)
-  local eSet, GetScalarColor, GetLineColor, nbVert;
-  eSet:=Set(List(EXTsub, x->Position(EXT, x)));
-  nbVert:=Length(EXT);
-  GetScalarColor:=function(i, j)
-    local eLine, eMat;
-    eLine:=[];
-    for eMat in ListAddMat
-    do
-      Add(eLine, EXT[i] * eMat * EXT[j]);
-    od;
-    if i=j then
-      if i in eSet then
-        Add(eLine, 1);
-      else
-        Add(eLine, 0);
-      fi;
+LinPolytope_Isomorphism_GramMat:=function(EXT1, GramMat1, EXT2, GramMat2)
+    EXT1_oscar:=MatrixToOscar(EXT1);
+    GramMat1_oscar:=MatrixToOscar(GramMat1);
+    EXT2_oscar:=MatrixToOscar(EXT2);
+    GramMat2_oscar:=MatrixToOscar(GramMat2);
+    eEquiv:=Oscar.GRP_LinPolytope_Isomorphism_GramMat(EXT1_oscar, GramMat1_oscar, EXT2_oscar, GramMat2_oscar);
+    TheList:=JuliaToGAP(IsList, eEquiv);
+    if Length(TheList) = 0 then
+        return false;
+    else
+        TheList:=List(TheList, Oscar.GAP.julia_to_gap);
+        return PermList(TheList);
     fi;
-    return eLine;
-  end;
-  GetLineColor:=function(i)
-    return List([1..nbVert], x->GetScalarColor(x, i));
-  end;
-  return rec(n:=nbVert,
-             GetScalarColor:=GetScalarColor,
-             GetLineColor:=GetLineColor);
+end;
+
+
+LinPolytope_Isomorphism:=function(EXT1, EXT2)
+  local EXTred1, EXTred2, Qinv1, Qinv2;
+  EXTred1:=ColumnReduction(EXT1).EXT;
+  EXTred2:=ColumnReduction(EXT2).EXT;
+  Qinv1:=Get_QinvMatrix(EXTred1);
+  Qinv2:=Get_QinvMatrix(EXTred2);
+  return LinPolytope_Isomorphism_GramMat(EXTred1, Qinv1, EXTred2, Qinv2);
 end;
 
 
@@ -452,51 +428,6 @@ LinPolytope_IsomorphismStabSubset_AddMat:=function(EXT1, EXTsub1, EXT2, EXTsub2,
     else
         return PermList(TheOut);
     fi;
-end;
-
-
-LinPolytope_Isomorphism_Simple:=function(EXT1, GramMat1, EXT2, GramMat2)
-  local eEquiv, ScalarMat1, ScalarMat2;
-  ScalarMat1:=EXT1*GramMat1*TransposedMat(EXT1);
-  ScalarMat2:=EXT2*GramMat2*TransposedMat(EXT2);
-  eEquiv:=IsIsomorphicColoredGraph(ScalarMat1, ScalarMat2);
-  if eEquiv=false then
-    return false;
-  fi;
-  return PermList(eEquiv);
-end;
-
-
-LinPolytope_Isomorphism_Scalable:=function(EXT1, GramMat1, EXT2, GramMat2)
-  local eRecScalColor1, eRecScalColor2, eEquiv;
-  eRecScalColor1:=Get_RecScalColor(EXT1, GramMat1);
-  eRecScalColor2:=Get_RecScalColor(EXT2, GramMat2);
-  eEquiv:=IsIsomorphicColoredGraph_Scalable(eRecScalColor1, eRecScalColor2);
-  if eEquiv=false then
-    return false;
-  fi;
-  return PermList(eEquiv);
-end;
-
-
-LinPolytope_Isomorphism_GramMat:=function(EXT1, GramMat1, EXT2, GramMat2)
-  if Length(EXT1)<>Length(EXT2) then
-    return false;
-  fi;
-  if Length(EXT1)<700 then
-    return LinPolytope_Isomorphism_Simple(EXT1, GramMat1, EXT2, GramMat2);
-  fi;
-  return LinPolytope_Isomorphism_Scalable(EXT1, GramMat1, EXT2, GramMat2);
-end;
-
-
-LinPolytope_Isomorphism:=function(EXT1, EXT2)
-  local EXTred1, EXTred2, Qinv1, Qinv2;
-  EXTred1:=ColumnReduction(EXT1).EXT;
-  EXTred2:=ColumnReduction(EXT2).EXT;
-  Qinv1:=Get_QinvMatrix(EXTred1);
-  Qinv2:=Get_QinvMatrix(EXTred2);
-  return LinPolytope_Isomorphism_GramMat(EXTred1, Qinv1, EXTred2, Qinv2);
 end;
 
 

@@ -65,22 +65,6 @@ __PrintGraph:=function(output, ListAdjacency)
 end;
 
 
-__PrintGraph_Scalable:=function(output, eRecGraph)
-  local n, i, eV;
-  n:=eRecGraph.n;
-  AppendTo(output, "g\n");
-  for i in [1..n]
-  do
-    AppendTo(output, i-1, " :");
-    for eV in eRecGraph.GetAdjacent(i)
-    do
-      AppendTo(output, " ", eV-1);
-    od;
-    AppendTo(output, ";\n");
-  od;
-end;
-
-
 SymmetryGroupVertexColoredGraphAdjList:=function(ListAdjacency, ThePartition)
   local FileNauty, FileDR, FileRead, FileError, n, output, TheGroup;
   FileNauty:=Filename(POLYHEDRAL_tmpdir, "GraphInput");
@@ -107,29 +91,6 @@ SymmetryGroupVertexColoredGraphAdjList:=function(ListAdjacency, ThePartition)
       Error("The file FileRead is missing");
   fi;
   TheGroup:=ReadAsFunction(FileRead)();
-  RemoveFile(FileNauty);
-  RemoveFile(FileDR);
-  RemoveFile(FileRead);
-  RemoveFile(FileError);
-  return TheGroup;
-end;
-
-
-SymmetryGroupVertexColoredGraphAdjList_Scalable:=function(eRecGraph)
-  local FileNauty, FileDR, FileRead, FileError, n, output, TheGroup;
-  FileNauty:=Filename(POLYHEDRAL_tmpdir, "GraphInput");
-  FileDR:=Filename(POLYHEDRAL_tmpdir, "GraphDRout");
-  FileRead:=Filename(POLYHEDRAL_tmpdir, "GraphRead");
-  FileError:=Filename(POLYHEDRAL_tmpdir, "GraphError");
-  output:=OutputTextFile(FileNauty, true);
-  AppendTo(output, "n=", eRecGraph.n, "\n");
-  __PrintPartition(output, eRecGraph.ThePartition);
-  __PrintGraph_Scalable(output, eRecGraph);
-  AppendTo(output, "x\n");
-  CloseStream(output);
-  Exec(FileDR2, " < ", FileNauty, " > ", FileDR, " 2>", FileError);
-  Exec(FileNautyGroupGAP, " < ", FileDR, " > ", FileRead);
-  TheGroup:=ReadAsFunction(FileRead)();;
   RemoveFile(FileNauty);
   RemoveFile(FileDR);
   RemoveFile(FileRead);
@@ -165,33 +126,6 @@ EquivalenceVertexColoredGraphAdjList:=function(ListAdjacency1, ListAdjacency2, T
   RemoveFile(FileError);
   return TheReply;
 end;
-
-
-EquivalenceVertexColoredGraphAdjList_Scalable:=function(eRecGraph1, eRecGraph2)
-  local FileNauty, FileDR, FileRead, FileError, n, output, TheReply;
-  FileNauty:=Filename(POLYHEDRAL_tmpdir, "GraphInput");
-  FileDR:=Filename(POLYHEDRAL_tmpdir, "GraphDRout");
-  FileRead:=Filename(POLYHEDRAL_tmpdir, "GraphRead");
-  FileError:=Filename(POLYHEDRAL_tmpdir, "GraphError");
-  n:=eRecGraph1.n;
-  output:=OutputTextFile(FileNauty, true);
-  AppendTo(output, "n=", n, "\n");
-  __PrintPartition(output, eRecGraph1.ThePartition);
-  __PrintGraph_Scalable(output, eRecGraph1);
-  AppendTo(output, "c x @\n");
-  __PrintGraph_Scalable(output, eRecGraph2);
-  AppendTo(output, "x ##\n");
-  CloseStream(output);
-  Exec(FileDR2, " < ", FileNauty, " > ", FileDR, " 2>", FileError);
-  Exec(FileNautyIsoOutputGAP, " ", FileDR, " > ", FileRead);
-  TheReply:=ReadAsFunction(FileRead)();
-  RemoveFile(FileNauty);
-  RemoveFile(FileDR);
-  RemoveFile(FileRead);
-  RemoveFile(FileError);
-  return TheReply;
-end;
-
 
 __Method4FindTheK:=function(korig)
   local k;
@@ -383,98 +317,6 @@ MappedScalarMatrixDistanceMatrix:=function(ScalarMat)
 end;
 
 
-GetSetColor_Scalable:=function(eRecScalColor)
-  local n, SetV, i, eLine, eRecN;
-  SetV:=Set([]);
-  n:=eRecScalColor.n;
-  for i in [1..n]
-  do
-#    Print("i=", i, "\n");
-    eLine:=eRecScalColor.GetLineColor(i);
-    SetV:=Union(SetV, Set(eLine));
-  od;
-  eRecN:=GetFirstSecondVal(SetV);
-  return rec(SetV:=SetV, eRecN:=eRecN);
-end;
-
-
-GetFuncListAdjacentMethod4_Scalable:=function(InfC, eRecScalColor)
-  local FirstNewVal, SecondNewVal, korig, k, List01Sets, SetVext, n, n2, nExt, GetLineExtended, GetAdjacent, ThePartition;
-  FirstNewVal:=InfC.eRecN[1];
-  SecondNewVal:=InfC.eRecN[2];
-  korig:=Length(InfC.SetV)+2;
-  k:=__Method4FindTheK(korig);
-  List01Sets:=BuildSet(k, [0,1]);
-  SetVext:=Concatenation(InfC.SetV, InfC.eRecN);
-  n:=eRecScalColor.n;
-  n2:=n+2;
-  nExt:=k*n2;
-  ThePartition:=__Method4Partition(korig,n2);
-  GetLineExtended:=function(i)
-    local eLine;
-#    Print("k=", k, " korig=", korig, "\n");
-#    Print("n=", n, " nExt=", nExt, "\n");
-    if i<=n then
-      eLine:=eRecScalColor.GetLineColor(i);
-      return Concatenation(eLine{[1..i-1]},[0],eLine{[i+1..n]},[eLine[i],FirstNewVal]);
-    fi;
-    if i=n+1 then
-      return Concatenation(List([1..n],x->eRecScalColor.GetScalarColor(x,x)),[0,SecondNewVal]);
-    fi;
-    if i=n+2 then
-      return Concatenation(ListWithIdenticalEntries(n,FirstNewVal),[SecondNewVal,0]);
-    fi;
-  end;
-  GetAdjacent:=function(iExt)
-    local iB, iC, i, kPos, ListAdjacent, iK, eAdj, eLine, j, eColor, iColor;
-    iB:=iExt-1;
-    iC:=iB mod n2;
-    i:=iC+1;
-    kPos:=1+(iExt-i)/n2;
-    ListAdjacent:=[];
-    for iK in [1..k]
-    do
-      if iK<>kPos then
-        eAdj:=i+(iK-1)*n2;
-        Add(ListAdjacent, eAdj);
-      fi;
-    od;
-    eLine:=GetLineExtended(i);
-    for j in [1..n2]
-    do
-      if j<>i then
-        eColor:=eLine[j];
-        iColor:=Position(SetVext, eColor);
-        if List01Sets[iColor][kPos]=1 then
-          eAdj:=j + (kPos-1)*n2;
-          Add(ListAdjacent, eAdj);
-        fi;
-      fi;
-    od;
-    return ListAdjacent;
-  end;
-  return rec(GetAdjacent:=GetAdjacent, n:=nExt, ThePartition:=ThePartition);
-end;
-
-
-AutomorphismGroupColoredGraph_Scalable:=function(eRecScalColor)
-  local n, InfC, eRecGraph, GRP, NewListGens, eGen, eList, RetGRP;
-  n:=eRecScalColor.n;
-  InfC:=GetSetColor_Scalable(eRecScalColor);
-  eRecGraph:=GetFuncListAdjacentMethod4_Scalable(InfC, eRecScalColor);
-  GRP:=SymmetryGroupVertexColoredGraphAdjList_Scalable(eRecGraph);
-  NewListGens:=[];
-  for eGen in GeneratorsOfGroup(GRP)
-  do
-    eList:=List([1..n], x->OnPoints(x, eGen));
-    Add(NewListGens, PermList(eList));
-  od;
-  RetGRP:=Group(NewListGens);
-  SetSize(RetGRP, Order(GRP));
-  return RetGRP;
-end;
-
-
 AutomorphismGroupColoredGraph:=function(ScalarMat)
   local DistMat, NewListGens, GRP, eGen, eList, RetGRP;
   DistMat:=MappedScalarMatrixDistanceMatrix(ScalarMat);
@@ -488,27 +330,6 @@ AutomorphismGroupColoredGraph:=function(ScalarMat)
   RetGRP:=Group(NewListGens);
   SetSize(RetGRP, Order(GRP));
   return RetGRP;
-end;
-
-
-IsIsomorphicColoredGraph_Scalable:=function(eRecScalColor1, eRecScalColor2)
-  local n, InfC, eRecGraph1, eRecGraph2, test;
-  n:=eRecScalColor1.n;
-  if n<>eRecScalColor2.n then
-    return false;
-  fi;
-  InfC:=GetSetColor_Scalable(eRecScalColor1);
-  if InfC<>GetSetColor_Scalable(eRecScalColor2) then
-    return false;
-  fi;
-  eRecGraph1:=GetFuncListAdjacentMethod4_Scalable(InfC, eRecScalColor1);
-  eRecGraph2:=GetFuncListAdjacentMethod4_Scalable(InfC, eRecScalColor2);
-  test:=EquivalenceVertexColoredGraphAdjList_Scalable(eRecGraph1, eRecGraph2);
-  if test=false then
-    return false;
-  else
-    return test{[1..n]};
-  fi;
 end;
 
 
