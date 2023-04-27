@@ -1,8 +1,3 @@
-FileDR2:=Filename(DirectoriesPackagePrograms("indefinite"),"dreadnaut");
-FileNautyGroupGAP:=Filename(DirectoriesPackagePrograms("indefinite"),"NautyGroupToGAP_sec");
-FileNautyIsoOutputGAP:=Filename(DirectoriesPackagePrograms("indefinite"),"NautyIsoOutputToGAP");
-
-
 __SetValue:=function(DistMat)
   local ListSet, n, i, j;
   ListSet:=[];
@@ -27,106 +22,6 @@ __SetValue_ScalarMat:=function(ScalarMat)
 end;
 
 
-__PrintPartition:=function(output, ThePartition)
-  local nbPart, ThePart, j, i;
-  AppendTo(output, "f=[");
-  nbPart:=Length(ThePartition);
-  for i in [1..nbPart]
-  do
-    ThePart:=ThePartition[i];
-    for j in [1..Length(ThePart)]
-    do
-      AppendTo(output, ThePart[j]-1);
-      if j < Length(ThePart) then
-        AppendTo(output, " ");
-      fi;
-    od;
-    if i<nbPart then
-      AppendTo(output, "|");
-    fi;
-  od;
-  AppendTo(output, "]\n");
-end;
-
-
-__PrintGraph:=function(output, ListAdjacency)
-  local n, i, eV;
-  n:=Length(ListAdjacency);
-  AppendTo(output, "g\n");
-  for i in [1..n]
-  do
-    AppendTo(output, i-1, " :");
-    for eV in ListAdjacency[i]
-    do
-      AppendTo(output, " ", eV-1);
-    od;
-    AppendTo(output, ";\n");
-  od;
-end;
-
-
-SymmetryGroupVertexColoredGraphAdjList:=function(ListAdjacency, ThePartition)
-  local FileNauty, FileDR, FileRead, FileError, n, output, TheGroup;
-  FileNauty:=Filename(POLYHEDRAL_tmpdir, "GraphInput");
-  FileDR:=Filename(POLYHEDRAL_tmpdir, "GraphDRout");
-  FileRead:=Filename(POLYHEDRAL_tmpdir, "GraphRead");
-  FileError:=Filename(POLYHEDRAL_tmpdir, "GraphError");
-  RemoveFileIfExist(FileNauty);
-  RemoveFileIfExist(FileDR);
-  RemoveFileIfExist(FileRead);
-  RemoveFileIfExist(FileError);
-  n:=Length(ListAdjacency);
-  output:=OutputTextFile(FileNauty, true);
-  AppendTo(output, "n=", n, "\n");
-  __PrintPartition(output, ThePartition);
-  __PrintGraph(output, ListAdjacency);
-  AppendTo(output, "x\n");
-  CloseStream(output);
-  Exec(FileDR2, " < ", FileNauty, " > ", FileDR, " 2>", FileError);
-  if IsExistingFile(FileDR)=false or IsExistingFile(FileError)=false then
-      Error("The file FileDR and FileError are missing");
-  fi;
-  Exec(FileNautyGroupGAP, " < ", FileDR, " > ", FileRead);
-  if IsExistingFile(FileRead)=false then
-      Error("The file FileRead is missing");
-  fi;
-  TheGroup:=ReadAsFunction(FileRead)();
-  RemoveFile(FileNauty);
-  RemoveFile(FileDR);
-  RemoveFile(FileRead);
-  RemoveFile(FileError);
-  return TheGroup;
-end;
-
-
-EquivalenceVertexColoredGraphAdjList:=function(ListAdjacency1, ListAdjacency2, ThePartition)
-  local FileNauty, FileDR, FileRead, FileError, n, output, TheReply;
-  FileNauty:=Filename(POLYHEDRAL_tmpdir, "GraphInput");
-  FileDR:=Filename(POLYHEDRAL_tmpdir, "GraphDRout");
-  FileRead:=Filename(POLYHEDRAL_tmpdir, "GraphRead");
-  FileError:=Filename(POLYHEDRAL_tmpdir, "GraphError");
-  n:=Length(ListAdjacency1);
-  if n<>Length(ListAdjacency2) then
-    return false;
-  fi;
-  output:=OutputTextFile(FileNauty, true);
-  AppendTo(output, "n=", n, "\n");
-  __PrintPartition(output, ThePartition);
-  __PrintGraph(output, ListAdjacency1);
-  AppendTo(output, "c x @\n");
-  __PrintGraph(output, ListAdjacency2);
-  AppendTo(output, "x ##\n");
-  CloseStream(output);
-  Exec(FileDR2, " < ", FileNauty, " > ", FileDR, " 2>", FileError);
-  Exec(FileNautyIsoOutputGAP, " ", FileDR, " > ", FileRead);
-  TheReply:=ReadAsFunction(FileRead)();
-  RemoveFile(FileNauty);
-  RemoveFile(FileDR);
-  RemoveFile(FileRead);
-  RemoveFile(FileError);
-  return TheReply;
-end;
-
 __Method4FindTheK:=function(korig)
   local k;
   k:=1;
@@ -138,13 +33,6 @@ __Method4FindTheK:=function(korig)
     k:=k+1;
   od;
   return k;
-end;
-
-
-__Method4Partition:=function(korig, n)
-  local k;
-  k:=__Method4FindTheK(korig);
-  return List([1..k], x->[n*(x-1)+1..n*(x-1)+n]);
 end;
 
 

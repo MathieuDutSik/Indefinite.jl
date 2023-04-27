@@ -625,33 +625,6 @@ LORENTZ_GetAnsatzSubpolytope:=function(LorMat, eFamEXT, Qmat, HeuristicSub)
 end;
 
 
-#
-# This is an ansatz for specific cases.
-# We have to deal with huge polytopes (2000 vertices, 5000 vertices, etc.)
-# Thus what we do is reduce to a common scalar product
-LORENTZ_ComputeStabilizer_Specific:=function(LorMat, eFamEXT, TheHeuristic)
-  local RecAnsatz, GRPpermA, GRPpermB, GRPpermExt, Qmat, TheSub, ListMatrGens, ListPermGens;
-  Print("Beginning of LORENTZ_ComputeStabilizer_Specific\n");
-  Qmat:=Get_QinvMatrix(eFamEXT);
-  Print("We have Qmat\n");
-  TheSub:=LORENTZ_GetAnsatzSubpolytope(LorMat, eFamEXT, Qmat, TheHeuristic.HeuristicSub);
-  Print("We have TheSub |TheSub|=", Length(TheSub), "\n");
-  Print("Det(eFamEXT)=", AbsInt(DeterminantMat(BaseIntMat(eFamEXT))), " Det(eFamEXT{TheSub})=", AbsInt(DeterminantMat(BaseIntMat(eFamEXT{TheSub}))), "\n");
-  RecAnsatz:=LORENTZ_GetAnsatzGraphInformation(LorMat, eFamEXT{TheSub}, Qmat, TheHeuristic.HeuristicScal);
-  Print("We have RecAnsatz\n");
-  GRPpermA:=SymmetryGroupVertexColoredGraphAdjList(RecAnsatz.ListAdjacency, RecAnsatz.ThePartition);
-  Print("We have GRPpermA |GRPpermA|=", Order(GRPpermA), "\n");
-  GRPpermB:=KernelLinPolytopeIntegral_Automorphism_Subspaces(eFamEXT{TheSub}, GRPpermA).GRPperm;
-  Print("We have GRPpermB |GRPpermB|=", Order(GRPpermB), "\n");
-  ListMatrGens:=List(GeneratorsOfGroup(GRPpermB), x->FindTransformation(eFamEXT{TheSub}, eFamEXT{TheSub}, x));
-  Print("We have ListMatrGens\n");
-  ListPermGens:=GetListPermGens(eFamEXT, ListMatrGens);
-  Print("We have ListPermGens\n");
-  GRPpermExt:=Group(ListPermGens);
-  return LORENTZ_ComputeFundamentalStabInfo(LorMat, eFamEXT, GRPpermExt);
-end;
-
-
 LORENTZ_TestEquivalence_CheckAndReturn:=function(LorMat1, LorMat2, eFamEXT1, eFamEXT2, eMatrB)
   if IsIntegralMat(eMatrB)=false then
     Error("Bug: he matrix should be integral");
@@ -701,47 +674,6 @@ LORENTZ_TestEquivalence_General:=function(LorMat1, LorMat2, eFamEXT1, eFamEXT2)
       return false;
     fi;
     Print("We have eMatrB\n");
-  fi;
-  return LORENTZ_TestEquivalence_CheckAndReturn(LorMat1, LorMat2, eFamEXT1, eFamEXT2, eMatrB);
-end;
-
-
-LORENTZ_TestEquivalence_Specific:=function(LorMat1, LorMat2, eFamEXT1, eFamEXT2, TheHeuristic)
-  local RecAnsatz1, RecAnsatz2, test, eMatrB, Qmat1, Qmat2, TheSub1, TheSub2;
-  Print("Beginning of LORENTZ_TestEquivalence_Specific\n");
-  #
-  Qmat1:=Get_QinvMatrix(eFamEXT1);
-  Print("We have Qmat1\n");
-  TheSub1:=LORENTZ_GetAnsatzSubpolytope(LorMat1, eFamEXT1, Qmat1, TheHeuristic.HeuristicSub);
-  Print("We have TheSub1\n");
-  RecAnsatz1:=LORENTZ_GetAnsatzGraphInformation(LorMat1, eFamEXT1{TheSub1}, Qmat1, TheHeuristic.HeuristicScal);
-  Print("We have RecAnsatz1\n");
-  #
-  Qmat2:=Get_QinvMatrix(eFamEXT2);
-  Print("We have Qmat2\n");
-  TheSub2:=LORENTZ_GetAnsatzSubpolytope(LorMat2, eFamEXT2, Qmat2, TheHeuristic.HeuristicSub);
-  if Length(TheSub1)<>Length(TheSub2) then
-    Print("Returning false at this case |TheSub1|=", Length(TheSub1), " |TheSub2|=", Length(TheSub2), "\n");
-    return false;
-  fi;
-  Print("We have TheSub2\n");
-  RecAnsatz2:=LORENTZ_GetAnsatzGraphInformation(LorMat2, eFamEXT2{TheSub2}, Qmat2, TheHeuristic.HeuristicScal);
-  Print("We have RecAnsatz2\n");
-  #
-  if TheHeuristic.BlockMethod="PolytopeIntegral" then
-    eMatrB:=LinPolytopeIntegral_Isomorphism(eFamEXT1{TheSub1}, eFamEXT2{TheSub2});
-  else
-    test:=EquivalenceVertexColoredGraphAdjList(RecAnsatz1.ListAdjacency, RecAnsatz2.ListAdjacency, RecAnsatz1.ThePartition);
-    Print("We have test\n");
-    if test=false then
-      Print("Returning false at second case\n");
-      return false;
-    fi;
-    eMatrB:=FindTransformation(eFamEXT1{TheSub1}, eFamEXT2{TheSub2}, PermList(test));
-  fi;
-  Print("We have eMatrB\n");
-  if eMatrB=false then
-    return false;
   fi;
   return LORENTZ_TestEquivalence_CheckAndReturn(LorMat1, LorMat2, eFamEXT1, eFamEXT2, eMatrB);
 end;
@@ -1330,12 +1262,7 @@ LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
   ListVertAnsatz:=List(ListAnsatzInfo, x->x.nbVert);
   FuncStabilizerDelaunay:=function(eRec, EXT)
     local pos, RecRet;
-    pos:=Position(ListVertAnsatz, Length(EXT));
-    if pos<>fail then
-      RecRet:=LORENTZ_ComputeStabilizer_Specific(LorMat, EXT, ListAnsatzInfo[pos].Heuristic);
-    else
-      RecRet:=LORENTZ_ComputeStabilizer(LorMat, EXT);
-    fi;
+    RecRet:=LORENTZ_ComputeStabilizer(LorMat, EXT);
     RecRet.PermutationStabilizer:=RecRet.GRP_int;
     return RecRet;
   end;
@@ -1344,12 +1271,7 @@ LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
     if Length(EXT1)<>Length(EXT2) then
       return false;
     fi;
-    pos:=Position(ListVertAnsatz, Length(EXT1));
-    if pos<>fail then
-      return LORENTZ_TestEquivalence_Specific(LorMat, LorMat, EXT1, EXT2, ListAnsatzInfo[pos].Heuristic);
-    else
-      return LORENTZ_TestEquivalence(LorMat, EXT1, EXT2);
-    fi;
+    return LORENTZ_TestEquivalence(LorMat, EXT1, EXT2);
   end;
   FindDelaunayPolytope:=function()
     return LORENTZ_GetOnePerfect(LorMat, TheOption).ListTotal;
