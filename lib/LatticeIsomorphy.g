@@ -543,40 +543,6 @@ __CharacteristicGraphMatrixFamily:=function(ListMat, SVR)
 end;
 
 
-ArithmeticEquivalenceMatrixFamily_Nauty:=function(ListMat1, SVR1, ListMat2, SVR2)
-  local DistMat1, DistMat2, eList, RetMat, iMat, RetMat2;
-  if RankMat(SVR1)<>Length(ListMat1[1][1]) then
-    Error("Wrong SVR1 argument");
-  fi;
-  if RankMat(SVR2)<>Length(ListMat2[1][1]) then
-    Error("Wrong SVR2 argument");
-  fi;
-  DistMat1:=__CharacteristicGraphMatrixFamily(ListMat1, SVR1);
-  DistMat2:=__CharacteristicGraphMatrixFamily(ListMat2, SVR2);
-  eList:=IsIsomorphicEdgeColoredGraph(DistMat1, DistMat2);
-  if eList=false then
-    return false;
-  fi;
-  RetMat:=FindTransformation(SVR1, SVR2, PermList(eList));
-  RetMat2:=Inverse(RetMat);
-  for iMat in [1..Length(ListMat1)]
-  do
-    if RetMat2*ListMat1[iMat]*TransposedMat(RetMat2)<>ListMat2[iMat] then
-      Error("Error in ArithmeticEquivalenceMatrixFamily_Nauty");
-    fi;
-  od;
-  return RetMat2;
-end;
-
-
-ArithmeticIsomorphism_Nauty:=function(ListGramMat1, ListGramMat2)
-  local InvariantBasis1, InvariantBasis2;
-  InvariantBasis1:=__ExtractInvariantZBasisShortVectorNoGroup(ListGramMat1[1]);
-  InvariantBasis2:=__ExtractInvariantZBasisShortVectorNoGroup(ListGramMat2[1]);
-  return ArithmeticEquivalenceMatrixFamily_Nauty(ListGramMat1, InvariantBasis1, ListGramMat2, InvariantBasis2);
-end;
-
-
 ArithmeticIsomorphism:=function(ListGramMat1, ListGramMat2)
   if Length(ListGramMat1)<>Length(ListGramMat2) then
     return false;

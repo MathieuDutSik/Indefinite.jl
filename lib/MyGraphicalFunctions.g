@@ -215,52 +215,6 @@ Method4modelEdgeColoredGraph:=function(DistMat, SetV)
 end;
 
 
-Method4AutomGroupEdgeColoredGraph:=function(DistMat, SetV)
-  local TheListAdjacency, ThePartition, korig, n, GRP;
-  korig:=Length(SetV);
-  n:=Length(DistMat);
-  TheListAdjacency:=Method4modelEdgeColoredGraph(DistMat, SetV);
-  ThePartition:=__Method4Partition(korig, n);
-  GRP:=SymmetryGroupVertexColoredGraphAdjList(TheListAdjacency, ThePartition);
-  return SecondReduceGroupAction(GRP, [1..n]);
-end;
-
-
-Method4EquivalenceEdgeColoredGraph:=function(DistMat1, DistMat2, SetV)
-  local korig, n, TheListAdjacency1, TheListAdjacency2, ThePartition, TheEquiv;
-  korig:=Length(SetV);
-  n:=Length(DistMat1);
-  TheListAdjacency1:=Method4modelEdgeColoredGraph(DistMat1, SetV);
-  TheListAdjacency2:=Method4modelEdgeColoredGraph(DistMat2, SetV);
-  ThePartition:=__Method4Partition(korig,n);
-  TheEquiv:=EquivalenceVertexColoredGraphAdjList(TheListAdjacency1, TheListAdjacency2, ThePartition);
-  if TheEquiv=false then
-    return false;
-  fi;
-  return TheEquiv{[1..n]};
-end;
-
-
-AutomorphismGroupEdgeColoredGraph:=function(DistMat)
-  local SetV;
-  SetV:=__SetValue(DistMat);
-  return Method4AutomGroupEdgeColoredGraph(DistMat, SetV);
-end;
-
-
-IsIsomorphicEdgeColoredGraph:=function(DistMat1, DistMat2)
-  local SetV, k, n, Meth2_NBV, Meth3_NBV;
-  SetV:=__SetValue(DistMat1);
-  Print("SetV1=", __SetValue(DistMat1), " SetV2=", __SetValue(DistMat2), "\n");
-  if __SetValue(DistMat2)<>SetV then
-    return false;
-  fi;
-  k:=Length(SetV);
-  n:=Length(DistMat1);
-  return Method4EquivalenceEdgeColoredGraph(DistMat1, DistMat2, SetV);
-end;
-
-
 GetFirstSecondVal:=function(SetV)
   local FirstNewVal, SecondNewVal;
   FirstNewVal:=0;
@@ -314,35 +268,6 @@ MappedScalarMatrixDistanceMatrix:=function(ScalarMat)
   DistMat[n+1][n+2]:=SecondNewVal;
   DistMat[n+2][n+1]:=SecondNewVal;
   return DistMat;
-end;
-
-
-AutomorphismGroupColoredGraph:=function(ScalarMat)
-  local DistMat, NewListGens, GRP, eGen, eList, RetGRP;
-  DistMat:=MappedScalarMatrixDistanceMatrix(ScalarMat);
-  NewListGens:=[];
-  GRP:=AutomorphismGroupEdgeColoredGraph(DistMat);
-  for eGen in GeneratorsOfGroup(GRP)
-  do
-    eList:=List([1..Length(ScalarMat)], x->OnPoints(x, eGen));
-    Add(NewListGens, PermList(eList));
-  od;
-  RetGRP:=Group(NewListGens);
-  SetSize(RetGRP, Order(GRP));
-  return RetGRP;
-end;
-
-
-IsIsomorphicColoredGraph:=function(ScalarMat1, ScalarMat2)
-  local DistMat1, DistMat2, test;
-  DistMat1:=MappedScalarMatrixDistanceMatrix(ScalarMat1);
-  DistMat2:=MappedScalarMatrixDistanceMatrix(ScalarMat2);
-  test:=IsIsomorphicEdgeColoredGraph(DistMat1, DistMat2);
-  if test=false then
-    return false;
-  else
-    return test{[1..Length(ScalarMat1)]};
-  fi;
 end;
 
 
