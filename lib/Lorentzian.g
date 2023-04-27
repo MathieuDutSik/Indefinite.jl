@@ -488,9 +488,9 @@ end;
 
 
 LORENTZ_ComputeStabilizer:=function(LorMat, eFamEXT)
-  local GRPrat, ListMatrGen, test, ListVect, GRPtot, ListPermGen, ListMatrGenB, eGen, eMatr, eList, GRPint, GRPintMatr, eVect, testB, ListPGen, PhiPermMat, TheStrategy;
+  local GRPrat, ListMatrGen, test, ListVect, GRPtot, ListPermGen, ListMatrGenB, eGen, eMatr, eList, GRPint, GRPintMatr, eVect, testB, ListPGen, PhiPermMat;
   Print("|eFamEXT|=", Length(eFamEXT), "\n");
-  GRPrat:=LinPolytope_AutomorphismStabSubset_AddMat(eFamEXT, eFamEXT, [LorMat]);
+  GRPrat:=LinPolytope_Automorphism_AddMat(eFamEXT, [LorMat]);
   Print("|GRPrat|=", Order(GRPrat), "\n");
   ListPGen:=GeneratorsOfGroup(GRPrat);
   Print("Before ListMatrGen construction\n");
@@ -502,31 +502,7 @@ LORENTZ_ComputeStabilizer:=function(LorMat, eFamEXT)
     PhiPermMat:=GroupHomomorphismByImagesNC(GRPrat, GRPintMatr, ListPGen, ListMatrGen);
     return rec(GRP_rat:=GRPrat, GRP_int:=GRPrat, GRPintMatr:=GRPintMatr, PhiPermMat:=PhiPermMat);
   fi;
-  TheStrategy:=2;
-  if TheStrategy=1 then
-    Print("Before ListVect computation\n");
-    ListVect:=LORENTZ_GetDeterminingVectFamily(LorMat, eFamEXT);
-    Print("det(EXT)=", DeterminantMat(BaseIntMat(eFamEXT)), " |ListVect|=", Length(ListVect), "\n");
-    GRPtot:=LinPolytope_AutomorphismStabSubset_AddMat(ListVect, eFamEXT, [LorMat]);
-    ListPermGen:=[];
-    ListMatrGenB:=[];
-    for eGen in GeneratorsOfGroup(GRPtot)
-    do
-      eMatr:=FindTransformation(ListVect, ListVect, eGen);
-      for eVect in eFamEXT*eMatr
-      do
-        if Position(eFamEXT, eVect)=fail then
-          Error("Bug: eFamEXT vector is not invariant");
-        fi;
-      od;
-      eList:=List(eFamEXT, x->Position(eFamEXT, x*eMatr));
-      Add(ListPermGen, PermList(eList));
-    od;
-    GRPint:=Group(ListPermGen);
-  fi;
-  if TheStrategy=2 then
-    GRPint:=KernelLinPolytopeIntegral_Automorphism_Subspaces(eFamEXT, GRPrat).GRPperm;
-  fi;
+  GRPint:=KernelLinPolytopeIntegral_Automorphism_Subspaces(eFamEXT, GRPrat).GRPperm;
   return LORENTZ_ComputeFundamentalStabInfo(LorMat, eFamEXT, GRPint);
 end;
 
@@ -641,9 +617,9 @@ end;
 
 LORENTZ_TestEquivalence_General:=function(LorMat1, LorMat2, eFamEXT1, eFamEXT2)
   local eEquiv, eEquivB, eMatr, TheStrategy, ListVect1, ListVect2, eMatrB, GRP2;
-  Print("Before LinPolytope_IsomorphismStabSubset_AddMat |eFamEXT1|=", Length(eFamEXT1), " |eFamEXT2|=", Length(eFamEXT2), "\n");
-  eEquiv:=LinPolytope_IsomorphismStabSubset_AddMat(eFamEXT1, eFamEXT1, eFamEXT2, eFamEXT2, [LorMat1], [LorMat2]);
-  Print("After LinPolytope_IsomorphismStabSubset_AddMat\n");
+  Print("Before LinPolytope_Isomorphism_AddMat |eFamEXT1|=", Length(eFamEXT1), " |eFamEXT2|=", Length(eFamEXT2), "\n");
+  eEquiv:=LinPolytope_Isomorphism_AddMat(eFamEXT1, eFamEXT2, [LorMat1], [LorMat2]);
+  Print("After LinPolytope_Isomorphism_AddMat\n");
   if eEquiv=false then
     return false;
   fi;
@@ -654,27 +630,15 @@ LORENTZ_TestEquivalence_General:=function(LorMat1, LorMat2, eFamEXT1, eFamEXT2)
   if AbsInt(DeterminantMat(BaseIntMat(eFamEXT1)))=1 then
     Error("It should have ended at this stage");
   fi;
-  TheStrategy:=2;
-  if TheStrategy=1 then
-    ListVect1:=LORENTZ_GetDeterminingVectFamily(LorMat1, eFamEXT1);
-    ListVect2:=LORENTZ_GetDeterminingVectFamily(LorMat2, eFamEXT2);
-    eEquivB:=LinPolytope_IsomorphismStabSubset_AddMat(ListVect1, eFamEXT1, ListVect2, eFamEXT2, [LorMat1], [LorMat2]);
-    if eEquivB=false then
-      return false;
-    fi;
-    eMatrB:=FindTransformation(ListVect1, ListVect2, eEquivB);
+  Print("Before LinPolytope_Automorphism_AddMat\n");
+  GRP2:=LinPolytope_Automorphism_AddMat(eFamEXT2, [LorMat2]);
+  Print("After LinPolytope_Automorphism_AddMat\n");
+  eMatrB:=KernelLinPolytopeIntegral_Isomorphism_Subspaces(eFamEXT1, eFamEXT2, GRP2, eEquiv);
+  if eMatrB=false then
+    Print("Subspaces algo returns false\n");
+    return false;
   fi;
-  if TheStrategy=2 then
-    Print("Before LinPolytope_AutomorphismStabSubset_AddMat\n");
-    GRP2:=LinPolytope_AutomorphismStabSubset_AddMat(eFamEXT2, eFamEXT2, [LorMat2]);
-    Print("After LinPolytope_AutomorphismStabSubset_AddMat\n");
-    eMatrB:=KernelLinPolytopeIntegral_Isomorphism_Subspaces(eFamEXT1, eFamEXT2, GRP2, eEquiv);
-    if eMatrB=false then
-      Print("Subspaces algo returns false\n");
-      return false;
-    fi;
-    Print("We have eMatrB\n");
-  fi;
+  Print("We have eMatrB\n");
   return LORENTZ_TestEquivalence_CheckAndReturn(LorMat1, LorMat2, eFamEXT1, eFamEXT2, eMatrB);
 end;
 
@@ -1163,17 +1127,8 @@ LORENTZ_DoFlipping:=function(LorMat, ListIso, eInc, TheOption)
   return TheFlip;
 end;
 
-
-#
-# Using the ListVect, we get a slightly finer invariant.
-# But the cost of computing ListVect can be tremendous, so better not to
-# in general.
 LORENTZ_Invariant:=function(LorMat, eFamEXT)
-#  local ListVect;
-#  ListVect:=LORENTZ_GetDeterminingVectFamily(LorMat, eFamEXT);
-#  return GetScalarMatrixInvariant_PolytopeStabSubset_AddMat(ListVect, eFamEXT, [LorMat]);
-  Print("Computing invariant for det(LorMat)=", DeterminantMat(LorMat), " |eFamEXT|=", Length(eFamEXT), "\n");
-  return GetScalarMatrixInvariant_PolytopeStabSubset_AddMat(eFamEXT, eFamEXT, [LorMat]);
+  return GetScalarMatrixInvariant_Polytope_AddMat(eFamEXT, [LorMat]);
 end;
 
 

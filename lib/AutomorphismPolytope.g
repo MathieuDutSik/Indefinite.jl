@@ -1,8 +1,3 @@
-FileGRP_ComputeAut_ListMat_Subset_EXT:=Filename(DirectoriesPackagePrograms("indefinite"),"GRP_ListMat_Subset_EXT_Automorphism");
-FileGRP_TestEquivalence_ListMat_Subset_EXT:=Filename(DirectoriesPackagePrograms("indefinite"),"GRP_ListMat_Subset_EXT_Isomorphism");
-FileGRP_Invariant_ListMat_Subset_EXT:=Filename(DirectoriesPackagePrograms("indefinite"),"GRP_ListMat_Subset_EXT_Invariant");
-
-
 ShortVectorDutourVersion:=function(GramMat, eNorm)
   local H, eNormRed, GramMatRed, SHV, ListVector, iV, eV;
   H:=RemoveFractionMatrixPlusCoef(GramMat);
@@ -195,22 +190,6 @@ __VectorConfiguration_Invariant_ComputeAdvanced:=function(eTool, eInc)
   return Concatenation(eVect1, eVect2, eVect3);
 end;
 
-Get_RecScalColor:=function(EXT, GramMat)
-  local GetScalarColor, GetLineColor, nbVert;
-  GetScalarColor:=function(i,j)
-    return EXT[i]*GramMat*EXT[j];
-  end;
-  GetLineColor:=function(i)
-    local eVect;
-    eVect:=EXT[i]*GramMat;
-    return EXT*eVect;
-  end;
-  nbVert:=Length(EXT);
-  return rec(n:=nbVert,
-             GetScalarColor:=GetScalarColor,
-             GetLineColor:=GetLineColor);
-end;
-
 
 Get_QinvMatrix:=function(EXT)
   local n, Qmat, eEXT;
@@ -232,19 +211,26 @@ LinPolytope_Automorphism:=function(EXT)
 end;
 
 
+ParseMyOscarPermIsomorphism:=function(eEquiv_oscar)
+    local TheList, eList;
+    TheList:=JuliaToGAP(IsList, eEquiv_oscar);
+    if Length(TheList) = 0 then
+        return false;
+    else
+        eList:=List(TheList, Oscar.GAP.julia_to_gap);
+        return PermList(eList);
+    fi;
+end;
+
+
+
 LinPolytope_Isomorphism_GramMat:=function(EXT1, GramMat1, EXT2, GramMat2)
     EXT1_oscar:=MatrixToOscar(EXT1);
     GramMat1_oscar:=MatrixToOscar(GramMat1);
     EXT2_oscar:=MatrixToOscar(EXT2);
     GramMat2_oscar:=MatrixToOscar(GramMat2);
-    eEquiv:=Oscar.GRP_LinPolytope_Isomorphism_GramMat(EXT1_oscar, GramMat1_oscar, EXT2_oscar, GramMat2_oscar);
-    TheList:=JuliaToGAP(IsList, eEquiv);
-    if Length(TheList) = 0 then
-        return false;
-    else
-        TheList:=List(TheList, Oscar.GAP.julia_to_gap);
-        return PermList(TheList);
-    fi;
+    eEquiv_oscar:=Oscar.GRP_LinPolytope_Isomorphism_GramMat(EXT1_oscar, GramMat1_oscar, EXT2_oscar, GramMat2_oscar);
+    return ParseMyOscarPermIsomorphism(eEquiv_oscar);
 end;
 
 
@@ -258,176 +244,36 @@ LinPolytope_Isomorphism:=function(EXT1, EXT2)
 end;
 
 
-WriteData_ListMat_Subset:=function(output, EXT, EXTsub, ListMat)
-    local ListVal, eEXT, eVal, eMat, i;
-    ListVal:=[];
-    for eEXT in EXT
-    do
-        eVal:=0;
-        if Position(EXTsub, eEXT)<>fail then
-            eVal:=1;
-        fi;
-        Add(ListVal, eVal);
-    od;
-    AppendTo(output, Length(ListMat), "\n");
-    for eMat in ListMat
-    do
-        CPP_WriteMatrix(output, eMat);
-    od;
-    CPP_WriteMatrix(output, EXT);
-    AppendTo(output, Length(EXT), "\n");
-    for i in [1..Length(EXT)]
-    do
-        AppendTo(output, " ", ListVal[i]);
-    od;
-    AppendTo(output, "\n");
-end;
-
-
-GetScalarMatrix_PolytopeStabSubset_AddMat:=function(EXT, EXTsub, ListAddMat)
-  local eSet, EXTred, ScalarMat, nbVert, RedoneScalarMat, eLine, iVert, jVert, eValMatr, eVal;
-  eSet:=Set(List(EXTsub, x->Position(EXT, x)));
-  if RankMat(EXT)<>Length(EXT[1]) then
-    Error("Rank error in _AddMat function");
-  fi;
-  ScalarMat:=__VectorConfigurationFullDim_ScalarMat_AddMat(EXT, ListAddMat);
-  nbVert:=Length(EXT);
-  RedoneScalarMat:=[];
-  for iVert in [1..nbVert]
-  do
-    eLine:=[];
-    for jVert in [1..nbVert]
-    do
-      eValMatr:=ScalarMat[iVert][jVert];
-      if iVert<>jVert then
-        Add(eLine, eValMatr);
-      else
-        if iVert in eSet then
-          eVal:=1;
-        else
-          eVal:=0;
-        fi;
-        Add(eLine, [eValMatr, eVal]);
-      fi;
-    od;
-    Add(RedoneScalarMat, eLine);
-  od;
-  return RedoneScalarMat;
-end;
-
-
-GetScalarMatrixInvariant_PolytopeStabSubset_AddMat_GAP:=function(EXT, EXTsub, ListAddMat)
-  local eSet, nbVert, GetValue, PreListValues, ListValues, iVert, jVert, eVal, pos, nbValues, ListOccDiag, ListOccOff;
-  eSet:=Set(List(EXTsub, x->Position(EXT, x)));
-  if RankMat(EXT)<>Length(EXT[1]) then
-    Error("Rank error in _AddMat function");
-  fi;
-  nbVert:=Length(EXT);
-  GetValue:=function(i, j)
-    local eLine, eMat;
-    eLine:=[];
-    for eMat in ListAddMat
-    do
-      Add(eLine, EXT[i] * eMat * EXT[j]);
-    od;
-    if i=j then
-      if i in eSet then
-        Add(eLine, 1);
-      else
-        Add(eLine, 0);
-      fi;
-    fi;
-    return eLine;
-  end;
-  PreListValues:=[];
-  for iVert in [1..nbVert]
-  do
-    for jVert in [1..nbVert]
-    do
-      eVal:=GetValue(iVert, jVert);
-      if Position(PreListValues, eVal)=fail then
-        Add(PreListValues, eVal);
-      fi;
-    od;
-  od;
-  ListValues:=Set(PreListValues);
-  nbValues:=Length(ListValues);
-  ListOccDiag:=ListWithIdenticalEntries(nbValues, 0);
-  for iVert in [1..nbVert]
-  do
-    eVal:=GetValue(iVert, iVert);
-    pos:=Position(ListValues, eVal);
-    ListOccDiag[pos]:=ListOccDiag[pos] + 1;
-  od;
-  ListOccOff:=ListWithIdenticalEntries(nbValues, 0);
-  for iVert in [1..nbVert]
-  do
-    for jVert in [1..nbVert]
-    do
-      if iVert<>jVert then
-        eVal:=GetValue(iVert, jVert);
-        pos:=Position(ListValues, eVal);
-        ListOccOff[pos]:=ListOccOff[pos] + 1;
-      fi;
-    od;
-  od;
-  return rec(ListValues:=ListValues, ListOccDiag:=ListOccDiag, ListOccOff:=ListOccOff);
-end;
-
-
-GetScalarMatrixInvariant_PolytopeStabSubset_AddMat:=function(EXT, EXTsub, ListAddMat)
-    local ListMat, FileI, FileO, output, eInv;
+GetScalarMatrixInvariant_Polytope_AddMat:=function(EXT, ListAddMat)
+    EXT_oscar:=MatrixToOscar(EXT);
+    Qinv:=Get_QinvMatrix(EXT);
     ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
-    FileI:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.in");
-    FileO:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.out");
-    output:=OutputTextFile(FileI, true);
-    WriteData_ListMat_Subset(output, EXT, EXTsub, ListMat);
-    CloseStream(output);
-    #
-    Exec(FileGRP_Invariant_ListMat_Subset_EXT, " ", FileI, " ", FileO);
-    eInv:=ReadAsFunction(FileO)();
-    RemoveFile(FileI);
-    RemoveFile(FileO);
-    return eInv;
+    ListMat_oscar:=ListMatrixToOscar(ListMat);
+    return Oscar.GRP_ListMat_Subset_EXT_Invariant(EXT_oscar, ListMat_oscar);
 end;
 
 
-LinPolytope_AutomorphismStabSubset_AddMat:=function(EXT, EXTsub, ListAddMat)
-    local output, ListMat, GRP, FileI, FileO;
+LinPolytope_Automorphism_AddMat:=function(EXT, ListAddMat)
+    EXT_oscar:=MatrixToOscar(EXT);
+    Qinv:=Get_QinvMatrix(EXT);
     ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
-    FileI:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.in");
-    FileO:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_auto.out");
-    output:=OutputTextFile(FileI, true);
-    WriteData_ListMat_Subset(output, EXT, EXTsub, ListMat);
-    CloseStream(output);
-    #
-    Exec(FileGRP_ComputeAut_ListMat_Subset_EXT, " ", FileI, " ", FileO);
-    GRP:=ReadAsFunction(FileO)();
-    RemoveFile(FileI);
-    RemoveFile(FileO);
-    return GRP;
+    ListMat_oscar:=ListMatrixToOscar(ListMat);
+    GRP_oscar:=Oscar.GRP_ListMat_Subset_EXT_Automorphism(EXT_oscar, ListMat_oscar);
+    return ReadOscarPermutationGroup(GRP_oscar);
 end;
 
 
-LinPolytope_IsomorphismStabSubset_AddMat:=function(EXT1, EXTsub1, EXT2, EXTsub2, ListAddMat1, ListAddMat2)
-    local RedoneScalarMat1, RedoneScalarMat2, eEquiv, FileI, FileO, ListMat1, ListMat2, output, TheOut, UseMethod;
-    FileI:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_isom.in");
-    FileO:=Filename(POLYHEDRAL_tmpdir,"ListMatSubset_isom.out");
+LinPolytope_Isomorphism_AddMat:=function(EXT1, EXT2, ListAddMat1, ListAddMat2)
+    EXT1_oscar:=MatrixToOscar(EXT1);
+    Qinv1:=Get_QinvMatrix(EXT1);
     ListMat1:=Concatenation([Get_QinvMatrix(EXT1)], ListAddMat1);
+    ListMat1_oscar:=ListMatrixToOscar(ListMat1);
+    EXT2_oscar:=MatrixToOscar(EXT2);
+    Qinv2:=Get_QinvMatrix(EXT2);
     ListMat2:=Concatenation([Get_QinvMatrix(EXT2)], ListAddMat2);
-    output:=OutputTextFile(FileI, true);
-    WriteData_ListMat_Subset(output, EXT1, EXTsub1, ListMat1);
-    WriteData_ListMat_Subset(output, EXT2, EXTsub2, ListMat2);
-    CloseStream(output);
-    Exec(FileGRP_TestEquivalence_ListMat_Subset_EXT, " ", FileI, " ", FileO);
-    TheOut:=ReadAsFunction(FileO)();
-    RemoveFile(FileI);
-    RemoveFile(FileO);
-    if TheOut=false then
-        return false;
-    else
-        return PermList(TheOut);
-    fi;
+    ListMat2_oscar:=ListMatrixToOscar(ListMat2);
+    eEquiv_oscar:=Oscar.GRP_ListMat_Subset_EXT_Isomorphism(EXT1_oscar, GramMat1_oscar, EXT2_oscar, GramMat2_oscar);
+    return ParseMyOscarPermIsomorphism(eEquiv_oscar);
 end;
 
 
