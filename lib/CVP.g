@@ -118,17 +118,12 @@ General_CVPVallentinProgram_Rational:=function(GramMatIn, eV, recOption)
   TheRemainder:=res.remainder;
   TheTransform:=res.transformation;
   InvTrans:=Inverse(TheTransform);
-#  Print("TheRemainder=\n");
-#  PrintArray(TheRemainder);
   if InvTrans*TheRemainder*TransposedMat(InvTrans)<>GramMat then
     Error("Error in LLL computation");
   fi;
   eVP:=eV*InvTrans;
   eVPnear:=List(eVP, NearestInteger);
   eVPdiff:=eVP - eVPnear;
-#  Print("TheRemainder=\n");
-#  PrintArray(TheRemainder);
-#  Print("eVPdiff=", eVPdiff, "\n");
   TheRecSol:=Kernel_CVPVallentinProgramIntegral(TheRemainder, eVPdiff, recOption);
   ListVectRet:=List(TheRecSol.ListVect, x->(x+eVPnear)*TheTransform);
   TheNorm:=TheRecSol.TheNorm;

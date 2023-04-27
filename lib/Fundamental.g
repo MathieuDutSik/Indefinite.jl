@@ -327,7 +327,7 @@ end;
 
 
 GetZbasis:=function(ListElements)
-  local TheDim, ListEqua, TheBasis, InvMatrix, eSet, GetOneBasis, ComputeSpeedingElements, FuncInsert, eElt, eEltRed, eSol, eLine, TheMult, DoCheck;
+  local TheDim, ListEqua, TheBasis, InvMatrix, eSet, GetOneBasis, ComputeSpeedingElements, FuncInsert, eElt, eEltRed, eSol, eLine, TheMult;
   if Length(ListElements)=0 then
     Print("|ListElements|=", Length(ListElements), "\n");
     Error("Problem in GetZbasis, we need at least one element");
@@ -413,23 +413,6 @@ GetZbasis:=function(ListElements)
       Error("Inconsistency in basis computation");
     fi;
   od;
-  DoCheck:=true;
-  if DoCheck then
-    for eLine in TheBasis
-    do
-      eSol:=SolutionIntMat(ListElements*TheMult, eLine*TheMult);
-      if eSol=fail then
-        Error("Error in GetZbasis 1");
-      fi;
-    od;
-    for eLine in ListElements
-    do
-      eSol:=SolutionIntMat(TheBasis*TheMult, eLine*TheMult);
-      if eSol=fail then
-        Error("Error in GetZbasis 2");
-      fi;
-    od;
-  fi;
   return TheBasis;
 end;
 
