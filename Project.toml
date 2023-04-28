@@ -1,0 +1,9 @@
+name = "Indefinite"
+uuid = "45c00fa2-1600-43ce-a2e6-f91e59655264"
+authors = ["Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>"]
+version = "0.1.0"
+
+[compat]
+julia = "1.6"
+Hecke = "0.18.2"
+GAP = "0.9.4"
