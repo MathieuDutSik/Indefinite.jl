@@ -1,4 +1,27 @@
+function WriteMatrix_to_file(FileName::String, M::Nemo.QQMatrix)
+  f = open(FileName, "w")
+  n_rows = rows(M)
+  n_cols = cols(M)
+  str_header = string(string(n_rows), " ", string(n_cols), "\n")
+  write(f, str_header)
+  for i_row in 1:n_rows
+    for i_col in 1:n_cols
+      str_o = string(" ", string(M[i_row,i_col]))
+      write(f, str_o)
+    end
+    write(f, "\n")
+  end
+  close(f)
+end
+
+
+
 function GRP_LinPolytope_Automorphism_GramMat(EXT::Nemo.QQMatrix, GramMat::Nemo.QQMatrix)
+  FileEXT = tempname()
+  FileGram = tempname()
+  WriteMatrix_to_file(FileEXT, EXT)
+  WriteMatrix_to_file(FileGram, GramMat)
+  
   return "not done"
 end
 
