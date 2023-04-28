@@ -1,16 +1,15 @@
 function WriteMatrix_to_file(FileName::String, M::Nemo.QQMatrix)
-  f = open(FileName, "w")
   n_rows = rows(M)
   n_cols = cols(M)
-  str_header = string(string(n_rows), " ", string(n_cols), "\n")
-  write(f, str_header)
+  str_o = string(string(n_rows), " ", string(n_cols), "\n")
   for i_row in 1:n_rows
     for i_col in 1:n_cols
-      str_o = string(" ", string(M[i_row,i_col]))
-      write(f, str_o)
+      str_o = string(str_o, " ", string(M[i_row,i_col]))
     end
-    write(f, "\n")
+    str_o = string(str_o, "\n")
   end
+  f = open(FileName, "w")
+  write(f, str_o)
   close(f)
 end
 

@@ -7,9 +7,11 @@ version = "0.1.0"
 GAP = "c863536a-3901-11e9-33e7-d5cd0df7b904"
 Hecke = "3e1990a7-5d81-5526-99ce-9ba3ff248f21"
 Nemo = "2edaba10-b0f1-5616-af89-8c11ac63239a"
+polyhedral_jll = "e72bba8c-e5ad-11ed-3743-ff8b6f1bd14e"
 
 [compat]
 julia = "1.6"
 GAP = "0.9.4"
 Hecke = "0.18.2"
 Nemo = "0.33"
+polyhedral_jll = "0.1.0"
