@@ -226,12 +226,31 @@ function LATT_Isomorphism(ListGramMat1::Vector{Nemo.QQMatrix}, ListGramMat2::Vec
 end
 
 function LinearProgramming(InequalitySet::Nemo.QQMatrix, ToBeMinimized::Nemo.QQMatrix)
-
-
-
-  return "not done"
+  FileFAC = tempname()
+  FileIneq = tempname()
+  WriteMatrix_to_file(FileFAC, InequalitySet)
+  WriteVector_to_file(FileIneq, ToBeMinimized)
+  FileOut = tempname()
+  run(pipeline("POLY_cdd_LinearProgramming", "rational", FileFAC, FileIneq, "Oscar", FileOut))
+  f = open(FileOut, "r")
+  answer = read(f, String)
+  optimal_value = read(f, QQFieldElem)
+  primal_solution = ReadVector_from_stream(f)
+  dual_solution = ReadVector_from_stream(f)
+  close(f)
+  rm(FileFAC)
+  rm(FileIneq)
+  rm(FileOut)
+  return [optimal_value, primal_solution, dual_solution]
 end
 
 function POLY_samplingFacets(FAC::Nemo.QQMatrix, command::String)
-  return "not done"
+  FileFAC = tempname()
+  WriteMatrix_to_file(FileFAC, FAC)
+  FileOut = tempname()
+  run(pipeline("POLY_samplingFacets", "rational", command, FileFAC, "Oscar", FileOut))
+  ListIncd = ReadMatrix_from_file(FileOut)
+  rm(FileFAC)
+  rm(FileOut)
+  return ListIncd
 end
