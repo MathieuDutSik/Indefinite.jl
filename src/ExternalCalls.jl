@@ -17,6 +17,14 @@ function WriteMatrix_to_file(FileName::String, M::Nemo.QQMatrix)
   close(f)
 end
 
+function WriteListMatrix_to_stream(f::IOStream, ListM::Vector{Nemo.QQMatrix})
+  n_mat = size(ListM)[1]
+  write(f, string(n_mat))
+  for i_mat in 1:n_mat
+    WriteMatrix_to_stream(f, ListM[i_mat])
+  end
+end
+
 function WriteVector_to_stream(f::IOStream, V::Nemo.QQMatrix)
   n_cols = cols(M)
   str_o = string(string(n_cols), "\n")
@@ -32,6 +40,10 @@ function WriteVector_to_file(FileName::String, V::Nemo.QQMatrix)
   WriteVector_to_stream(f::IOStream, V::Nemo.QQMatrix)
   close(f)
 end
+
+
+
+
 
 function ReadMatrix_from_stream(f::IOStream)
   n_row = read(f, Int64)
@@ -90,7 +102,7 @@ function GRP_LinPolytope_Automorphism_GramMat(EXT::Nemo.QQMatrix, GramMat::Nemo.
   WriteMatrix_to_file(FileEXT, EXT)
   WriteMatrix_to_file(FileGram, GramMat)
   run(pipeline("GRP_LinPolytope_Automorphism_GramMat", "rational", FileEXT, FileGram, FileGroup))
-  GRP = ReadGroupFile(FileGroup)
+  GRP = ReadGroup_from_file(FileGroup)
   rm(FileEXT)
   rm(FileGram)
   rm(FileGroup)
@@ -117,24 +129,56 @@ function GRP_LinPolytope_Isomorphism_GramMat(EXT1::Nemo.QQMatrix, GramMat1::Nemo
   return TheEquiv
 end
 
-function GRP_ListMat_Subset_EXT_Automorphism(EXT::Nemo.QQMatrix, GramMat::Nemo.QQMatrix)
-  FileEXT = tempname()
-  FileGram = tempname()
-  WriteMatrix_to_file(FileEXT, EXT)
-  WriteMatrix_to_file(FileGram, GramMat)
-  
-
-
-
-  return "not done"
+function GRP_ListMat_Subset_EXT_Automorphism(EXT::Nemo.QQMatrix, ListGramMat::Vector{Nemo.QQMatrix}, Vdiag::Nemo.QQMatrix)
+  FileInput = tempname()
+  FileOut = tempname()
+  f = open(FileInput, "w")
+  WriteListMatrix_to_stream(f, ListGramMat)
+  WriteMatrix_to_stream(f, EXT)
+  WriteVector_to_stream(f, Vdiag)
+  close(f)
+  run(pipeline("GRP_ListMat_Subset_EXT_Automorphism", FileInput, "Oscar", FileOut))
+  GRP = ReadGroup_from_file(FileGroup)
+  rm(FileInput)
+  rm(FileOut)
+  return GRP
 end
 
-function GRP_ListMat_Subset_EXT_Isomorphism(EXT1::Nemo.QQMatrix, GramMat1::Nemo.QQMatrix, EXT2::Nemo.QQMatrix, GramMat2::Nemo.QQMatrix)
-  return "not done"
+function GRP_ListMat_Subset_EXT_Isomorphism(EXT1::Nemo.QQMatrix, ListGramMat1::Vector{Nemo.QQMatrix}, Vdiag1::Nemo.QQMatrix, EXT2::Nemo.QQMatrix, ListGramMat2::Vector{Nemo.QQMatrix}, Vdiag2::Nemo.QQMatrix)
+  FileInput = tempname()
+  FileOut = tempname()
+  f = open(FileInput, "w")
+  WriteListMatrix_to_stream(f, ListGramMat1)
+  WriteMatrix_to_stream(f, EXT1)
+  WriteVector_to_stream(f, Vdiag1)
+  WriteListMatrix_to_stream(f, ListGramMat2)
+  WriteMatrix_to_stream(f, EXT2)
+  WriteVector_to_stream(f, Vdiag2)
+  close(f)
+  run(pipeline("GRP_ListMat_Subset_EXT_Isomorphism", FileInput, "Oscar", FileOut))
+  eVect = ReadVector_from_file(FileOut)
+  rm(FileInput)
+  rm(FileOut)
+  return eVect
 end
 
 function LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist::Nemo.QQFieldElem)
-  return "not done"
+  if Dist == 0
+    choice = "nearest"
+  else
+    choice = string("near=", string(Dist))
+  end
+  FileGram = tempname()
+  FileV = tempname()
+  FileOut = tempname()
+  WriteMatrix_from_file(FileGram, GramMat)
+  WriteMatrix_from_file(FileV, eV)
+  run(pipeline("LATT_near", "rational", choice, FileGram, FileV, "Oscar", FileOut))
+  MatVector = ReadMatrix_from_file(FileOut)
+  rm(FileGram)
+  rm(FileV)
+  rm(FileOut)
+  return MatVector
 end
 
 function POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GroupExt::Nemo.ZZMatrix)
@@ -144,11 +188,8 @@ end
 function IndefiniteReduction(GramMat::Nemo.QQMatrix)
   FileGram = tempname()
   FileOut = tempname()
-  n = rows(GramMat)
   WriteMatrix_to_file(FileGram, GramMat)
   run(pipeline("IndefiniteReduction", FileGram, "Oscar", FileOut))
-  B = zero_matrix(QQ, n, n)
-  Mred = zero_matrix(QQ, n, n)
   #
   f = open(FileOut, "r")
   B = ReadMatrix_from_stream(f)
@@ -160,15 +201,34 @@ function IndefiniteReduction(GramMat::Nemo.QQMatrix)
 end
 
 function LATT_Automorphism(ListGramMat::Vector{Nemo.QQMatrix})
-  return "notdone"
+  FileListGram = tempname()
+  FileOut = tempname()
+  WriteListMatrix_to_file(FileListGram, ListGramMat)
+  run(pipeline("LATT_Automorphism", FileListGram, "Oscar", FileOut))
+  ListGens = ReadListMatrix_from_file(FileOut)
+  rm(FileListGram)
+  rm(FileOut)
+  return ListGens
 end
 
 function LATT_Isomorphism(ListGramMat1::Vector{Nemo.QQMatrix}, ListGramMat2::Vector{Nemo.QQMatrix})
-  return "not done"
+  FileListGram1 = tempname()
+  FileListGram2 = tempname()
+  FileOut = tempname()
+  WriteListMatrix_to_file(FileListGram1, ListGramMat1)
+  WriteListMatrix_to_file(FileListGram2, ListGramMat2)
+  run(pipeline("LATT_Isomorphism", FileListGram1, FileListGram2, "Oscar", FileOut))
+  TheEquiv = ReadMatrix_from_file(FileOut)
+  rm(FileListGram1)
+  rm(FileListGram2)
+  rm(FileOut)
+  return TheEquiv
 end
 
 function LinearProgramming(InequalitySet::Nemo.QQMatrix, ToBeMinimized::Nemo.QQMatrix)
-  
+
+
+
   return "not done"
 end
 
