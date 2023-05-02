@@ -64,8 +64,7 @@ function ReadGroup_from_stream(f::IOStream)
   str_o = "Group("
   if n_gen > 0
     str_o = string(str_o, "[")
-    for i_gen in 1::n_gen
-    do
+    for i_gen in 1:n_gen
       if i_gen > 1
         str_o = string(str_o, ",")
       end
@@ -75,10 +74,10 @@ function ReadGroup_from_stream(f::IOStream)
         if i > 1
           str_o = string(str_o, ",")
         end
-        str_o = string(str_o, string(pos + 1)))
+        str_o = string(str_o, string(pos + 1))
       end
       str_o = string(str_o, "])")
-    od
+    end
     str_o = string(str_o, "]")
   else
     str_o = string(str_o, "()")
