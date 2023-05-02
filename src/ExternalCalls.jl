@@ -53,8 +53,15 @@ function ReadMatrix_from_stream(f::IOStream)
   return M
 end
 
+function ReadMatrix_from_file(FileName::String)
+  f = open(FileName, "r")
+  M = ReadMatrix_from_stream(f::IOStream)
+  close(f)
+  return M
+end
 
-function WriteGroup_to_stream(f::IOStream, n, GRP::GAP_jll.GapObj)
+
+function WriteGroup_to_stream(f::IOStream, n, GRP::GAP.GAP_jll.GapObj)
   LGen = GAP.Globals.GeneratorsOfGroup(GRP)
   n_gen = GAP.Globals.Length(LGen)
   str_o = string(string(n), " ", string(n_gen), "\n")
@@ -69,7 +76,7 @@ function WriteGroup_to_stream(f::IOStream, n, GRP::GAP_jll.GapObj)
   write(f, str_o)
 end
 
-function WriteGroup_to_file(FileName::String, n, GRP::GAP_jll.GapObj)
+function WriteGroup_to_file(FileName::String, n, GRP::GAP.GAP_jll.GapObj)
   f = open(FileName, "w")
   WriteGroup_to_stream(f, n, GRP)
   close(f)
@@ -211,7 +218,7 @@ function LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist::Nemo.QQField
   return MatVector
 end
 
-function POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GRP::GAP_jll.GapObj)
+function POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GRP::GAP.GAP_jll.GapObj)
   FileEXT = tempname()
   FileGRP = tempname()
   FileOut = tempname()
