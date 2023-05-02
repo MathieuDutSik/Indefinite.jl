@@ -44,7 +44,8 @@ end
 function ReadMatrix_from_stream(f::IOStream)
   n_row = read(f, Int64)
   n_col = read(f, Int64)
-  M = zero_matrix(QQ, n_row, n_col)
+  print("n_row=", n_row, " n_col=", n_col, "\n")
+  M = Nemo.zero_matrix(Nemo.QQ, n_row, n_col)
   for i in 1:n_row
     for j in 1:n_col
       M[i,j] = read(f, QQ)
