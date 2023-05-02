@@ -5,6 +5,8 @@ import Hecke
 import Nemo
 import polyhedral_jll
 
+using BinaryWrappers
+
 include("ExternalCalls.jl")
 
 
