@@ -41,10 +41,6 @@ function WriteVector_to_file(FileName::String, V::Nemo.QQMatrix)
   close(f)
 end
 
-
-
-
-
 function ReadMatrix_from_stream(f::IOStream)
   n_row = read(f, Int64)
   n_col = read(f, Int64)
@@ -55,6 +51,28 @@ function ReadMatrix_from_stream(f::IOStream)
     end
   end
   return M
+end
+
+
+function WriteGroup_to_stream(f::IOStream, n, GRP::GAP_jll.GapObj)
+  LGen = GAP.Globals.GeneratorsOfGroup(GRP)
+  n_gen = GAP.Globals.Length(LGen)
+  str_o = string(string(n), " ", string(n_gen), "\n")
+  for i_gen in 1:n_gen
+    eGen = LGen[i_gen]
+    for i in 1:n
+      eImg = GAP.Globals.OnPoints(i, eGen)
+      str_o = string(str_o, " ", eImg)
+    end
+    str_o = string(str_o, "\n")
+  end
+  write(f, str_o)
+end
+
+function WriteGroup_to_file(FileName::String, n, GRP::GAP_jll.GapObj)
+  f = open(FileName, "w")
+  WriteGroup_to_stream(f, n, GRP)
+  close(f)
 end
 
 
@@ -94,13 +112,26 @@ function ReadGroup_from_file(FileName::String)
 end
 
 
+function GRP_LinPolytope_Automorphism(EXT::Nemo.QQMatrix)
+  FileEXT = tempname()
+  FileGroup = tempname()
+  WriteMatrix_to_file(FileEXT, EXT)
+  run(pipeline("GRP_LinPolytope_Automorphism", "rational", FileEXT, "Oscar", FileGroup))
+  GRP = ReadGroup_from_file(FileGroup)
+  rm(FileEXT)
+  rm(FileGroup)
+  return GRP
+end
+
+
+
 function GRP_LinPolytope_Automorphism_GramMat(EXT::Nemo.QQMatrix, GramMat::Nemo.QQMatrix)
   FileEXT = tempname()
   FileGram = tempname()
   FileGroup = tempname()
   WriteMatrix_to_file(FileEXT, EXT)
   WriteMatrix_to_file(FileGram, GramMat)
-  run(pipeline("GRP_LinPolytope_Automorphism_GramMat", "rational", FileEXT, FileGram, FileGroup))
+  run(pipeline("GRP_LinPolytope_Automorphism_GramMat", "rational", FileEXT, FileGram, "Oscar", FileGroup))
   GRP = ReadGroup_from_file(FileGroup)
   rm(FileEXT)
   rm(FileGram)
@@ -170,9 +201,9 @@ function LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist::Nemo.QQField
   FileGram = tempname()
   FileV = tempname()
   FileOut = tempname()
-  WriteMatrix_from_file(FileGram, GramMat)
-  WriteMatrix_from_file(FileV, eV)
-  run(pipeline("LATT_near", "rational", choice, FileGram, FileV, "Oscar", FileOut))
+  WriteMatrix_to_file(FileGram, GramMat)
+  WriteVector_to_file(FileV, eV)
+  run(pipeline("sv_near", "rational", choice, FileGram, FileV, "Oscar", FileOut))
   MatVector = ReadMatrix_from_file(FileOut)
   rm(FileGram)
   rm(FileV)
@@ -180,8 +211,19 @@ function LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist::Nemo.QQField
   return MatVector
 end
 
-function POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GroupExt::Nemo.ZZMatrix)
-  return "not done"
+function POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GRP::GAP_jll.GapObj)
+  FileEXT = tempname()
+  FileGRP = tempname()
+  FileOut = tempname()
+  WriteMatrix_to_file(FileEXT, EXT)
+  n = rows(EXT)
+  WriteGroup_to_file(FileGRP, n, GRP)
+  run(pipeline("POLY_dual_description_group", "rational", method, FileEXT, FileGRP, "Oscar", FileOut))
+  MatVector = ReadMatrix_from_file(FileOut)
+  rm(FileEXT)
+  rm(FileGRP)
+  rm(FileOut)
+  return MatVector
 end
 
 function IndefiniteReduction(GramMat::Nemo.QQMatrix)
@@ -253,3 +295,4 @@ function POLY_samplingFacets(FAC::Nemo.QQMatrix, command::String)
   rm(FileOut)
   return ListIncd
 end
+
