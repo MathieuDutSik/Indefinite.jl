@@ -1,6 +1,34 @@
+function parse_NN(strin::String)
+  if length(strin) < 6
+    val = parse(Int64, strin)
+    return Nemo.QQ(val)
+  else
+    print("Code needs to be written here")
+  end
+end
+
+
+function parse_QQ(strin::String)
+  if strin == "-"
+    sign = -1
+    strin_B = strin[2:end]
+  else
+    sign = 1
+    strin_B = strin[1:end]
+  end
+  LStr = split(strin_B, "/")
+  if length(LStr) == 1
+    return sign * parse_NN(strin_B)
+  else
+    val1 = parse_NN(LStr[1])
+    val2 = parse_NN(LStr[2])
+    return sign * val1 / val2
+  end
+end
+
 function WriteMatrix_to_stream(f::IOStream, M::Nemo.QQMatrix)
-  n_rows = rows(M)
-  n_cols = cols(M)
+  n_rows = Nemo.nrows(M)
+  n_cols = Nemo.ncols(M)
   str_o = string(string(n_rows), " ", string(n_cols), "\n")
   for i_row in 1:n_rows
     for i_col in 1:n_cols
@@ -42,13 +70,18 @@ function WriteVector_to_file(FileName::String, V::Nemo.QQMatrix)
 end
 
 function ReadMatrix_from_stream(f::IOStream)
-  n_row = read(f, Int64)
-  n_col = read(f, Int64)
+  line_first = readline(f)
+  LStr = split(line_first, " ")
+  n_row = parse(Int64, LStr[1])
+  n_col = parse(Int64, LStr[2])
   print("n_row=", n_row, " n_col=", n_col, "\n")
   M = Nemo.zero_matrix(Nemo.QQ, n_row, n_col)
   for i in 1:n_row
+    eline = readline(f)
+    LStr = split(eline, " ")
     for j in 1:n_col
-      M[i,j] = read(f, QQ)
+      val = parse_QQ(string(LStr[j+1]))
+      M[i,j] = val
     end
   end
   return M
@@ -124,7 +157,8 @@ function GRP_LinPolytope_Automorphism(EXT::Nemo.QQMatrix)
   FileEXT = tempname()
   FileGroup = tempname()
   WriteMatrix_to_file(FileEXT, EXT)
-  run(pipeline("GRP_LinPolytope_Automorphism", "rational", FileEXT, "Oscar", FileGroup))
+  TheCommand = string("GRP_LinPolytope_Automorphism", " ", "rational", " ", FileEXT, " Oscar ", FileGroup)
+  run(`$TheCommand`)
   GRP = ReadGroup_from_file(FileGroup)
   rm(FileEXT)
   rm(FileGroup)
@@ -224,7 +258,7 @@ function POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GRP::GA
   FileGRP = tempname()
   FileOut = tempname()
   WriteMatrix_to_file(FileEXT, EXT)
-  n = rows(EXT)
+  n = nrows(EXT)
   WriteGroup_to_file(FileGRP, n, GRP)
   run(pipeline("POLY_dual_description_group", "rational", method, FileEXT, FileGRP, "Oscar", FileOut))
   MatVector = ReadMatrix_from_file(FileOut)
