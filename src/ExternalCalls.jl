@@ -68,6 +68,25 @@ function WriteListMatrix_to_file(FileName::String, ListM::Vector{Nemo.QQMatrix})
   close(f)
 end
 
+function ReadListMatrix_from_stream(f::IOStream)
+  line = readline(f)
+  n_mat = parse(Int64, line)
+  ListM = Vector{Nemo.QQMatrix}(undef,0)
+  for i_mat in 1:n_mat
+    M = ReadMatrix_from_stream(f::IOStream)
+    push!(ListM, M)
+  end
+  return ListM
+end
+
+function ReadListMatrix_from_file(FileName::String)
+  f = open(FileName, "r")
+  ListM = ReadListMatrix_from_stream(f::IOStream)
+  close(f)
+  return ListM
+end
+
+
 function WriteVector_to_stream(f::IOStream, V::Nemo.QQMatrix)
   n_cols = cols(M)
   str_o = string(string(n_cols), "\n")
