@@ -53,6 +53,12 @@ function WriteListMatrix_to_stream(f::IOStream, ListM::Vector{Nemo.QQMatrix})
   end
 end
 
+function WriteListMatrix_to_file(FileName::String, ListM::Vector{Nemo.QQMatrix})
+  f = open(FileName, "w")
+  WriteListMatrix_to_stream(f, ListM)
+  close(f)
+end
+
 function WriteVector_to_stream(f::IOStream, V::Nemo.QQMatrix)
   n_cols = cols(M)
   str_o = string(string(n_cols), "\n")
@@ -115,6 +121,12 @@ function ReadVector_from_file(FileName::String)
   return V
 end
 
+function ReadScalar_from_stream(f::IOStream)
+  line_first = readline(f)
+  return parse_QQ(line_first)
+end
+
+
 
 function WriteGroup_to_stream(f::IOStream, n, GRP::GAP.GAP_jll.GapObj)
   LGen = GAP.Globals.GeneratorsOfGroup(GRP)
@@ -124,7 +136,7 @@ function WriteGroup_to_stream(f::IOStream, n, GRP::GAP.GAP_jll.GapObj)
     eGen = LGen[i_gen]
     for i in 1:n
       eImg = GAP.Globals.OnPoints(i, eGen)
-      str_o = string(str_o, " ", eImg)
+      str_o = string(str_o, " ", eImg - 1)
     end
     str_o = string(str_o, "\n")
   end
@@ -400,15 +412,15 @@ function LinearProgramming(InequalitySet::Nemo.QQMatrix, ToBeMinimized::Nemo.QQM
   opt5 = FileOut
   run(`$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5`)
   f = open(FileOut, "r")
-  answer = read(f, String)
-  optimal_value = read(f, QQFieldElem)
+  answer = readline(f)
+  optimal_value = ReadScalar_from_stream(f)
   primal_solution = ReadVector_from_stream(f)
   dual_solution = ReadVector_from_stream(f)
   close(f)
   rm(FileFAC)
   rm(FileIneq)
   rm(FileOut)
-  return [optimal_value, primal_solution, dual_solution]
+  return [answer, optimal_value, primal_solution, dual_solution]
 end
 
 function POLY_samplingFacets(FAC::Nemo.QQMatrix, command::String)
