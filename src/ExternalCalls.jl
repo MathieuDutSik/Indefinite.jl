@@ -29,9 +29,19 @@ function parse_QQ(strin::String)
   if length(LStr) == 1
     return sign * parse_NN(strin_B)
   else
-    val1 = parse_NN(LStr[1])
-    val2 = parse_NN(LStr[2])
+    val1 = parse_NN(string(LStr[1]))
+    val2 = parse_NN(string(LStr[2]))
     return sign * val1 / val2
+  end
+end
+
+function string_QQ(theval::Nemo.QQFieldElem)
+  thestr = string(theval)
+  LStr = split(thestr, "/")
+  if length(LStr) == 1
+    return thestr
+  else
+    return string(LStr[1], "/", LStr[3])
   end
 end
 
@@ -41,7 +51,7 @@ function WriteMatrix_to_stream(f::IOStream, M::Nemo.QQMatrix)
   str_o = string(string(n_rows), " ", string(n_cols), "\n")
   for i_row in 1:n_rows
     for i_col in 1:n_cols
-      str_o = string(str_o, " ", string(M[i_row,i_col]))
+      str_o = string(str_o, " ", string_QQ(M[i_row,i_col]))
     end
     str_o = string(str_o, "\n")
   end
@@ -91,7 +101,7 @@ function WriteVector_to_stream(f::IOStream, V::Nemo.QQMatrix)
   n_cols = Nemo.ncols(V)
   str_o = string(string(n_cols), "\n")
   for i_col in 1:n_cols
-    str_o = string(str_o, " ", string(V[1,i_col]))
+    str_o = string(str_o, " ", string_QQ(V[1,i_col]))
   end
   str_o = string(str_o, "\n")
   write(f, str_o)
@@ -451,11 +461,11 @@ function LinearProgramming(InequalitySet::Nemo.QQMatrix, ToBeMinimized::Nemo.QQM
   return [answer, optimal_value, primal_solution, dual_solution]
 end
 
-function POLY_samplingFacets(FAC::Nemo.QQMatrix, command::String)
+function POLY_sampling_facets(FAC::Nemo.QQMatrix, command::String)
   FileFAC = tempname()
   WriteMatrix_to_file(FileFAC, FAC)
   FileOut = tempname()
-  TheCommand = "POLY_samplingFacets"
+  TheCommand = "POLY_sampling_facets"
   opt1 = "rational"
   opt2 = command
   opt3 = FileFAC

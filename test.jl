@@ -1,3 +1,7 @@
+using Nemo
+
+#
+
 FileSchlafli = "TestCases/GRP_LINPOLYTOPE_AUTOMORPHISM_case1_EXT27"
 EXT27 = Indefinite.ReadMatrix_from_file(FileSchlafli)
 GRP27 = Indefinite.GRP_LinPolytope_Automorphism(EXT27)
@@ -31,3 +35,11 @@ ListIncd = Indefinite.POLY_dual_description_group("lrs_ring", POLY_DD_case1_EXT,
 
 #
 
+POLY_SAMP_case1_EXT = Indefinite.ReadMatrix_from_file("TestCases/POLY_SAMPLING_FACETS_case1_FileI")
+ListIncd = Indefinite.POLY_sampling_facets(POLY_SAMP_case1_EXT, "lp_cdd")
+
+#
+
+SV_NEAR_case1_Gram = Indefinite.ReadMatrix_from_file("TestCases/SV_NEAR_case1_Gram")
+SV_NEAR_case1_V = Indefinite.ReadVector_from_file("TestCases/SV_NEAR_case1_V")
+ListVect = Indefinite.LATT_near(SV_NEAR_case1_Gram, SV_NEAR_case1_V, Nemo.QQ(0))
