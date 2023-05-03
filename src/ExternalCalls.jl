@@ -95,6 +95,27 @@ function ReadMatrix_from_file(FileName::String)
 end
 
 
+function ReadVector_from_stream(f::IOStream)
+  line_first = readline(f)
+  n = parse(Int64, line_first)
+  V = Nemo.zero_matrix(Nemo.QQ, 1, n)
+  eline = readline(f)
+  LStr = split(eline, " ")
+  for j in 1:n
+    val = parse_QQ(string(LStr[j+1]))
+    M[1,j] = val
+  end
+  return V
+end
+
+function ReadVector_from_file(FileName::String)
+  f = open(FileName, "r")
+  V = ReadVector_from_stream(f::IOStream)
+  close(f)
+  return V
+end
+
+
 function WriteGroup_to_stream(f::IOStream, n, GRP::GAP.GAP_jll.GapObj)
   LGen = GAP.Globals.GeneratorsOfGroup(GRP)
   n_gen = GAP.Globals.Length(LGen)
@@ -162,7 +183,6 @@ function GRP_LinPolytope_Automorphism(EXT::Nemo.QQMatrix)
   FileEXT = tempname()
   FileGroup = tempname()
   WriteMatrix_to_file(FileEXT, EXT)
-#  TheCommand = string("GRP_LinPolytope_Automorphism", " ", "rational", " ", FileEXT, " Oscar ", FileGroup)
   TheCommand = "GRP_LinPolytope_Automorphism"
   opt1 = "rational"
   opt2 = FileEXT
