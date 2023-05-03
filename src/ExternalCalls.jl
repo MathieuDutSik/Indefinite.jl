@@ -3,7 +3,16 @@ function parse_NN(strin::String)
     val = parse(Int64, strin)
     return Nemo.QQ(val)
   else
-    print("Code needs to be written here")
+    thepow = Nemo.QQ(1)
+    len = length(strin)
+    theret = Nemo.QQ(0)
+    for i in 1:len
+      echar = strin[len + 1 - i]
+      val = Nemo.QQ(parse(Int64, echar))
+      theret += val * thepow
+      thepow = thepow * 10
+    end
+    return theret
   end
 end
 
