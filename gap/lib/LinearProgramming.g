@@ -11,8 +11,8 @@ LinearProgramming:=function(InequalitySet, ToBeMinimized)
     TheResult:=Oscar.LinearProgramming(InequalitySet_oscar, ToBeMinimized_oscar);
     answer:=TheResult[1];
     optimal_value:=TheResult[2];
-    DirectSolution:=OscarVectorToVector(TheResult[2]);
-    DualSolution:=OscarVectorToVector(TheResult[3]);
+    DirectSolution:=ReadOscarVector(TheResult[2]);
+    DualSolution:=ReadOscarVector(TheResult[3]);
     return rec(answer:=answer, optimalValue:=optimal_value, DirectSolution:=DirectSolution, DualSolution:=DualSolution);
 end;
 

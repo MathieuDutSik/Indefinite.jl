@@ -23,6 +23,28 @@ MatrixToOscar:=function(M)
     return JuliaEvalString(M_str);
 end;
 
+
+ListMatrixToOscar:=function(ListM)
+    local TotStr, i;
+    TotStr:="Vector{QQMatrix}([";
+    for i in [1..Length(ListM)]
+    do
+        if i > 1 then
+            TotStr:=Concatenation(TotStr, ",");
+        fi;
+        TotStr:=Concatenation(TotStr, MatrixToOscarString(ListM[i]));
+    od;
+    TotStr:=Concatenation(TotStr, "])");
+    return JuliaEvalString(TotStr);
+end;
+
+
+
+ScalarToOscar:=function(eScal)
+    return Oscar.Parse_QQ(String(eScal));
+end;
+
+
 VectorToOscarString:=function(eVect)
     local TheStr, IsFirst, eLine, eVal;
     TheStr:="[";
@@ -51,16 +73,32 @@ ReadOscarVector:=function(V_oscar)
     return List(eList, Oscar.GAP.julia_to_gap);
 end;
 
-ReadOscarListIncd:=function(ListIncd_oscar)
-    local eList, TheList, eEnt;
-    eList:=JuliaToGAP(IsList, V_oscar);
-    TheList:=[];
-    for eEnt in eList
-    do
-        Add(TheList, OscarVectorToVector(eEnt));
-    od;
-    return TheList;
+ReadOscarMatrix:=function(M_oscar)
+    local eList;
+    eList:=JuliaToGAP(IsList, M_oscar);
+    return List(eList, ReadOscarVector);
 end;
+
+ReadOscarListIncd:=function(ListIncd_oscar)
+    local TheMat, ListIncd, eLine, n, eIncd;
+    TheMat:=ReadOscarMatrix(ListIncd_oscar);
+    ListIncd:=[];
+    for eLine in TheMat
+    do
+        n:=Length(eLine);
+        eIncd:=Filtered([1..n], x->eLine[x]=1);
+        Add(ListIncd, eIncd);
+    od;
+    return ListIncd;
+end;
+
+ReadOscarListMatrix:=function(ListMatrix_oscar)
+    local eList;
+    eList:=JuliaToGAP(IsList, ListMatrix_oscar);
+    return List(eList, ReadOscarMatrix);
+end;
+
+
 
 
 PermutationGroupToOscar:=function(n, PermGroup)
@@ -84,19 +122,4 @@ PermutationGroupToOscar:=function(n, PermGroup)
     n_gen:=Length(ListGen);
     PermGroup_oscar := Oscar.matrix(Oscar.ZZ, n, n_gen, JuliaEvalString(TheStr));
     return PermGroup_oscar;
-end;
-
-ReadOscarPermutationGroup:=function(PermGroup_oscar)
-    local eListList, PermGens, eList, eEnt;
-    eListList:=JuliaToGAP(IsList, PermGroup_oscar);
-    if Length(eListList) = 0 then
-        return Group(());
-    fi;
-    PermGens:=[];
-    for eEnt in eListList
-    do
-        eList:=OscarVectorToVector(eEnt);
-        Add(PermGens, PermList(eList));
-    od;
-    return Group(PermGens);
 end;

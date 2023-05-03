@@ -28,11 +28,10 @@ end;
 
 
 LinPolytope_Automorphism_GramMat:=function(EXT, GramMat)
-    local EXT_oscar, GramMat_oscar, GRP_oscar;
+    local EXT_oscar, GramMat_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
     GramMat_oscar:=MatrixToOscar(GramMat);
-    GRP_oscar:=Oscar.GRP_LinPolytope_Automorphism_GramMat(EXT_oscar, GramMat_oscar);
-    return ReadOscarPermutationGroup(GRP_oscar);
+    return Oscar.GRP_LinPolytope_Automorphism_GramMat(EXT_oscar, GramMat_oscar);
 end;
 
 
@@ -258,13 +257,12 @@ end;
 
 
 LinPolytope_Automorphism_AddMat:=function(EXT, ListAddMat)
-    local EXT_oscar, Qinv, ListMat, ListMat_oscar, GRP_oscar;
+    local EXT_oscar, Qinv, ListMat, ListMat_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
     Qinv:=Get_QinvMatrix(EXT);
     ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
     ListMat_oscar:=ListMatrixToOscar(ListMat);
-    GRP_oscar:=Oscar.GRP_ListMat_Subset_EXT_Automorphism(EXT_oscar, ListMat_oscar);
-    return ReadOscarPermutationGroup(GRP_oscar);
+    return Oscar.GRP_ListMat_Subset_EXT_Automorphism(EXT_oscar, ListMat_oscar);
 end;
 
 

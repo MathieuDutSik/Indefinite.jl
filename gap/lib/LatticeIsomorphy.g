@@ -2,7 +2,7 @@ ArithmeticAutomorphismGroup:=function(ListGramMat)
     local ListGramMat_oscar, ListGens_oscar, ListGens, eGen, eGram;
     ListGramMat_oscar:=ListMatrixToOscar(ListGramMat);
     ListGens_oscar:=Oscar.LATT_Automorphism(ListGramMat_oscar);
-    ListGens:=ReadOscarToListLatrix(ListGens_oscar);
+    ListGens:=ReadOscarListMatrix(ListGens_oscar);
     for eGen in ListGens
     do
         for eGram in ListGramMat
@@ -21,7 +21,7 @@ ArithmeticIsomorphism:=function(ListGramMat1, ListGramMat2)
     ListGramMat1_oscar:=ListMatrixToOscar(ListGramMat1);
     ListGramMat2_oscar:=ListMatrixToOscar(ListGramMat2);
     TheMat_oscar:=Oscar.LATT_Isomorphism(ListGramMat1_oscar, ListGramMat2_oscar);
-    TheMat:=ReadOscarToMatrix(TheMat_oscar);
+    TheMat:=ReadOscarMatrix(TheMat_oscar);
     if Length(TheMat)=0 then
         return false;
     fi;

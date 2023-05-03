@@ -56,7 +56,7 @@ INDEF_FindIsotropic:=function(M)
     q := Oscar.quadratic_space(Oscar.QQ, m);
     reply := Oscar.is_isotropic_with_vector(q);
     v:=reply[2];
-    eVect:=OscarVectorToVector(v);
+    eVect:=ReadOscarVector(v);
     return RemoveFraction(eVect);
 end;
 

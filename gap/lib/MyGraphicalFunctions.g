@@ -36,6 +36,13 @@ __Method4FindTheK:=function(korig)
 end;
 
 
+__Method4Partition:=function(korig, n)
+  local k;
+  k:=__Method4FindTheK(korig);
+  return List([1..k], x->[n*(x-1)+1..n*(x-1)+n]);
+end;
+
+
 # this procedure Build the Set:  Seto x Seto x .... x Seto
 BuildSet:=function(n, Seto)
   local DO, i, iCol, U, V,C, eVal;
