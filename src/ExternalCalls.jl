@@ -356,7 +356,7 @@ function POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GRP::GA
   FileGRP = tempname()
   FileOut = tempname()
   WriteMatrix_to_file(FileEXT, EXT)
-  n = nrows(EXT)
+  n = Nemo.nrows(EXT)
   WriteGroup_to_file(FileGRP, n, GRP)
   TheCommand = "POLY_dual_description_group"
   opt1 = "rational"

@@ -25,3 +25,9 @@ ResultLP = Indefinite.LinearProgramming(POLY_LP_case1_FAC, POLY_LP_case1_Ineq)
 
 #
 
+POLY_DD_case1_EXT = Indefinite.ReadMatrix_from_file("TestCases/POLY_DUAL_DESCRIPTION_GROUP_case1_EXT")
+POLY_DD_case1_GRP = Indefinite.ReadGroup_from_file("TestCases/POLY_DUAL_DESCRIPTION_GROUP_case1_GRP")
+ListIncd = Indefinite.POLY_dual_description_group("lrs_ring", POLY_DD_case1_EXT, POLY_DD_case1_GRP)
+
+#
+
