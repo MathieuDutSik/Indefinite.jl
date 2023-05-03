@@ -1133,7 +1133,7 @@ end;
 
 
 LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
-  local n, FuncStabilizer, FuncIsomorphy, FuncInvariant, WorkingDim, IsBankSave, IsRespawn, BF, MainPath, ThePathSave, ThePathTmp, PathPermanent, FindAdjacentDelaunay, KillingDelaunay, KillingAdjacency, DataLattice, DataPolyhedral, TheReply, DelaunayDatabase, EXT, eStab, FuncStabilizerDelaunay, FuncIsomorphismDelaunay, MaximalMemorySave, ListFamily, iOrb, TheRec, TheOption, ListVertAnsatz, ListAnsatzInfo, TestNeedMoreSymmetry, testSym, ListAdj, eInv;
+  local n, FuncStabilizer, FuncIsomorphy, FuncInvariant, WorkingDim, IsBankSave, IsRespawn, BF, FindDelaunayPolytope, FindAdjacentDelaunay, KillingDelaunay, KillingAdjacency, DataLattice, DataPolyhedral, TheReply, DelaunayDatabase, EXT, eStab, FuncStabilizerDelaunay, FuncIsomorphismDelaunay, MaximalMemorySave, ListFamily, iOrb, TheRec, TheOption, ListVertAnsatz, ListAnsatzInfo, TestNeedMoreSymmetry, testSym, ListAdj, eInv;
   n:=Length(LorMat)-1;
   FuncStabilizer:=LinPolytope_Automorphism;
   FuncIsomorphy:=LinPolytope_Isomorphism;
@@ -1197,8 +1197,6 @@ LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
         IsRespawn:=IsRespawn,
         GetInitialRays:=GetInitialRays_LinProg,
         TestNeedMoreSymmetry:=testSym,
-        ThePathSave:=ThePathSave,
-        ThePath:=ThePathTmp,
         FuncStabilizer:=FuncStabilizer,
         FuncIsomorphy:=FuncIsomorphy,
         FuncInvariant:=FuncInvariant,

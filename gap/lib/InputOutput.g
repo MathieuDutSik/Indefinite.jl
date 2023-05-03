@@ -40,7 +40,7 @@ VectorToOscarString:=function(eVect)
 end;
 
 VectorToOscar:=function(V)
-    local M_str;
+    local V_str;
     V_str:=VectorToOscarString(V);
     return JuliaEvalString(V_str);
 end;
@@ -52,6 +52,7 @@ ReadOscarVector:=function(V_oscar)
 end;
 
 ReadOscarListIncd:=function(ListIncd_oscar)
+    local eList, TheList, eEnt;
     eList:=JuliaToGAP(IsList, V_oscar);
     TheList:=[];
     for eEnt in eList
@@ -63,7 +64,7 @@ end;
 
 
 PermutationGroupToOscar:=function(n, PermGroup)
-    local ListGen, TheStr, IsFirst, eGen, i, eImg, n_gen, PermGRoup_oscar;
+    local ListGen, TheStr, IsFirst, eGen, i, eImg, n_gen, PermGroup_oscar;
     ListGen:=GeneratorsOfGroup(PermGroup);
     TheStr:="[";
     IsFirst:=true;
@@ -86,6 +87,7 @@ PermutationGroupToOscar:=function(n, PermGroup)
 end;
 
 ReadOscarPermutationGroup:=function(PermGroup_oscar)
+    local eListList, PermGens, eList, eEnt;
     eListList:=JuliaToGAP(IsList, PermGroup_oscar);
     if Length(eListList) = 0 then
         return Group(());

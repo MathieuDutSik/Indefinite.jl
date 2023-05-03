@@ -21,12 +21,14 @@ end;
 
 
 LinPolytope_Invariant:=function(EXT)
+    local EXT_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
     return Oscar.GRP_LinPolytope_Invariant(EXT_oscar);
 end;
 
 
 LinPolytope_Automorphism_GramMat:=function(EXT, GramMat)
+    local EXT_oscar, GramMat_oscar, GRP_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
     GramMat_oscar:=MatrixToOscar(GramMat);
     GRP_oscar:=Oscar.GRP_LinPolytope_Automorphism_GramMat(EXT_oscar, GramMat_oscar);
@@ -225,6 +227,7 @@ end;
 
 
 LinPolytope_Isomorphism_GramMat:=function(EXT1, GramMat1, EXT2, GramMat2)
+    local EXT1_oscar, GramMat1_oscar, EXT2_oscar, GramMat2_oscar, eEquiv_oscar;
     EXT1_oscar:=MatrixToOscar(EXT1);
     GramMat1_oscar:=MatrixToOscar(GramMat1);
     EXT2_oscar:=MatrixToOscar(EXT2);
@@ -245,6 +248,7 @@ end;
 
 
 GetScalarMatrixInvariant_Polytope_AddMat:=function(EXT, ListAddMat)
+    local EXT_oscar, Qinv, ListMat, ListMat_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
     Qinv:=Get_QinvMatrix(EXT);
     ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
@@ -254,6 +258,7 @@ end;
 
 
 LinPolytope_Automorphism_AddMat:=function(EXT, ListAddMat)
+    local EXT_oscar, Qinv, ListMat, ListMat_oscar, GRP_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
     Qinv:=Get_QinvMatrix(EXT);
     ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
@@ -264,6 +269,7 @@ end;
 
 
 LinPolytope_Isomorphism_AddMat:=function(EXT1, EXT2, ListAddMat1, ListAddMat2)
+    local EXT1_oscar, Qinv1, ListMat1, ListMat1_oscar, EXT2_oscar, Qinv2, ListMat2, ListMat2_oscar, eEquiv_oscar, Vdiag1, Vdiag2, Vdiag1_oscar, Vdiag2_oscar;
     EXT1_oscar:=MatrixToOscar(EXT1);
     Qinv1:=Get_QinvMatrix(EXT1);
     ListMat1:=Concatenation([Get_QinvMatrix(EXT1)], ListAddMat1);
@@ -272,7 +278,11 @@ LinPolytope_Isomorphism_AddMat:=function(EXT1, EXT2, ListAddMat1, ListAddMat2)
     Qinv2:=Get_QinvMatrix(EXT2);
     ListMat2:=Concatenation([Get_QinvMatrix(EXT2)], ListAddMat2);
     ListMat2_oscar:=ListMatrixToOscar(ListMat2);
-    eEquiv_oscar:=Oscar.GRP_ListMat_Subset_EXT_Isomorphism(EXT1_oscar, GramMat1_oscar, EXT2_oscar, GramMat2_oscar);
+    Vdiag1:=NullMat(1, Length(EXT1));
+    Vdiag2:=NullMat(1, Length(EXT2));
+    Vdiag1_oscar:=MatrixToOscar(Vdiag1);
+    Vdiag2_oscar:=MatrixToOscar(Vdiag2);
+    eEquiv_oscar:=Oscar.GRP_ListMat_Subset_EXT_Isomorphism(EXT1_oscar, ListMat1_oscar, Vdiag1_oscar, EXT2_oscar, ListMat2_oscar, Vdiag2_oscar);
     return ParseMyOscarPermIsomorphism(eEquiv_oscar);
 end;
 

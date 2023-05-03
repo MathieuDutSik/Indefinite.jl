@@ -13,18 +13,14 @@ DelaunayDatabaseManagement:=function()
     Add(ListDelaunayINV, TheINV);
     Add(ListDelaunayStatus, "NO");
     Add(ListDelaunayNbEXT, Length(TheEXT));
-    if MemorySave=false then
-      Add(ListDelaunayEXT, TheEXT);
-      Add(ListDelaunayGroup, TheStab);
-    fi;
+    Add(ListDelaunayEXT, TheEXT);
+    Add(ListDelaunayGroup, TheStab);
     nbDelaunay:=Length(ListDelaunayStatus);
   end;
   FuncInsertAdjacencies:=function(iDel, Adjacencies)
     local FileDelaunayAdd;
     IsInitialized:=true;
-    if MemorySave=false then
-      ListDelaunayAdjacencies[iDel]:=Adjacencies;
-    fi;
+    ListDelaunayAdjacencies[iDel]:=Adjacencies;
     ListDelaunayStatus[iDel]:="YES";
   end;
   FuncDelaunayGetNumber:=function()
