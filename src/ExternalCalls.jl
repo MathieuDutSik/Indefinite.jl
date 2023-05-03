@@ -56,7 +56,7 @@ end
 
 function WriteListMatrix_to_stream(f::IOStream, ListM::Vector{Nemo.QQMatrix})
   n_mat = size(ListM)[1]
-  write(f, string(n_mat))
+  write(f, string(n_mat), "\n")
   for i_mat in 1:n_mat
     WriteMatrix_to_stream(f, ListM[i_mat])
   end
@@ -88,10 +88,10 @@ end
 
 
 function WriteVector_to_stream(f::IOStream, V::Nemo.QQMatrix)
-  n_cols = cols(M)
+  n_cols = Nemo.ncols(V)
   str_o = string(string(n_cols), "\n")
   for i_col in 1:n_cols
-    str_o = string(str_o, " ", string(M[1,i_col]))
+    str_o = string(str_o, " ", string(V[1,i_col]))
   end
   str_o = string(str_o, "\n")
   write(f, str_o)
@@ -137,7 +137,7 @@ function ReadVector_from_stream(f::IOStream)
   LStr = split(eline, " ")
   for j in 1:n
     val = parse_QQ(string(LStr[j+1]))
-    M[1,j] = val
+    V[1,j] = val
   end
   return V
 end
