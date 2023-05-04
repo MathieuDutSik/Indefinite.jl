@@ -12,6 +12,7 @@ include("ExternalCalls.jl")
 function __init__()
     binpaths = [ @generate_wrappers(polyhedral_jll) ]
     ENV["PATH"] = join([binpaths...,ENV["PATH"]], ":")
+    GAP.Packages.load("gap")
 end
 
 end
