@@ -1,4 +1,4 @@
-__DualDescriptionLRS_Reduction:=function(EXT, GroupExt, ThePath)
+__DualDescriptionLRS_Reduction:=function(EXT, GroupExt)
     local EXT_oscar, GroupExt_oscar, arith, method, ListIncd_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
     GroupExt_oscar:=PermutationGroupToOscar(Length(EXT), GroupExt);

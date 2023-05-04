@@ -1,10 +1,4 @@
 
-
-IsCorrectPath:=function(PathName)
-  return PathName[Length(PathName)]='/';
-end;
-
-
 OrbitIntersection:=function(eSet, PermGRP)
   local eSetReturn, len1, len2, eGen;
   eSetReturn:=ShallowCopy(eSet);

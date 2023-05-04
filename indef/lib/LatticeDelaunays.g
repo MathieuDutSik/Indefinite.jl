@@ -1,5 +1,5 @@
 DelaunayDatabaseManagement:=function()
-  local ListDelaunayEXT, ListDelaunayINV, ListDelaunayGroup, ListDelaunayAdjacencies, ListDelaunayStatus, FuncInsertAdjacencies, FuncDelaunayGetNumber, FuncDelaunayGetEXT, FuncDelaunayGetINV, FuncDelaunayGetGroup, FuncDelaunayGetAdjacencies, FuncDelaunayGetStatus, FuncReturnCompleteDescription, FuncInsertDelaunay, FuncDelaunayGetNbEXT, ListDelaunayNbEXT, FuncReturnSingleDelaunayComplete, IsInitialized, GetInitState, PathDelaunayPOLY;
+  local ListDelaunayEXT, ListDelaunayINV, ListDelaunayGroup, ListDelaunayAdjacencies, ListDelaunayStatus, FuncInsertAdjacencies, FuncDelaunayGetNumber, FuncDelaunayGetEXT, FuncDelaunayGetINV, FuncDelaunayGetGroup, FuncDelaunayGetAdjacencies, FuncDelaunayGetStatus, FuncReturnCompleteDescription, FuncInsertDelaunay, FuncDelaunayGetNbEXT, ListDelaunayNbEXT, FuncReturnSingleDelaunayComplete, IsInitialized, GetInitState;
   IsInitialized:=false;
   ListDelaunayEXT:=[];
   ListDelaunayINV:=[];
@@ -8,7 +8,7 @@ DelaunayDatabaseManagement:=function()
   ListDelaunayAdjacencies:=[];
   ListDelaunayStatus:=[];
   FuncInsertDelaunay:=function(TheEXT, TheINV, TheStab)
-    local nbDelaunay, FileDelaunayEXT, FileDelaunayINV, FileGroup;
+    local nbDelaunay;
     IsInitialized:=true;
     Add(ListDelaunayINV, TheINV);
     Add(ListDelaunayStatus, "NO");
@@ -18,7 +18,6 @@ DelaunayDatabaseManagement:=function()
     nbDelaunay:=Length(ListDelaunayStatus);
   end;
   FuncInsertAdjacencies:=function(iDel, Adjacencies)
-    local FileDelaunayAdd;
     IsInitialized:=true;
     ListDelaunayAdjacencies[iDel]:=Adjacencies;
     ListDelaunayStatus[iDel]:="YES";

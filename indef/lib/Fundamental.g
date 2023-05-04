@@ -181,53 +181,6 @@ RandomSubset:=function(eSet, k)
 end;
 
 
-WriteVector:=function(outputarg, eLine)
-  local eVal;
-  for eVal in eLine
-  do
-    WriteAll(outputarg, Concatenation(" ", String(eVal)));
-  od;
-  WriteAll(outputarg, "\n");
-end;
-
-
-WriteMatrix:=function(outputarg, eMat)
-  local eEXT;
-  for eEXT in eMat
-  do
-    WriteVector(outputarg, eEXT);
-  od;
-end;
-
-
-WriteMatrixFile:=function(eFile, EXT)
-    local output, eEXT;
-    output:=OutputTextFile(eFile, true);
-    AppendTo(output, Length(EXT), " ", Length(EXT[1]), "\n");
-    for eEXT in EXT
-    do
-        WriteVector(output, eEXT);
-    od;
-    CloseStream(output);
-end;
-
-
-CPP_WriteMatrix:=function(output, eMat)
-  local nbRow, nbCol, iRow, iCol;
-  nbRow:=Length(eMat);
-  nbCol:=Length(eMat[1]);
-  AppendTo(output, nbRow, " ", nbCol, "\n");
-  for iRow in [1..nbRow]
-  do
-    for iCol in [1..nbCol]
-    do
-      AppendTo(output, " ", eMat[iRow][iCol]);
-    od;
-    AppendTo(output, "\n");
-  od;
-end;
-
-
 RowReduction:=function(arg)
   local MatrixWork, rankMatrixWork, PreSelect, Irr, rank, pos, TE, SelectSet;
   if IsBound(arg[4]) then
@@ -591,34 +544,6 @@ GetListPermGens:=function(ListVect, ListMatrGens)
     fi;
   od;
   return ListPermGens;
-end;
-
-
-SYMPOL_PrintGroupStream:=function(output, n, GRP)
-  local ListGen, eGen, i, j;
-  ListGen:=GeneratorsOfGroup(GRP);
-  AppendTo(output, n, " ", Length(ListGen), "\n");
-  for eGen in ListGen
-  do
-    for i in [1..n]
-    do
-      j:=OnPoints(i, eGen);
-      if j>n then
-          Error("We have j=", j, " but n=", n);
-      fi;
-      AppendTo(output, " ", j-1);
-    od;
-    AppendTo(output, "\n");
-  od;
-end;
-
-
-SYMPOL_PrintGroup:=function(eFile, n, GRP)
-    local output;
-    RemoveFileIfExist(eFile);
-    output:=OutputTextFile(eFile, true);
-    SYMPOL_PrintGroupStream(output, n, GRP);
-    CloseStream(output);
 end;
 
 

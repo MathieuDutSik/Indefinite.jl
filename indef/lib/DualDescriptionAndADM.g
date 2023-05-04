@@ -75,7 +75,7 @@ end;
 
 
 __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, BankFormalism)
-  local RECListOrbit, IsFinished, eOrb, eInc, Ladj, SelectedOrbit, jOrb, MiniINCD, RPL, RPLift, testBank, OrdGRP, TheDim, WorkingSymGroup, LRES, NewData, RedStab, TheDate1, TheDate2, NewPathSave, TestNeedMoreSymmetry, ReturnedList, eSetUndone, nbUndone, testSym, fInc;
+  local RECListOrbit, IsFinished, eOrb, eInc, Ladj, SelectedOrbit, jOrb, MiniINCD, RPL, RPLift, testBank, OrdGRP, TheDim, WorkingSymGroup, LRES, NewData, RedStab, TestNeedMoreSymmetry, ReturnedList, eSetUndone, nbUndone, testSym, fInc;
   testBank:=BankFormalism.FuncRetrieveObject(EXT, GivenSymmetry);
   if testBank<>false then
     return Data.GroupFormalism.LiftingOrbits(EXT, testBank.ListOrbitFacet, GivenSymmetry, testBank.GRP);
@@ -100,7 +100,7 @@ __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, Ba
   fi;
   OrdGRP:=Data.GroupFormalism.Order(WorkingSymGroup);
   if Data.IsRespawn(OrdGRP, EXT, Data.TheDepth)=false then
-    ReturnedList:=Data.DualDescriptionFunction(EXT, Data.GroupFormalism.ToPermGroup(EXT, GivenSymmetry), Data.ThePath);
+    ReturnedList:=Data.DualDescriptionFunction(EXT, Data.GroupFormalism.ToPermGroup(EXT, GivenSymmetry));
     if Data.IsBankSave(OrdGRP, EXT, Data.TheDepth)=true then
       Print("Before FuncCreateAccount\n");
       BankFormalism.FuncCreateAccount(EXT, GivenSymmetry, ReturnedList);

@@ -8,7 +8,6 @@ end;
 
 Read(FCT("InputOutput.g"));
 Read(FCT("Fractions.g"));
-Read(FCT("FileFormalism.g"));
 Read(FCT("Fundamental.g"));
 Read(FCT("PositivitySymmetricMatrices.g"));
 Read(FCT("GroupAction.g"));
