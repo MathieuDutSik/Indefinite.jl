@@ -49,15 +49,21 @@ end;
 
 
 INDEF_FindIsotropic:=function(M)
-    local dim, M_str, m, q, reply, v, eList, eVect;
+    local dim, M_oscar, q, reply, v, v_list, eList, eVect, retVect;
     dim:=Length(M);
-    M_str:=MatrixToOscarString(M);
-    m := Oscar.matrix(Oscar.QQ, dim, dim, JuliaEvalString(M_str));
-    q := Oscar.quadratic_space(Oscar.QQ, m);
+    Print("M=", M, "\n");
+    M_oscar:=MatrixToOscar(M);
+    Print("M_oscar=", M_oscar, "\n");
+    q := Oscar.quadratic_space(Oscar.QQ, M_oscar);
     reply := Oscar.is_isotropic_with_vector(q);
+    Print("reply=", reply, "\n");
     v:=reply[2];
-    eVect:=ReadOscarVector(v);
-    return RemoveFraction(eVect);
+    Print("v=", v, "\n");
+    v_list:=JuliaToGAP(IsList, v);
+    eVect:=List(v_list, Oscar.GAP.julia_to_gap);
+    Print("eVect=", eVect, "\n");
+    retVect:=RemoveFraction(eVect);
+    return retVect;
 end;
 
 

@@ -1851,7 +1851,9 @@ INDEF_FORM_Machinery_AllFct:=function()
 end;
 
 
-INDEF_FORM_GetOrbitRepresentative:=function(Qmat, X)
+INDEF_FORM_GetOrbitRepresentative:=function(Qmat, X_v)
+    local X;
+    X:=X_v[1];
     return INDEF_FORM_Machinery_AllFct().INDEF_FORM_GetOrbitRepresentative(Qmat,X);
 end;
 

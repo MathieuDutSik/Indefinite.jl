@@ -9,7 +9,7 @@
 #
 # the system is not designed for a large number of accounts, just for
 # a few hundreds accounts.
-BankRecording:=function(DataBank, FuncStabilizer, FuncIsomorphy, FuncInvariant, GroupFormalism)
+BankRecording:=function(FuncStabilizer, FuncIsomorphy, FuncInvariant, GroupFormalism)
   local FuncRetrieveObject, FuncCreateAccount, FuncStab, WRL, ListCompleteInformation, ListInvariant, eInv, MinNbVert, nbRec, iRec, eInfoEXT, nbVert;
   nbRec:=0;
   #

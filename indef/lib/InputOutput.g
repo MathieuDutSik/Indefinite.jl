@@ -96,7 +96,7 @@ ReadOscarMatrix:=function(M_oscar)
 end;
 
 ReadOscarVector:=function(V_oscar)
-    local eList;
+    local M;
     M:=ReadOscarMatrix(V_oscar);
     return M[1];
 end;

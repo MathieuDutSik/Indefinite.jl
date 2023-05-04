@@ -1,5 +1,5 @@
 DelaunayDatabaseManagement:=function()
-  local ListDelaunayEXT, ListDelaunayINV, ListDelaunayGroup, ListDelaunayAdjacencies, ListDelaunayStatus, FuncInsertAdjacencies, FuncDelaunayGetNumber, FuncDelaunayGetEXT, FuncDelaunayGetINV, FuncDelaunayGetGroup, FuncDelaunayGetAdjacencies, FuncDelaunayGetStatus, FuncReturnCompleteDescription, FuncInsertDelaunay, FuncDestroyDatabase, FuncDelaunayGetNbEXT, ListDelaunayNbEXT, FuncReturnSingleDelaunayComplete, IsInitialized, GetInitState, PathDelaunayPOLY;
+  local ListDelaunayEXT, ListDelaunayINV, ListDelaunayGroup, ListDelaunayAdjacencies, ListDelaunayStatus, FuncInsertAdjacencies, FuncDelaunayGetNumber, FuncDelaunayGetEXT, FuncDelaunayGetINV, FuncDelaunayGetGroup, FuncDelaunayGetAdjacencies, FuncDelaunayGetStatus, FuncReturnCompleteDescription, FuncInsertDelaunay, FuncDelaunayGetNbEXT, ListDelaunayNbEXT, FuncReturnSingleDelaunayComplete, IsInitialized, GetInitState, PathDelaunayPOLY;
   IsInitialized:=false;
   ListDelaunayEXT:=[];
   ListDelaunayINV:=[];
@@ -70,7 +70,6 @@ DelaunayDatabaseManagement:=function()
              FuncDelaunayGetEXT:=FuncDelaunayGetEXT,
              FuncDelaunayGetINV:=FuncDelaunayGetINV,
              FuncDelaunayGetGroup:=FuncDelaunayGetGroup,
-             FuncDestroyDatabase:=FuncDestroyDatabase,
              FuncDelaunayGetAdjacencies:=FuncDelaunayGetAdjacencies,
              FuncDelaunayGetStatus:=FuncDelaunayGetStatus,
              FuncReturnSingleDelaunayComplete:=FuncReturnSingleDelaunayComplete,
@@ -79,11 +78,9 @@ end;
 
 
 ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayDatabase)
-  local n, EXT, FuncInsert, iOrb, IsFinished, EST, Adjacencies, EXTnew, TheStab, BF, ListOrbit, eOrb, iOrbAdj, iOrbSelect, ThePath, BankPath, MinSize, nbV, IsFirst, TheAdj, TheTestAdj;
-  ThePath:=DataLattice.PathPermanent;
-  BankPath:=Concatenation(ThePath, "TheBank/");
+  local n, EXT, FuncInsert, iOrb, IsFinished, EST, Adjacencies, EXTnew, TheStab, BF, ListOrbit, eOrb, iOrbAdj, iOrbSelect, MinSize, nbV, IsFirst, TheAdj, TheTestAdj;
   n:=DataLattice.n;
-  BF:=BankRecording(rec(Saving:=DataLattice.Saving, BankPath:=BankPath), DataPolyhedral.FuncStabilizer, DataPolyhedral.FuncIsomorphy, DataPolyhedral.FuncInvariant, DataPolyhedral.GroupFormalism);
+  BF:=BankRecording(DataPolyhedral.FuncStabilizer, DataPolyhedral.FuncIsomorphy, DataPolyhedral.FuncInvariant, DataPolyhedral.GroupFormalism);
   FuncInsert:=function(EXT)
     local MyInv, iDelaunay, reply, TheStab, TheEXT, TheTest;
     MyInv:=DataLattice.FuncInvariant(DataLattice, EXT);
@@ -112,13 +109,10 @@ ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayData
     Print("\n");
     return rec(success:=1, result:=rec(eBigMat:=IdentityMat(n+1), iDelaunay:=DelaunayDatabase.FuncDelaunayGetNumber()));
   end;
-  DelaunayDatabase.Recover();
-  if DelaunayDatabase.FuncDelaunayGetNumber()=0 then
-    EXT:=DataLattice.FindDelaunayPolytope();
-    EST:=FuncInsert(EXT);
-    if EST.success=0 then
-      return EST.Reason;
-    fi;
+  EXT:=DataLattice.FindDelaunayPolytope();
+  EST:=FuncInsert(EXT);
+  if EST.success=0 then
+    return EST.Reason;
   fi;
   while(true)
   do

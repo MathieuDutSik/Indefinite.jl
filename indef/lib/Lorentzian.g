@@ -1179,7 +1179,7 @@ LORENTZ_EnumeratePerfect_DelaunayScheme:=function(LorMat, RecInput)
   if IsBound(RecInput.IsRespawn) then
     IsRespawn:=RecInput.IsRespawn;
   fi;
-  BF:=BankRecording(rec(Saving:=false, BankPath:="/irrelevant/"), FuncStabilizer, FuncIsomorphy, FuncInvariant, OnSetsGroupFormalism(500));
+  BF:=BankRecording(FuncStabilizer, FuncIsomorphy, FuncInvariant, OnSetsGroupFormalism(500));
   TestNeedMoreSymmetry:=function(EXT)
     if Length(EXT) > RankMat(EXT) + 4 then
       return true;
