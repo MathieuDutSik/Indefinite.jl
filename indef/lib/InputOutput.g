@@ -1,3 +1,16 @@
+ScalarToOscarString:=function(eScal)
+    local eNum, eDen, eStr;
+    if IsInt(eScal) then
+        return String(eScal);
+    else
+        eNum:=NumeratorRat(eScal);
+        eDen:=DenominatorRat(eScal);
+        eStr:=Concatenation(String(eNum), "//", String(eDen));
+        return eStr;
+    fi;
+end;
+
+
 MatrixToOscarString:=function(M)
     local nbLine, nbCol, TheStr, IsFirst, eLine, eVal;
     nbLine:=Length(M);
@@ -15,16 +28,18 @@ MatrixToOscarString:=function(M)
                 TheStr:=Concatenation(TheStr, ",");
             fi;
             IsFirst:=false;
-            TheStr:=Concatenation(TheStr, String(eVal));
+            TheStr:=Concatenation(TheStr, ScalarToOscarString(eVal));
         od;
     od;
     TheStr:=Concatenation(TheStr, "])");
     return TheStr;
 end;
 
+
 MatrixToOscar:=function(M)
     local M_str;
     M_str:=MatrixToOscarString(M);
+    Print("M_str=", M_str, "\n");
     return JuliaEvalString(M_str);
 end;
 
@@ -44,22 +59,17 @@ ListMatrixToOscar:=function(ListM)
 end;
 
 
-
-ScalarToOscar:=function(eScal)
-    local eNum, eDen, eStr;
-    if IsInt(eScal) then
-        return JuliaEvalString(String(eScal));
-    else
-        eNum:=NumeratorRat(eScal);
-        eDen:=DenominatorRat(eScal);
-        eStr:=Concatenation(String(eNum), "//", String(eDen));
-        return JuliaEvalString(eStr);
-    fi;
-end;
-
 VectorToOscar:=function(V)
     return MatrixToOscar([V]);
 end;
+
+
+StringToOscar:=function(estr)
+    local fstr;
+    fstr:=Concatenation("\"", estr, "\"");
+    return JuliaEvalString(fstr);
+end;
+
 
 ReadOscarMatrix:=function(M_oscar)
     local nbLine, nbCol, M, iLine, eLine, iCol, val;
@@ -103,34 +113,9 @@ ReadOscarListIncd:=function(ListIncd_oscar)
     return ListIncd;
 end;
 
+
 ReadOscarListMatrix:=function(ListMatrix_oscar)
     local eList;
     eList:=JuliaToGAP(IsList, ListMatrix_oscar);
     return List(eList, ReadOscarMatrix);
-end;
-
-
-
-
-PermutationGroupToOscar:=function(n, PermGroup)
-    local ListGen, TheStr, IsFirst, eGen, i, eImg, n_gen, PermGroup_oscar;
-    ListGen:=GeneratorsOfGroup(PermGroup);
-    TheStr:="[";
-    IsFirst:=true;
-    for eGen in ListGen
-    do
-        for i in [1..n]
-        do
-            if IsFirst=false then
-                TheStr:=Concatenation(TheStr, ",");
-            fi;
-            IsFirst:=false;
-            eImg:=OnPoints(i, eGen);
-            TheStr:=Concatenation(TheStr, String(eImg));
-        od;
-    od;
-    TheStr:=Concatenation(TheStr, "]");
-    n_gen:=Length(ListGen);
-    PermGroup_oscar := Oscar.matrix(Oscar.ZZ, n, n_gen, JuliaEvalString(TheStr));
-    return PermGroup_oscar;
 end;

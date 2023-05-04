@@ -360,7 +360,7 @@ function LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist_mat::Nemo.QQM
   if Dist == 0
     choice = "nearest"
   else
-    choice = string("near=", string(Dist))
+    choice = string("near=", string_QQ(Dist))
   end
   FileGram = tempname()
   FileV = tempname()
