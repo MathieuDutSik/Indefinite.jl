@@ -285,7 +285,8 @@ function GRP_LinPolytope_Isomorphism_GramMat(EXT1::Nemo.QQMatrix, GramMat1::Nemo
   opt5 = "Oscar"
   opt6 = FileOut
   run(`$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5 $opt6`)
-  TheEquiv = ReadMatrix_from_file(FileOut)
+  TheEquiv = ReadVector_from_file(FileOut)
+  print("TheEquiv=", TheEquiv, "\n")
   rm(FileEXT1)
   rm(FileGram1)
   rm(FileEXT2)

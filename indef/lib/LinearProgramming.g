@@ -18,9 +18,10 @@ end;
 
 
 GetInitialRaysGeneral:=function(FAC, command)
-    local FAC_oscar, TheResult;
+    local FAC_oscar, TheResult, command_oscar;
     FAC_oscar:=MatrixToOscar(FAC);
-    TheResult:=Julia.Indefinite.POLY_samplingFacets(FAC_oscar, command);
+    command_oscar:=StringToOscar(command);
+    TheResult:=Julia.Indefinite.POLY_samplingFacets(FAC_oscar, command_oscar);
     return ReadOscarListIncd(TheResult);
 end;
 

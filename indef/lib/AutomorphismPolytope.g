@@ -207,6 +207,7 @@ end;
 
 ParseMyOscarPermIsomorphism:=function(eEquiv_oscar)
     local TheList, eList;
+    Print("eEquiv_oscar=", eEquiv_oscar, "\n");
     TheList:=JuliaToGAP(IsList, eEquiv_oscar);
     if Length(TheList) = 0 then
         return false;
