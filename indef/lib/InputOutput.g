@@ -57,27 +57,8 @@ ScalarToOscar:=function(eScal)
     fi;
 end;
 
-
-VectorToOscarString:=function(eVect)
-    local TheStr, IsFirst, eLine, eVal;
-    TheStr:="[";
-    IsFirst:=true;
-    for eVal in eVect
-    do
-        if IsFirst=false then
-            TheStr:=Concatenation(TheStr, ",");
-        fi;
-        IsFirst:=false;
-        TheStr:=Concatenation(TheStr, String(eVal));
-    od;
-    TheStr:=Concatenation(TheStr, "]");
-    return TheStr;
-end;
-
 VectorToOscar:=function(V)
-    local V_str;
-    V_str:=VectorToOscarString(V);
-    return JuliaEvalString(V_str);
+    return MatrixToOscar([V]);
 end;
 
 ReadOscarMatrix:=function(M_oscar)

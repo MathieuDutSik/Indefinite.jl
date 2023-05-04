@@ -42,4 +42,5 @@ ListIncd = Indefinite.POLY_sampling_facets(POLY_SAMP_case1_EXT, "lp_cdd")
 
 SV_NEAR_case1_Gram = Indefinite.ReadMatrix_from_file("TestCases/SV_NEAR_case1_Gram")
 SV_NEAR_case1_V = Indefinite.ReadVector_from_file("TestCases/SV_NEAR_case1_V")
-ListVect = Indefinite.LATT_near(SV_NEAR_case1_Gram, SV_NEAR_case1_V, Nemo.QQ(0))
+DistM = Nemo.zero_matrix(QQ,1,1)
+ListVect = Indefinite.LATT_near(SV_NEAR_case1_Gram, SV_NEAR_case1_V, DistM)

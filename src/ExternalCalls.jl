@@ -335,7 +335,8 @@ function GRP_ListMat_Subset_EXT_Isomorphism(EXT1::Nemo.QQMatrix, ListGramMat1::V
   return eVect
 end
 
-function LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist::Nemo.QQFieldElem)
+function LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist_mat::Nemo.QQMatrix)
+  Dist = Dist_mat[1,1]
   if Dist == 0
     choice = "nearest"
   else
