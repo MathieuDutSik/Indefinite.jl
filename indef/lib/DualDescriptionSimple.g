@@ -3,6 +3,6 @@ __DualDescriptionLRS_Reduction:=function(EXT, GroupExt, ThePath)
     EXT_oscar:=MatrixToOscar(EXT);
     GroupExt_oscar:=PermutationGroupToOscar(Length(EXT), GroupExt);
     method:="lrs_ring";
-    ListIncd_oscar:=Oscar.POLY_dual_description_group(method, EXT_oscar, GroupExt_oscar);
+    ListIncd_oscar:=Julia.Indefinite.POLY_dual_description_group(method, EXT_oscar, GroupExt_oscar);
     return ReadOscarListIncd(ListIncd_oscar);
 end;

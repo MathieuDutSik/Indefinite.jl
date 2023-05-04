@@ -1,7 +1,7 @@
 IndefiniteReduction:=function(M)
     local M_oscar, TheResult_oscar, Mred, B;
     M_oscar:=MatrixToOscar(M);
-    TheResult_oscar:=Oscar.IndefiniteReduction(M_oscar);
+    TheResult_oscar:=Julia.Indefinite.IndefiniteReduction(M_oscar);
     Mred:=ReadOscarMatrix(TheResult_oscar[1]);
     B:=ReadOscarMatrix(TheResult_oscar[2]);
     return rec(Mred:=Mred, B:=B);

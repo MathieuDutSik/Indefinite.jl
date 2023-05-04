@@ -231,7 +231,7 @@ LinPolytope_Isomorphism_GramMat:=function(EXT1, GramMat1, EXT2, GramMat2)
     GramMat1_oscar:=MatrixToOscar(GramMat1);
     EXT2_oscar:=MatrixToOscar(EXT2);
     GramMat2_oscar:=MatrixToOscar(GramMat2);
-    eEquiv_oscar:=Oscar.GRP_LinPolytope_Isomorphism_GramMat(EXT1_oscar, GramMat1_oscar, EXT2_oscar, GramMat2_oscar);
+    eEquiv_oscar:=Julia.Indefinite.GRP_LinPolytope_Isomorphism_GramMat(EXT1_oscar, GramMat1_oscar, EXT2_oscar, GramMat2_oscar);
     return ParseMyOscarPermIsomorphism(eEquiv_oscar);
 end;
 
@@ -280,7 +280,7 @@ LinPolytope_Isomorphism_AddMat:=function(EXT1, EXT2, ListAddMat1, ListAddMat2)
     Vdiag2:=NullMat(1, Length(EXT2));
     Vdiag1_oscar:=MatrixToOscar(Vdiag1);
     Vdiag2_oscar:=MatrixToOscar(Vdiag2);
-    eEquiv_oscar:=Oscar.GRP_ListMat_Subset_EXT_Isomorphism(EXT1_oscar, ListMat1_oscar, Vdiag1_oscar, EXT2_oscar, ListMat2_oscar, Vdiag2_oscar);
+    eEquiv_oscar:=Julia.Indefinite.GRP_ListMat_Subset_EXT_Isomorphism(EXT1_oscar, ListMat1_oscar, Vdiag1_oscar, EXT2_oscar, ListMat2_oscar, Vdiag2_oscar);
     return ParseMyOscarPermIsomorphism(eEquiv_oscar);
 end;
 

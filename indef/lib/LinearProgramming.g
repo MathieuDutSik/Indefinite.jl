@@ -8,7 +8,7 @@ LinearProgramming:=function(InequalitySet, ToBeMinimized)
     InequalitySet_oscar:=MatrixToOscar(InequalitySet);
     ToBeMinimized_oscar:=VectorToOscar(ToBeMinimized);
     #
-    TheResult:=Oscar.LinearProgramming(InequalitySet_oscar, ToBeMinimized_oscar);
+    TheResult:=Julia.Indefinite.LinearProgramming(InequalitySet_oscar, ToBeMinimized_oscar);
     answer:=TheResult[1];
     optimal_value:=TheResult[2];
     DirectSolution:=ReadOscarVector(TheResult[2]);
@@ -20,7 +20,7 @@ end;
 GetInitialRaysGeneral:=function(FAC, command)
     local FAC_oscar, TheResult;
     FAC_oscar:=MatrixToOscar(FAC);
-    TheResult:=Oscar.POLY_samplingFacets(FAC_oscar, command);
+    TheResult:=Julia.Indefinite.POLY_samplingFacets(FAC_oscar, command);
     return ReadOscarListIncd(TheResult);
 end;
 
