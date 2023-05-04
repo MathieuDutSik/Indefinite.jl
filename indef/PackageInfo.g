@@ -4,7 +4,7 @@
 SetPackageInfo( rec(
 
 ##  This is case sensitive, use your preferred spelling.
-PackageName := "indefinite",
+PackageName := "indef",
 
 ##  See '?Extending: Version Numbers' in GAP help for an explanation
 ##  of valid version numbers.
@@ -118,12 +118,11 @@ Persons := [
 ##    "other"         for all other packages
 ##
 # Status := "accepted",
-Status := "not submitted still",
+Status := "part of the oscar system",
 
 ##  You must provide the next two entries if and only if the status is
 ##  "accepted":
 # format: 'name (place)'
-# CommunicatedBy := "Mike Atkinson (St. Andrews)",
 CommunicatedBy := "Mathieu Dutour Sikiric",
 # format: mm/yyyy
 # AcceptDate := "08/1999",
@@ -149,7 +148,7 @@ PackageInfoURL := "http://mathieudutour.altervista.org/Polyhedral/index.html",
 ##  Please, use '<span class="pkgname">GAP</span>' and
 ##  '<span class="pkgname">MyPKG</span>' for specifing package names.
 ##
-AbstractHTML := "<span class=\"pkgname\">indefinite</span>",
+AbstractHTML := "<span class=\"pkgname\">indef</span>",
 
 PackageWWWHome := "http://mathieudutour.altervista.org/Polyhedral/index.html",
 
@@ -197,7 +196,7 @@ Dependencies := rec(
   # list of pairs [package name, (least) version],  package name is case
   # insensitive, least version denoted with '>=' prepended to version string.
   # without these, the package will not load
-  NeededOtherPackages := [["grape", ">= 4.2"]],
+  NeededOtherPackages := [],
   # without these the package will issue a warning while loading
   # SuggestedOtherPackages := [],
   SuggestedOtherPackages := [],
@@ -209,7 +208,6 @@ Dependencies := rec(
   # 'AvailabilityTest' function below)
   # ExternalConditions := []
   ExternalConditions := []
-
 ),
 
 ## Provide a test function for the availability of this package, see
@@ -223,21 +221,6 @@ Dependencies := rec(
 # AvailabilityTest := ReturnTrue,
 AvailabilityTest :=
   function()
-    local ListProg, ListMiss, eFile;
-    if not ARCH_IS_UNIX() then
-      Info(InfoWarning, 1, "Package `indefinite': non-Unix architecture");
-      Info(InfoWarning, 1, "Package `indefinite': use at your own peril");
-    fi;
-ListProg:=["AUTO", "ISOM", "scdd_gmp", "lcdd_gmp", "testlp2_gmp", "redcheck_gmp", "adjacency_gmp", "scdd_QN", "lcdd_QN", "testlp2_QN", "redcheck_QN", "adjacency_QN", "glrs", "dreadnaut", "amtog", "FindNegativeVect", "sv", "sv_gmp_read", "sv_exact", "POLY_ComputeEngelSymbol", "POLY_FaceLatticeDirect", "GRP_VectorSplitting", "SHORT_GetShortVector", "IndefiniteReduction", "GRP_ListMat_Subset_EXT_Automorphism", "GRP_ListMat_Subset_EXT_Isomorphism", "GRP_ListMat_Subset_EXT_Invariant", "POLY_IsomorphismReduction"];
-    ListMiss:=Filtered(ListProg, file->Filename(DirectoriesPackagePrograms("indefinite"), file) = fail);
-    for eFile in ListMiss
-    do
-      Info(InfoWarning, 1, "Package `indefinite': ", eFile, " is missing");
-    od;
-    if Length(ListMiss)>0 then
-      Info(InfoWarning, 1, "Package `indefinite': binaries missing");
-      Info(InfoWarning, 1, "Package `indefinite': some functions will not work");
-    fi;
     return true;
   end,
 
