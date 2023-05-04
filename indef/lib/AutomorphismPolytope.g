@@ -23,7 +23,7 @@ end;
 LinPolytope_Invariant:=function(EXT)
     local EXT_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
-    return Oscar.GRP_LinPolytope_Invariant(EXT_oscar);
+    return Julia.Indefinite.GRP_LinPolytope_Invariant(EXT_oscar);
 end;
 
 
@@ -31,7 +31,7 @@ LinPolytope_Automorphism_GramMat:=function(EXT, GramMat)
     local EXT_oscar, GramMat_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
     GramMat_oscar:=MatrixToOscar(GramMat);
-    return Oscar.GRP_LinPolytope_Automorphism_GramMat(EXT_oscar, GramMat_oscar);
+    return Julia.Indefinite.GRP_LinPolytope_Automorphism_GramMat(EXT_oscar, GramMat_oscar);
 end;
 
 

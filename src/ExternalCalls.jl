@@ -313,6 +313,26 @@ function GRP_ListMat_Subset_EXT_Automorphism(EXT::Nemo.QQMatrix, ListGramMat::Ve
   return GRP
 end
 
+function GRP_ListMat_Subset_EXT_Invariant(EXT::Nemo.QQMatrix, ListGramMat::Vector{Nemo.QQMatrix}, Vdiag::Nemo.QQMatrix)
+  FileInput = tempname()
+  FileOut = tempname()
+  f = open(FileInput, "w")
+  WriteListMatrix_to_stream(f, ListGramMat)
+  WriteMatrix_to_stream(f, EXT)
+  WriteVector_to_stream(f, Vdiag)
+  close(f)
+  TheCommand = "GRP_ListMat_Subset_EXT_Invariant"
+  opt1 = FileInput
+  opt2 = FileOut
+  run(`$TheCommand $opt1 $opt2`)
+  f = open(FileOut, "r")
+  result = readline(f)
+  close(f)
+  rm(FileInput)
+  rm(FileOut)
+  return result
+end
+
 function GRP_ListMat_Subset_EXT_Isomorphism(EXT1::Nemo.QQMatrix, ListGramMat1::Vector{Nemo.QQMatrix}, Vdiag1::Nemo.QQMatrix, EXT2::Nemo.QQMatrix, ListGramMat2::Vector{Nemo.QQMatrix}, Vdiag2::Nemo.QQMatrix)
   FileInput = tempname()
   FileOut = tempname()
