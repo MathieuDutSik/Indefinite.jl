@@ -1,6 +1,3 @@
-BindGlobal("POLYHEDRAL_tmpdir",DirectoryTemporary());
-
-
 FractionMod1:=function(eFrac)
   local a, b;
   b:=NumeratorRat(eFrac);

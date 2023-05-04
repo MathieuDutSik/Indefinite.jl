@@ -1,25 +1,26 @@
 # DeclareAutoPackage("indefinite", "1.0", true);
 # DeclarePackageAutoDocumentation("indefinite", "doc");
-ReadPkg("indefinite", "lib/InputOutput.g");
-ReadPkg("indefinite", "lib/Fractions.g");
-ReadPkg("indefinite", "lib/FileFormalism.g");
-ReadPkg("indefinite", "lib/Fundamental.g");
-ReadPkg("indefinite", "lib/PrintingFacilities.g");
-ReadPkg("indefinite", "lib/PositivitySymmetricMatrices.g");
-ReadPkg("indefinite", "lib/GroupAction.g");
-ReadPkg("indefinite", "lib/MyGraphicalFunctions.g");
-ReadPkg("indefinite", "lib/AutomorphismPolytope.g");
-ReadPkg("indefinite", "lib/AffineBasis.g");
-ReadPkg("indefinite", "lib/LinearProgramming.g");
-ReadPkg("indefinite", "lib/SetFunctionality.g");
-ReadPkg("indefinite", "lib/DualDescriptionSimple.g");
-ReadPkg("indefinite", "lib/Kskeletton.g");
-ReadPkg("indefinite", "lib/DualDescriptionAndADM.g");
-ReadPkg("indefinite", "lib/BasicGeomNbr.g");
-ReadPkg("indefinite", "lib/CVP.g");
-ReadPkg("indefinite", "lib/LatticeIsomorphy.g");
-ReadPkg("indefinite", "lib/FundamentalDelaunay.g");
-ReadPkg("indefinite", "lib/LatticeDelaunays.g");
-ReadPkg("indefinite", "lib/IndefiniteFormsFundamental.g");
-ReadPkg("indefinite", "lib/Lorentzian.g");
-ReadPkg("indefinite", "lib/IndefiniteForms.g");
+
+FCT:=function(filename)
+    return Concatenation("indef/lib/", filename);
+end;
+
+
+Read(FCT("InputOutput.g"));
+Read(FCT("Fractions.g"));
+Read(FCT("FileFormalism.g"));
+Read(FCT("Fundamental.g"));
+Read(FCT("PositivitySymmetricMatrices.g"));
+Read(FCT("GroupAction.g"));
+Read(FCT("MyGraphicalFunctions.g"));
+Read(FCT("AutomorphismPolytope.g"));
+Read(FCT("LinearProgramming.g"));
+Read(FCT("SetFunctionality.g"));
+Read(FCT("DualDescriptionSimple.g"));
+Read(FCT("DualDescriptionAndADM.g"));
+Read(FCT("CVP.g"));
+Read(FCT("LatticeIsomorphy.g"));
+Read(FCT("LatticeDelaunays.g"));
+Read(FCT("IndefiniteFormsFundamental.g"));
+Read(FCT("Lorentzian.g"));
+Read(FCT("IndefiniteForms.g"));
