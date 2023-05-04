@@ -1,6 +1,11 @@
 MatrixToOscarString:=function(M)
     local TheStr, IsFirst, eLine, eVal;
-    TheStr:="[";
+    nbLine:=Length(M);
+    if nbLine = 0 then
+        return "matrix(Nemo.QQ, 0, 0)";
+    fi;
+    nbCol:=Length(M[1]);
+    TheStr:=Concatenation("matrix(QQ,", String(nbLine), ",", String(nbCol), ",[";
     IsFirst:=true;
     for eLine in M
     do
@@ -13,7 +18,7 @@ MatrixToOscarString:=function(M)
             TheStr:=Concatenation(TheStr, String(eVal));
         od;
     od;
-    TheStr:=Concatenation(TheStr, "]");
+    TheStr:=Concatenation(TheStr, "])");
     return TheStr;
 end;
 
@@ -67,16 +72,33 @@ VectorToOscar:=function(V)
     return JuliaEvalString(V_str);
 end;
 
-ReadOscarVector:=function(V_oscar)
-    local eList;
-    eList:=JuliaToGAP(IsList, V_oscar);
-    return List(eList, Oscar.GAP.julia_to_gap);
+ReadOscarMatrix:=function(M_oscar)
+    local nbLine, nbCol, M, iLine, eLine, iCol, val;
+    Print("M_oscar=", M_oscar, "\n");
+    nbLine:=Oscar.Nemo.nrows(M_oscar);
+    if nbLine=0 then
+        return [];
+    fi;
+    nbCol:=Oscar.Nemo.ncols(M_oscar);
+    M:=[];
+    for iLine in [1..nbLine]
+    do
+        eLine:=[];
+        for iCol in [1..nbCol]
+        do
+            val:=Oscar.GAP.julia_to_gap(M_oscar[iLine,iCol]);
+            Add(eLine, val);
+        od;
+        Add(M, eLine);
+    od;
+    Print("M=", M, "\n");
+    return M;
 end;
 
-ReadOscarMatrix:=function(M_oscar)
+ReadOscarVector:=function(V_oscar)
     local eList;
-    eList:=JuliaToGAP(IsList, M_oscar);
-    return List(eList, ReadOscarVector);
+    M:=ReadOscarMatrix(V_oscar);
+    return M[1];
 end;
 
 ReadOscarListIncd:=function(ListIncd_oscar)
