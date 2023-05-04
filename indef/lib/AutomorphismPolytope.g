@@ -20,13 +20,6 @@ ShortVectorDutourVersion:=function(GramMat, eNorm)
 end;
 
 
-LinPolytope_Invariant:=function(EXT)
-    local EXT_oscar;
-    EXT_oscar:=MatrixToOscar(EXT);
-    return Julia.Indefinite.GRP_LinPolytope_Invariant(EXT_oscar);
-end;
-
-
 LinPolytope_Automorphism_GramMat:=function(EXT, GramMat)
     local EXT_oscar, GramMat_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
@@ -247,22 +240,31 @@ end;
 
 
 GetScalarMatrixInvariant_Polytope_AddMat:=function(EXT, ListAddMat)
-    local EXT_oscar, Qinv, ListMat, ListMat_oscar;
+    local EXT_oscar, Qinv, ListMat, ListMat_oscar, Vdiag, Vdiag_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
     Qinv:=Get_QinvMatrix(EXT);
     ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
     ListMat_oscar:=ListMatrixToOscar(ListMat);
-    return Julia.Indefinite.GRP_ListMat_Subset_EXT_Invariant(EXT_oscar, ListMat_oscar);
+    Vdiag:=[ListWithIdenticalEntries(Length(EXT),1)];
+    Vdiag_oscar:=MatrixToOscar(Vdiag);
+    return Julia.Indefinite.GRP_ListMat_Subset_EXT_Invariant(EXT_oscar, ListMat_oscar, Vdiag_oscar);
+end;
+
+
+LinPolytope_Invariant:=function(EXT)
+    return GetScalarMatrixInvariant_Polytope_AddMat(EXT, []);
 end;
 
 
 LinPolytope_Automorphism_AddMat:=function(EXT, ListAddMat)
-    local EXT_oscar, Qinv, ListMat, ListMat_oscar;
+    local EXT_oscar, Qinv, ListMat, ListMat_oscar, Vdiag, Vdiag_oscar;
     EXT_oscar:=MatrixToOscar(EXT);
     Qinv:=Get_QinvMatrix(EXT);
     ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
     ListMat_oscar:=ListMatrixToOscar(ListMat);
-    return Oscar.GRP_ListMat_Subset_EXT_Automorphism(EXT_oscar, ListMat_oscar);
+    Vdiag:=[ListWithIdenticalEntries(Length(EXT),1)];
+    Vdiag_oscar:=MatrixToOscar(Vdiag);
+    return Julia.Indefinite.GRP_ListMat_Subset_EXT_Automorphism(EXT_oscar, ListMat_oscar, Vdiag_oscar);
 end;
 
 

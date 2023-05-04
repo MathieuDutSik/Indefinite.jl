@@ -296,7 +296,7 @@ end
 
 function GRP_ListMat_Subset_EXT_Automorphism(EXT::Nemo.QQMatrix, ListGramMat::Vector{Nemo.QQMatrix}, Vdiag::Nemo.QQMatrix)
   FileInput = tempname()
-  FileOut = tempname()
+  FileGroup = tempname()
   f = open(FileInput, "w")
   WriteListMatrix_to_stream(f, ListGramMat)
   WriteMatrix_to_stream(f, EXT)
@@ -305,11 +305,11 @@ function GRP_ListMat_Subset_EXT_Automorphism(EXT::Nemo.QQMatrix, ListGramMat::Ve
   TheCommand = "GRP_ListMat_Subset_EXT_Automorphism"
   opt1 = FileInput
   opt2 = "Oscar"
-  opt3 = FileOut
+  opt3 = FileGroup
   run(`$TheCommand $opt1 $opt2 $opt3`)
   GRP = ReadGroup_from_file(FileGroup)
   rm(FileInput)
-  rm(FileOut)
+  rm(FileGroup)
   return GRP
 end
 
