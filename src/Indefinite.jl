@@ -8,6 +8,7 @@ import polyhedral_jll
 using BinaryWrappers
 
 include("ExternalCalls.jl")
+include("Functions.jl")
 
 
 function __init__()
