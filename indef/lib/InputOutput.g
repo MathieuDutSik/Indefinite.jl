@@ -46,7 +46,15 @@ end;
 
 
 ScalarToOscar:=function(eScal)
-    return Oscar.Parse_QQ(String(eScal));
+    local eNum, eDen, eStr;
+    if IsInt(eScal) then
+        return JuliaEvalString(String(eScal));
+    else
+        eNum:=NumeratorRat(eScal);
+        eDen:=DenominatorRat(eScal);
+        eStr:=Concatenation(String(eNum), "//", String(eDen));
+        return JuliaEvalString(eStr);
+    fi;
 end;
 
 
