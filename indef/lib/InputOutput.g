@@ -1,11 +1,11 @@
 MatrixToOscarString:=function(M)
-    local TheStr, IsFirst, eLine, eVal;
+    local nbLine, nbCol, TheStr, IsFirst, eLine, eVal;
     nbLine:=Length(M);
     if nbLine = 0 then
         return "matrix(Nemo.QQ, 0, 0)";
     fi;
     nbCol:=Length(M[1]);
-    TheStr:=Concatenation("matrix(QQ,", String(nbLine), ",", String(nbCol), ",[";
+    TheStr:=Concatenation("matrix(Nemo.QQ,", String(nbLine), ",", String(nbCol), ",[");
     IsFirst:=true;
     for eLine in M
     do
