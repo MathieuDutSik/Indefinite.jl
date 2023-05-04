@@ -252,7 +252,7 @@ GetScalarMatrixInvariant_Polytope_AddMat:=function(EXT, ListAddMat)
     Qinv:=Get_QinvMatrix(EXT);
     ListMat:=Concatenation([Get_QinvMatrix(EXT)], ListAddMat);
     ListMat_oscar:=ListMatrixToOscar(ListMat);
-    return Oscar.GRP_ListMat_Subset_EXT_Invariant(EXT_oscar, ListMat_oscar);
+    return Julia.Indefinite.GRP_ListMat_Subset_EXT_Invariant(EXT_oscar, ListMat_oscar);
 end;
 
 
