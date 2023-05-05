@@ -206,14 +206,12 @@ end;
 
 
 ParseMyOscarPermIsomorphism:=function(eEquiv_oscar)
-    local TheList, eList;
-    Print("eEquiv_oscar=", eEquiv_oscar, "\n");
-    TheList:=JuliaToGAP(IsList, eEquiv_oscar);
-    if Length(TheList) = 0 then
+    local TheMat;
+    TheMat:=ReadOscarMatrix(eEquiv_oscar);
+    if Length(TheMat) =0 then
         return false;
     else
-        eList:=List(TheList, Oscar.GAP.julia_to_gap);
-        return PermList(eList);
+        return PermList(TheMat[1]);
     fi;
 end;
 

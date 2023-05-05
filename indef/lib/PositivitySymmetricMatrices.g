@@ -1,3 +1,8 @@
+IsSymmetricMatrix:=function(TheMat)
+    return TransposedMat(TheMat) = TheMat;
+end;
+
+
 SymmetricExtractSubMatrix:=function(SymMat, eSet)
   return List(SymMat{eSet}, x->x{eSet});
 end;

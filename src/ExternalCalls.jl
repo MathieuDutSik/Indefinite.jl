@@ -287,11 +287,16 @@ function GRP_LinPolytope_Isomorphism_GramMat(EXT1::Nemo.QQMatrix, GramMat1::Nemo
   run(`$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5 $opt6`)
   TheEquiv = ReadVector_from_file(FileOut)
   print("TheEquiv=", TheEquiv, "\n")
-  rm(FileEXT1)
-  rm(FileGram1)
-  rm(FileEXT2)
-  rm(FileGram2)
-  rm(FileOut)
+  print("FileEXT1=", FileEXT1, "\n")
+  print("FileGram1=", FileGram1, "\n")
+  print("FileEXT2=", FileEXT2, "\n")
+  print("FileGram2=", FileGram2, "\n")
+  print("FileOut=", FileOut, "\n")
+#  rm(FileEXT1)
+#  rm(FileGram1)
+#  rm(FileEXT2)
+#  rm(FileGram2)
+#  rm(FileOut)
   return TheEquiv
 end
 
@@ -351,8 +356,11 @@ function GRP_ListMat_Subset_EXT_Isomorphism(EXT1::Nemo.QQMatrix, ListGramMat1::V
   opt3 = FileOut
   run(`$TheCommand $opt1 $opt2 $opt3`)
   eVect = ReadVector_from_file(FileOut)
-  rm(FileInput)
-  rm(FileOut)
+  print("FileInput=", FileInput, "\n")
+  print("FileOut=", FileOut, "\n")
+  print("eVect=", eVect, "\n")
+#  rm(FileInput)
+#  rm(FileOut)
   return eVect
 end
 

@@ -1245,6 +1245,12 @@ INDEF_FORM_Machinery_AllFct:=function()
     end;
     INDEF_FORM_TestEquivalence_Kernel:=function(Qmat1, Qmat2)
         local Block1, Block2, ApproxModel1, eRec1, X, v1, ApproxModel2, v2, test, ListCand;
+        if IsSymmetricMatrix(Qmat1)=false then
+            Error("The matrix Qmat1 should be symmetric");
+        fi;
+        if IsSymmetricMatrix(Qmat2)=false then
+            Error("The matrix Qmat2 should be symmetric");
+        fi;
         Block1:=INDEF_FORM_GetAttackScheme(Qmat1);
         Block2:=INDEF_FORM_GetAttackScheme(Qmat2);
         Print("Beginning of INDEF_FORM_TestEquivalence Block1.h=", Block1.h, " Block2.h=", Block2.h, "\n");
@@ -1279,6 +1285,12 @@ INDEF_FORM_Machinery_AllFct:=function()
     end;
     INDEF_FORM_TestEquivalence_Reduction:=function(Qmat1, Qmat2)
         local RecRed1, RecRed2, test, testNew;
+        if IsSymmetricMatrix(Qmat1)=false then
+            Error("Qmat1 should be symmetric");
+        fi;
+        if IsSymmetricMatrix(Qmat2)=false then
+            Error("Qmat2 should be symmetric");
+        fi;
         if RankMat(Qmat1)<>Length(Qmat1) or RankMat(Qmat2)<>Length(Qmat2) then
             Error("We should have Qmat1 and Qmat2 of full rank");
         fi;

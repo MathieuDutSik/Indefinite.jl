@@ -46,6 +46,7 @@ end;
 
 ListMatrixToOscar:=function(ListM)
     local TotStr, i;
+    Print("LustM=", ListM, "\n");
     TotStr:="Vector{QQMatrix}([";
     for i in [1..Length(ListM)]
     do
