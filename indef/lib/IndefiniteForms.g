@@ -1894,3 +1894,14 @@ INDEF_FORM_TestEquivalence:=function(Qmat1, Qmat2)
         return TheEquiv;
     fi;
 end;
+
+#
+
+INDEF_FORM_GetOrbit_IsotropicKplane:=function(Qmat, k)
+    return INDEF_FORM_Machinery_AllFct().INDEF_FORM_GetOrbit_IsotropicKplane(Qmat, k);
+end;
+
+INDEF_FORM_GetOrbit_IsotropicKflag:=function(Qmat, k)
+    return INDEF_FORM_Machinery_AllFct().INDEF_FORM_GetOrbit_IsotropicKflag(Qmat, k);
+end;
+

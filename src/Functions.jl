@@ -20,3 +20,4 @@ function INDEF_FORM_TestEquivalence(Qmat1::Nemo.QQMatrix, Qmat2::Nemo.QQMatrix)
   TheEquiv_gap = GAP.Globals.INDEF_FORM_TestEquivalence(Qmat1_gap, Qmat2_gap)
   return GAP.Globals.MatrixToOscar(TheEquiv_gap)
 end
+
