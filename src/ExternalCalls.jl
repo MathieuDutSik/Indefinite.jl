@@ -18,7 +18,7 @@ end
 
 
 function parse_QQ(strin::String)
-  if strin == "-"
+  if strin[1] == '-'
     sign = -1
     strin_B = strin[2:end]
   else
@@ -118,7 +118,6 @@ function ReadMatrix_from_stream(f::IOStream)
   LStr = split(line_first, " ")
   n_row = parse(Int64, LStr[1])
   n_col = parse(Int64, LStr[2])
-  print("n_row=", n_row, " n_col=", n_col, "\n")
   M = Nemo.zero_matrix(Nemo.QQ, n_row, n_col)
   for i in 1:n_row
     eline = readline(f)
@@ -193,7 +192,6 @@ function ReadGroup_from_stream(f::IOStream)
   LStr = split(line_first, " ")
   n = parse(Int64, LStr[1])
   n_gen = parse(Int64, LStr[2])
-  print("n=", n, " n_gen=", n_gen, "\n")
   str_o = "Group("
   if n_gen > 0
     str_o = string(str_o, "[")
@@ -286,17 +284,11 @@ function GRP_LinPolytope_Isomorphism_GramMat(EXT1::Nemo.QQMatrix, GramMat1::Nemo
   opt6 = FileOut
   run(`$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5 $opt6`)
   TheEquiv = ReadVector_from_file(FileOut)
-  print("TheEquiv=", TheEquiv, "\n")
-  print("FileEXT1=", FileEXT1, "\n")
-  print("FileGram1=", FileGram1, "\n")
-  print("FileEXT2=", FileEXT2, "\n")
-  print("FileGram2=", FileGram2, "\n")
-  print("FileOut=", FileOut, "\n")
-#  rm(FileEXT1)
-#  rm(FileGram1)
-#  rm(FileEXT2)
-#  rm(FileGram2)
-#  rm(FileOut)
+  rm(FileEXT1)
+  rm(FileGram1)
+  rm(FileEXT2)
+  rm(FileGram2)
+  rm(FileOut)
   return TheEquiv
 end
 
@@ -356,11 +348,8 @@ function GRP_ListMat_Subset_EXT_Isomorphism(EXT1::Nemo.QQMatrix, ListGramMat1::V
   opt3 = FileOut
   run(`$TheCommand $opt1 $opt2 $opt3`)
   eVect = ReadVector_from_file(FileOut)
-  print("FileInput=", FileInput, "\n")
-  print("FileOut=", FileOut, "\n")
-  print("eVect=", eVect, "\n")
-#  rm(FileInput)
-#  rm(FileOut)
+  rm(FileInput)
+  rm(FileOut)
   return eVect
 end
 

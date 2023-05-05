@@ -39,7 +39,6 @@ end;
 MatrixToOscar:=function(M)
     local M_str;
     M_str:=MatrixToOscarString(M);
-    Print("M_str=", M_str, "\n");
     return JuliaEvalString(M_str);
 end;
 

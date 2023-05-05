@@ -21,3 +21,9 @@ function INDEF_FORM_TestEquivalence(Qmat1::Nemo.QQMatrix, Qmat2::Nemo.QQMatrix)
   return GAP.Globals.MatrixToOscar(TheEquiv_gap)
 end
 
+function INDEF_FORM_GetOrbit_IsotropicKplane(Qmat::Nemo.QQMatrix, k::Int64)
+  Qmat_gap = GAP.Globals.ReadOscarMatrix(Qmat)
+  ListRepr_gap = GAP.Globals.INDEF_FORM_GetOrbit_IsotropicKplane(Qmat_gap, k)
+  return GAP.Globals.ListMatrixToOscar(ListRepr_gap)
+end
+
