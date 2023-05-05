@@ -1886,5 +1886,11 @@ end;
 
 
 INDEF_FORM_TestEquivalence:=function(Qmat1, Qmat2)
-    return INDEF_FORM_Machinery_AllFct().INDEF_FORM_TestEquivalence(Qmat1, Qmat2);
+    local TheEquiv;
+    TheEquiv:=INDEF_FORM_Machinery_AllFct().INDEF_FORM_TestEquivalence(Qmat1, Qmat2);
+    if TheEquiv = false then
+        return [];
+    else
+        return TheEquiv;
+    fi;
 end;

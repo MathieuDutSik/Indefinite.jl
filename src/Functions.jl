@@ -13,3 +13,10 @@ function INDEF_FORM_AutomorphismGroup(Qmat::Nemo.QQMatrix)
   ListGens_gap = GAP.Globals.GeneratorsOfGroup(GRP_gap)
   return GAP.Globals.ListMatrixToOscar(ListGens_gap)
 end
+
+function INDEF_FORM_TestEquivalence(Qmat1::Nemo.QQMatrix, Qmat2::Nemo.QQMatrix)
+  Qmat1_gap = GAP.Globals.ReadOscarMatrix(Qmat1)
+  Qmat2_gap = GAP.Globals.ReadOscarMatrix(Qmat2)
+  TheEquiv_gap = GAP.Globals.INDEF_FORM_TestEquivalence(Qmat1_gap, Qmat2_gap)
+  return GAP.Globals.MatrixToOscar(TheEquiv_gap)
+end
