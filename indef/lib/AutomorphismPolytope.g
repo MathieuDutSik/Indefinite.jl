@@ -251,7 +251,9 @@ end;
 
 
 LinPolytope_Invariant:=function(EXT)
-    return GetScalarMatrixInvariant_Polytope_AddMat(EXT, []);
+    local EXTred;
+    EXTred:=ColumnReduction(EXT).EXT;
+    return GetScalarMatrixInvariant_Polytope_AddMat(EXTred, []);
 end;
 
 
