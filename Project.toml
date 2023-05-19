@@ -1,7 +1,7 @@
 name = "Indefinite"
 uuid = "45c00fa2-1600-43ce-a2e6-f91e59655264"
 authors = ["Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 BinaryWrappers = "f01c122e-0ea1-4f85-ad8f-907073ad7a9f"
