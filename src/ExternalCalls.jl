@@ -1,3 +1,16 @@
+"""
+   parse_NN(string::String)
+
+Convert a string into a natural integer (negative values are excluded) implemented into Nemo.QQ
+
+# Examples
+
+```
+julia> parse_NN("1234")
+Nemo.QQ(1234)
+
+```
+"""
 function parse_NN(strin::String)
   if length(strin) < 6
     val = parse(Int64, strin)
@@ -17,6 +30,22 @@ function parse_NN(strin::String)
 end
 
 
+"""
+   parse_QQ(string::String)
+
+Convert a string into a rational number implemented into Nemo.QQ
+
+# Examples
+
+```
+julia> parse_QQ("1234/23")
+1234/23
+
+julia> parse_QQ("-1234")
+-1234
+
+```
+"""
 function parse_QQ(strin::String)
   if strin[1] == '-'
     sign = -1
@@ -35,6 +64,23 @@ function parse_QQ(strin::String)
   end
 end
 
+"""
+   parse_QQ(string::String)
+
+Convert a Nemo rational number into a string (without the "//" entry).
+This is for the creation of input file for external programs.
+
+# Examples
+
+```
+julia> parse_QQ("1234/23")
+1234/23
+
+julia> parse_QQ("-1234")
+-1234
+
+```
+"""
 function string_QQ(theval::Nemo.QQFieldElem)
   thestr = string(theval)
   LStr = split(thestr, "/")
@@ -45,6 +91,11 @@ function string_QQ(theval::Nemo.QQFieldElem)
   end
 end
 
+"""
+   WriteMatrix_to_stream(f::IOStream, M::Nemo.QQMatrix)
+
+Write a matrix of rational numbers to a stream for use by external programs
+"""
 function WriteMatrix_to_stream(f::IOStream, M::Nemo.QQMatrix)
   n_rows = Nemo.nrows(M)
   n_cols = Nemo.ncols(M)
@@ -58,12 +109,22 @@ function WriteMatrix_to_stream(f::IOStream, M::Nemo.QQMatrix)
   write(f, str_o)
 end
 
+"""
+   WriteMatrix_to_file(FileName::String, M::Nemo.QQMatrix)
+
+Write a matrix of rational numbers to a stream for use by external programs
+"""
 function WriteMatrix_to_file(FileName::String, M::Nemo.QQMatrix)
   f = open(FileName, "w")
   WriteMatrix_to_stream(f, M)
   close(f)
 end
 
+"""
+   WriteListMatrix_to_stream(f::IOStream, ListM::Vector{Nemo.QQMatrix})
+
+Write a vector of rational matrices to a stream for use by external programs
+"""
 function WriteListMatrix_to_stream(f::IOStream, ListM::Vector{Nemo.QQMatrix})
   n_mat = size(ListM)[1]
   write(f, string(n_mat), "\n")
@@ -72,12 +133,22 @@ function WriteListMatrix_to_stream(f::IOStream, ListM::Vector{Nemo.QQMatrix})
   end
 end
 
+"""
+   WriteListMatrix_to_file(FileName::String, ListM::Vector{Nemo.QQMatrix})
+
+Write a vector of rational matrices to a file for use by external programs
+"""
 function WriteListMatrix_to_file(FileName::String, ListM::Vector{Nemo.QQMatrix})
   f = open(FileName, "w")
   WriteListMatrix_to_stream(f, ListM)
   close(f)
 end
 
+"""
+   ReadListMatrix_from_stream(f::IOStream)
+
+Read a list of matrices from a stream
+"""
 function ReadListMatrix_from_stream(f::IOStream)
   line = readline(f)
   n_mat = parse(Int64, line)
@@ -89,6 +160,11 @@ function ReadListMatrix_from_stream(f::IOStream)
   return ListM
 end
 
+"""
+   ReadListMatrix_from_file(FileName::String)
+
+Read a list of matrices from a stream
+"""
 function ReadListMatrix_from_file(FileName::String)
   f = open(FileName, "r")
   ListM = ReadListMatrix_from_stream(f::IOStream)
@@ -96,7 +172,12 @@ function ReadListMatrix_from_file(FileName::String)
   return ListM
 end
 
+"""
+   WriteVector_to_stream(f::IOStream, V::Nemo.QQMatrix)
 
+Write a vector to a stream. The vector is coded as a matrix having
+one row and N columns (with N the number of entries in the vector)
+"""
 function WriteVector_to_stream(f::IOStream, V::Nemo.QQMatrix)
   n_cols = Nemo.ncols(V)
   str_o = string(string(n_cols), "\n")
@@ -107,12 +188,30 @@ function WriteVector_to_stream(f::IOStream, V::Nemo.QQMatrix)
   write(f, str_o)
 end
 
+"""
+   WriteVector_to_file(FileName::String, V::Nemo.QQMatrix)
+
+Write a vector to a file. The vector is coded as a matrix having
+one row and N columns (with N the number of entries in the vector)
+"""
 function WriteVector_to_file(FileName::String, V::Nemo.QQMatrix)
   f = open(FileName, "w")
   WriteVector_to_stream(f::IOStream, V::Nemo.QQMatrix)
   close(f)
 end
 
+"""
+   ReadMatrix_from_stream(f::IOStream)
+
+Read a matrix from a stream. The entries should be in the following format:
+nbRow nbCol
+ A(1,1) .... A(1,nbCol)
+.
+.
+ A(nbRow,1) .... A(nbRow,nbCol)
+The spacing is important here. The lines of the matrix entry must start by a space
+and each entry must be separated by only one space
+"""
 function ReadMatrix_from_stream(f::IOStream)
   line_first = readline(f)
   LStr = split(line_first, " ")
@@ -130,6 +229,18 @@ function ReadMatrix_from_stream(f::IOStream)
   return M
 end
 
+"""
+   ReadMatrix_from_file(FileName::String)
+
+Read a matrix from a file. The entries should be in the following format:
+nbRow nbCol
+ A(1,1) .... A(1,nbCol)
+.
+.
+ A(nbRow,1) .... A(nbRow,nbCol)
+The spacing is important here. The lines of the matrix entry must start by a space
+and each entry must be separated by only one space
+"""
 function ReadMatrix_from_file(FileName::String)
   f = open(FileName, "r")
   M = ReadMatrix_from_stream(f::IOStream)
@@ -137,7 +248,15 @@ function ReadMatrix_from_file(FileName::String)
   return M
 end
 
+"""
+   ReadVector_from_stream(f::IOStream)
 
+Read a vector from a stream. The entries should be in the following format:
+N
+ A(1) .... A(N)
+The spacing is important here. The lines of the vector entries must start by a space
+and each entry must be separated by only one space
+"""
 function ReadVector_from_stream(f::IOStream)
   line_first = readline(f)
   n = parse(Int64, line_first)
@@ -151,6 +270,15 @@ function ReadVector_from_stream(f::IOStream)
   return V
 end
 
+"""
+   ReadVector_from_file(FileName::String)
+
+Read a vector from a file. The entries should be in the following format:
+N
+ A(1) .... A(N)
+The spacing is important here. The lines of the vector entries must start by a space
+and each entry must be separated by only one space
+"""
 function ReadVector_from_file(FileName::String)
   f = open(FileName, "r")
   V = ReadVector_from_stream(f::IOStream)
@@ -158,6 +286,11 @@ function ReadVector_from_file(FileName::String)
   return V
 end
 
+"""
+   ReadScalar_from_stream(f::IOStream)
+
+Read a single scalar from the stream. It mus occupy exactly one line of the stream.
+"""
 function ReadScalar_from_stream(f::IOStream)
   line_first = readline(f)
   return parse_QQ(line_first)
@@ -165,6 +298,22 @@ end
 
 
 
+"""
+   WriteGroup_to_stream(f::IOStream, n, GRP::GAP.GapObj)
+
+Write a permutation group to a stream.
+The integer n is the number of elements on which the group acts. This is needed
+because GAP permutation groups do not have a specified number on elements on which
+they act. The output is of the form
+n n_gen
+ 0 1 2 ..... n-1
+ 1 0 2 ..... n-1
+.
+.
+with n_gen the number of generators of the group. Each lines lists the images of
+the elements 0, ...., n-1 by the group element. So the first line above corresponds
+to the identity and the second line to the permutation (1,2) in GAP.
+"""
 function WriteGroup_to_stream(f::IOStream, n, GRP::GAP.GapObj)
   LGen = GAP.Globals.GeneratorsOfGroup(GRP)
   n_gen = GAP.Globals.Length(LGen)
@@ -180,13 +329,22 @@ function WriteGroup_to_stream(f::IOStream, n, GRP::GAP.GapObj)
   write(f, str_o)
 end
 
+"""
+   WriteGroup_to_file(FileName::String, n, GRP::GAP.GapObj)
+
+Write a permutation group to a file.
+"""
 function WriteGroup_to_file(FileName::String, n, GRP::GAP.GapObj)
   f = open(FileName, "w")
   WriteGroup_to_stream(f, n, GRP)
   close(f)
 end
 
+"""
+   ReadGroup_from_stream(f::IOStream)
 
+Write a permutation group from a stream.
+"""
 function ReadGroup_from_stream(f::IOStream)
   line_first = readline(f)
   LStr = split(line_first, " ")
@@ -219,6 +377,11 @@ function ReadGroup_from_stream(f::IOStream)
   return GAP.evalstr(str_o)
 end
 
+"""
+   ReadGroup_from_stream(f::IOStream)
+
+Write a permutation group from a file.
+"""
 function ReadGroup_from_file(FileName::String)
   f = open(FileName, "r")
   GRP = ReadGroup_from_stream(f::IOStream)
@@ -226,7 +389,11 @@ function ReadGroup_from_file(FileName::String)
   return GRP
 end
 
+"""
+   GRP_LinPolytope_Automorphism(EXT::Nemo.QQMatrix)
 
+Computes the group of linear automorphism preserving the matrix put as input.
+"""
 function GRP_LinPolytope_Automorphism(EXT::Nemo.QQMatrix)
   FileEXT = tempname()
   FileGroup = tempname()
@@ -243,8 +410,11 @@ function GRP_LinPolytope_Automorphism(EXT::Nemo.QQMatrix)
   return GRP
 end
 
+"""
+   GRP_LinPolytope_Automorphism_GramMat(EXT::Nemo.QQMatrix, GramMat::Nemo.QQMatrix)
 
-
+Computes the group of linear automorphism preserving the matrix EXT and the Gram matrix put on input.
+"""
 function GRP_LinPolytope_Automorphism_GramMat(EXT::Nemo.QQMatrix, GramMat::Nemo.QQMatrix)
   FileEXT = tempname()
   FileGram = tempname()
@@ -265,6 +435,12 @@ function GRP_LinPolytope_Automorphism_GramMat(EXT::Nemo.QQMatrix, GramMat::Nemo.
   return GRP
 end
 
+"""
+   GRP_LinPolytope_Isomorphism_GramMat(EXT1::Nemo.QQMatrix, GramMat1::Nemo.QQMatrix, EXT2::Nemo.QQMatrix, GramMat2::Nemo.QQMatrix)
+
+Computes the equivalence of EXT1 with EXT2 mapping GramMat1 to GramMat2 if existing. The returned vector maps the vertices.
+If its length is zero then there is no equivalence
+"""
 function GRP_LinPolytope_Isomorphism_GramMat(EXT1::Nemo.QQMatrix, GramMat1::Nemo.QQMatrix, EXT2::Nemo.QQMatrix, GramMat2::Nemo.QQMatrix)
   FileEXT1 = tempname()
   FileGram1 = tempname()
@@ -292,6 +468,11 @@ function GRP_LinPolytope_Isomorphism_GramMat(EXT1::Nemo.QQMatrix, GramMat1::Nemo
   return TheEquiv
 end
 
+"""
+   GRP_ListMat_Subset_EXT_Automorphism(EXT::Nemo.QQMatrix, ListGramMat::Vector{Nemo.QQMatrix}, Vdiag::Nemo.QQMatrix)
+
+Computes the linear automorphism group of EXT preserving the list of Gram matrices and the vertex weight in Vdiag.
+"""
 function GRP_ListMat_Subset_EXT_Automorphism(EXT::Nemo.QQMatrix, ListGramMat::Vector{Nemo.QQMatrix}, Vdiag::Nemo.QQMatrix)
   FileInput = tempname()
   FileGroup = tempname()
@@ -311,6 +492,11 @@ function GRP_ListMat_Subset_EXT_Automorphism(EXT::Nemo.QQMatrix, ListGramMat::Ve
   return GRP
 end
 
+"""
+   GRP_ListMat_Subset_EXT_Invariant(EXT::Nemo.QQMatrix, ListGramMat::Vector{Nemo.QQMatrix}, Vdiag::Nemo.QQMatrix)
+
+Computes an invariant under the equivalence preserving list of gram matrices and vertex weight
+"""
 function GRP_ListMat_Subset_EXT_Invariant(EXT::Nemo.QQMatrix, ListGramMat::Vector{Nemo.QQMatrix}, Vdiag::Nemo.QQMatrix)
   FileInput = tempname()
   FileOut = tempname()
@@ -331,6 +517,11 @@ function GRP_ListMat_Subset_EXT_Invariant(EXT::Nemo.QQMatrix, ListGramMat::Vecto
   return result
 end
 
+"""
+   GRP_ListMat_Subset_EXT_Isomorphism(EXT1::Nemo.QQMatrix, ListGramMat1::Vector{Nemo.QQMatrix}, Vdiag1::Nemo.QQMatrix, EXT2::Nemo.QQMatrix, ListGramMat2::Vector{Nemo.QQMatrix}, Vdiag2::Nemo.QQMatrix)
+
+Test for linear isomorphism of EXT1 and EXT2 mapping ListGramMat1 to ListGramMat2 and mapping the vertex weight Vdiag1 to Vdiag2
+"""
 function GRP_ListMat_Subset_EXT_Isomorphism(EXT1::Nemo.QQMatrix, ListGramMat1::Vector{Nemo.QQMatrix}, Vdiag1::Nemo.QQMatrix, EXT2::Nemo.QQMatrix, ListGramMat2::Vector{Nemo.QQMatrix}, Vdiag2::Nemo.QQMatrix)
   FileInput = tempname()
   FileOut = tempname()
@@ -353,6 +544,12 @@ function GRP_ListMat_Subset_EXT_Isomorphism(EXT1::Nemo.QQMatrix, ListGramMat1::V
   return eVect
 end
 
+"""
+   LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist_mat::Nemo.QQMatrix)
+
+Computes the vertors in the lattice up to distance Dist. If Dist=0 then the
+shortest vectors are returned.
+"""
 function LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist_mat::Nemo.QQMatrix)
   Dist = Dist_mat[1,1]
   if Dist == 0
@@ -380,6 +577,12 @@ function LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist_mat::Nemo.QQM
   return MatVector
 end
 
+"""
+   POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GRP::GAP.GapObj)
+
+Computes the orbits of EXT for the group GRP. The method used is given in method
+and can be lrs_ring or cdd.
+"""
 function POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GRP::GAP.GapObj)
   FileEXT = tempname()
   FileGRP = tempname()
@@ -402,6 +605,15 @@ function POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GRP::GA
   return MatVector
 end
 
+"""
+   IndefiniteReduction(GramMat::Nemo.QQMatrix)
+
+Compute a reduce form of the indefinite matrix GramMat.
+It does not have to be positive definite and the result
+is not canonical in any way. But it should be fast and
+the result should have much smaller coefficient than the
+original matrix.
+"""
 function IndefiniteReduction(GramMat::Nemo.QQMatrix)
   FileGram = tempname()
   FileOut = tempname()
@@ -421,6 +633,13 @@ function IndefiniteReduction(GramMat::Nemo.QQMatrix)
   return [B, Mred]
 end
 
+"""
+   LATT_Automorphism(ListGramMat::Vector{Nemo.QQMatrix})
+
+Compute the list of matrix generators of the group of matrices
+preserving the list of Gram matrices. The first matrix has to
+be positive definite.
+"""
 function LATT_Automorphism(ListGramMat::Vector{Nemo.QQMatrix})
   FileListGram = tempname()
   FileOut = tempname()
@@ -436,6 +655,12 @@ function LATT_Automorphism(ListGramMat::Vector{Nemo.QQMatrix})
   return ListGens
 end
 
+"""
+   LATT_Isomorphism(ListGramMat1::Vector{Nemo.QQMatrix}, ListGramMat2::Vector{Nemo.QQMatrix})
+
+Computes the integral equivalence between ListGramMat1 and ListGramMat2 if one exists. If one
+exist then an integral matrix is returned, if not then the returned matrix has 0 lines and rows.
+"""
 function LATT_Isomorphism(ListGramMat1::Vector{Nemo.QQMatrix}, ListGramMat2::Vector{Nemo.QQMatrix})
   FileListGram1 = tempname()
   FileListGram2 = tempname()
@@ -455,6 +680,12 @@ function LATT_Isomorphism(ListGramMat1::Vector{Nemo.QQMatrix}, ListGramMat2::Vec
   return TheEquiv
 end
 
+"""
+   LinearProgramming(InequalitySet::Nemo.QQMatrix, ToBeMinimized::Nemo.QQMatrix)
+
+Computes the Linear programming for the set of inequalities and the minimization
+of ToBeMinimized.
+"""
 function LinearProgramming(InequalitySet::Nemo.QQMatrix, ToBeMinimized::Nemo.QQMatrix)
   FileFAC = tempname()
   FileIneq = tempname()
@@ -480,6 +711,12 @@ function LinearProgramming(InequalitySet::Nemo.QQMatrix, ToBeMinimized::Nemo.QQM
   return [answer, optimal_value, primal_solution, dual_solution]
 end
 
+"""
+   POLY_sampling_facets(FAC::Nemo.QQMatrix, command::String)
+
+Sampling vertices of the polytope defined by the inequaltiies of FAC.
+The command used is described in the input variable command.
+"""
 function POLY_sampling_facets(FAC::Nemo.QQMatrix, command::String)
   FileFAC = tempname()
   WriteMatrix_to_file(FileFAC, FAC)
