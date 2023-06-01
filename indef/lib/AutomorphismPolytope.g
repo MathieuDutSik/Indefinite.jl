@@ -312,14 +312,14 @@ end;
 # Delaunay in dimension 5 from the Delaunay in dimension 6.
 KernelLinPolytopeIntegral_Isomorphism_Subspaces:=function(EXT1, EXT2, GRP2, eEquiv)
   local n, eBasis1, eBasis2, EXTbas1, EXTbas2, TheMatEquiv, ListMatrGens, eGen, TheMat, GRPspace, eLatt1, eLatt2, eRec1, eRec2, eSpaceEquiv, eMatFinal;
-  Print("Begin KernelLinPolytopeIntegral_Isomorphism_Subspaces\n");
+#  Print("Begin KernelLinPolytopeIntegral_Isomorphism_Subspaces\n");
   n:=Length(EXT1[1]);
   eBasis1:=GetZbasis(EXT1);
   eBasis2:=GetZbasis(EXT2);
   EXTbas1:=List(EXT1, x->SolutionMat(eBasis1, x));
   EXTbas2:=List(EXT2, x->SolutionMat(eBasis2, x));
   TheMatEquiv:=FindTransformation(EXTbas1, EXTbas2, eEquiv);
-  Print("After FindTransformation\n");
+#  Print("After FindTransformation\n");
   ListMatrGens:=[];
   for eGen in GeneratorsOfGroup(GRP2)
   do
@@ -372,7 +372,7 @@ LinPolytopeIntegral_Isomorphism_Subspaces:=function(EXT1, EXT2)
     return false;
   fi;
   GRP2:=LinPolytope_Automorphism(EXT2);
-  Print("|GRP2|=", Order(GRP2), "\n");
+#  Print("|GRP2|=", Order(GRP2), "\n");
   return KernelLinPolytopeIntegral_Isomorphism_Subspaces(EXT1, EXT2, GRP2, eEquiv);
 end;
 

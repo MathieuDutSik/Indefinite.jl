@@ -45,7 +45,7 @@ end;
 
 ListMatrixToOscar:=function(ListM)
     local TotStr, i;
-    Print("LustM=", ListM, "\n");
+#    Print("LustM=", ListM, "\n");
     TotStr:="Vector{QQMatrix}([";
     for i in [1..Length(ListM)]
     do
@@ -73,7 +73,7 @@ end;
 
 ReadOscarMatrix:=function(M_oscar)
     local nbLine, nbCol, M, iLine, eLine, iCol, val;
-    Print("M_oscar=", M_oscar, "\n");
+#    Print("M_oscar=", M_oscar, "\n");
     nbLine:=Oscar.Nemo.nrows(M_oscar);
     if nbLine=0 then
         return [];
@@ -90,7 +90,7 @@ ReadOscarMatrix:=function(M_oscar)
         od;
         Add(M, eLine);
     od;
-    Print("M=", M, "\n");
+#    Print("M=", M, "\n");
     return M;
 end;
 

@@ -30,38 +30,20 @@ GetRandomMatrixPerturbation:=function(n)
 end;
 
 
-INDEF_GetIndefinitesubset:=function(M)
-    local n, eSet, Mred, RecDiag;
-    n:=Length(M);
-    if n <= 9 then
-        return rec(subset:=[1..n], Mred:=M, look_kernel:=false);
-    fi;
-    for eSet in Combinations([1..n],9)
-    do
-        Mred:=List(M{eSet}, x->x{eSet});
-        RecDiag:=DiagonalizeSymmetricMatrix(Mred);
-        if RecDiag.nbZero>0 or (RecDiag.nbMinus > 0 and RecDiag.nbPlus > 0) then
-            return rec(subset:=eSet, Mred:=Mred, look_kernel:=RecDiag.nbZero > 0);
-        fi;
-    od;
-    Print("Failed to find a subset");
-end;
-
-
 INDEF_FindIsotropic:=function(M)
     local dim, M_oscar, q, reply, v, v_list, eList, eVect, retVect;
     dim:=Length(M);
-    Print("M=", M, "\n");
+#    Print("M=", M, "\n");
     M_oscar:=MatrixToOscar(M);
-    Print("M_oscar=", M_oscar, "\n");
+#    Print("M_oscar=", M_oscar, "\n");
     q := Oscar.quadratic_space(Oscar.QQ, M_oscar);
     reply := Oscar.is_isotropic_with_vector(q);
-    Print("reply=", reply, "\n");
+#    Print("reply=", reply, "\n");
     v:=reply[2];
-    Print("v=", v, "\n");
+#    Print("v=", v, "\n");
     v_list:=JuliaToGAP(IsList, v);
     eVect:=List(v_list, Oscar.GAP.julia_to_gap);
-    Print("eVect=", eVect, "\n");
+#    Print("eVect=", eVect, "\n");
     retVect:=RemoveFraction(eVect);
     return retVect;
 end;

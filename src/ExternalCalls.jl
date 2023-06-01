@@ -1,4 +1,30 @@
 """
+   execute_and_redirect(command::String)
+
+execute a command and redirect stdout and stderr to
+separate files
+"""
+function execute_and_redirect(command::String)
+    FileOut = tempname()
+    FileErr = tempname()
+    open(FileOut, "w") do out
+        open(FileErr, "w") do err
+            redirect_stdout(out) do
+                redirect_stderr(err) do
+                    run(command)
+                end
+            end
+        end
+    end
+    rm(FileOut)
+    rm(FileErr)
+end
+
+
+
+
+
+"""
    parse_NN(string::String)
 
 Convert a string into a natural integer (negative values are excluded) implemented into Nemo.QQ

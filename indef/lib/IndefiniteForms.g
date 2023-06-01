@@ -5,7 +5,7 @@ INDEF_FORM_GetAttackScheme:=function(Qmat)
     DiagInfo:=DiagonalizeSymmetricMatrix(Qmat);
     nbPlus:=DiagInfo.nbPlus;
     nbMinus:=DiagInfo.nbMinus;
-    Print("nbPlus=", nbPlus, " nbMinus=", nbMinus, "\n");
+#    Print("nbPlus=", nbPlus, " nbMinus=", nbMinus, "\n");
     if nbMinus <= nbPlus then
         return rec(h:=nbMinus, mat:=-Qmat);
     fi;
@@ -203,14 +203,14 @@ INDEF_FORM_EichlerCriterion_TwoHyperplanesEven:=function(Qmat)
         ListMatrGens:=GeneratorsOfGroup(GRPmatr);
         for iMatr in [1..Length(ListMatrGens)]
         do
-            Print("iMatr=", iMatr, " / ", Length(ListMatrGens), "\n");
+#            Print("iMatr=", iMatr, " / ", Length(ListMatrGens), "\n");
             eMatrGen:=ListMatrGens[iMatr];
             eList:=List(ListClassesExt, x->GetPosition(x * eMatrGen));
             Add(ListPermGens, PermList(eList));
         od;
         GRPperm:=Group(ListPermGens);
         O:=Orbits(GRPperm, [1..Length(ListClasses)], OnPoints);
-        Print("|O|=", List(O, Length), "\n");
+#        Print("|O|=", List(O, Length), "\n");
         ListRepr:=List(O, x->x[1]);
         ListClasses:=ListClasses{ListRepr};
     end;
@@ -338,7 +338,7 @@ INDEF_FORM_EichlerCriterion_TwoHyperplanesEven:=function(Qmat)
         # The two hyperbolic planes are unimodular so for the discriminant, we only need
         # to consider the Gmat part.
         Ginv:=Inverse(Gmat);
-        Print("Det(Gmat)=", DeterminantMat(Gmat), "\n");
+#        Print("Det(Gmat)=", DeterminantMat(Gmat), "\n");
         ListSolution:=[];
         for eClass1 in ListClasses
         do
@@ -516,7 +516,7 @@ end;
 
 GetEichlerHyperplaneBasis:=function(Qmat)
     local Basis1, NSP, Qmat2, Basis2, HyperBasis, NSP2, FullBasis;
-    Print("GetEichlerHyperplaneBasis, step 1\n");
+#    Print("GetEichlerHyperplaneBasis, step 1\n");
     PrintArray(Qmat);
 #    PrintArray(Qmat);
     Basis1:=GetHyperbolicPlane(Qmat);
@@ -533,7 +533,7 @@ GetEichlerHyperplaneBasis:=function(Qmat)
     NSP2:=NullspaceIntMat(TransposedMat(HyperBasis * Qmat));
 #    Print("GetEichlerHyperplaneBasis, step 7\n");
     FullBasis:=Concatenation(HyperBasis, NSP2);
-    Print("GetEichlerHyperplaneBasis, step 8\n");
+#    Print("GetEichlerHyperplaneBasis, step 8\n");
     return FullBasis;
 end;
 
@@ -651,9 +651,9 @@ INDEF_FORM_GetApproximateModel:=function(Qmat)
     fi;
     # We try the Eichler model as it is the thing that works
     n:=Length(Qmat);
-    Print("Before GetEichlerHyperplaneBasis\n");
+#    Print("Before GetEichlerHyperplaneBasis\n");
     FullBasis:=GetEichlerHyperplaneBasis(Qmat);
-    Print("After GetEichlerHyperplaneBasis\n");
+#    Print("After GetEichlerHyperplaneBasis\n");
     if AbsInt(DeterminantMat(FullBasis))<>1 then
         Print("Further works is needed here");
     fi;
@@ -663,7 +663,7 @@ INDEF_FORM_GetApproximateModel:=function(Qmat)
     Block22:=SubBlock(QmatRed, [5..n], [5..n]);
     TwoPlanes:=[[0,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0]];
     if Block11=TwoPlanes then
-        Print("INDEF_FORM_GetApproximateModel, case 1\n");
+#        Print("INDEF_FORM_GetApproximateModel, case 1\n");
         TheRec:=INDEF_FORM_EichlerCriterion_TwoHyperplanesEven(QmatRed);
         GRPeasy:=GetEasyIsometries(QmatRed);
         TheRec.SetListClassesOrbitwise(GRPeasy);
@@ -690,9 +690,9 @@ INDEF_FORM_GetApproximateModel:=function(Qmat)
     fi;
     TheRecEmbed:=GetTwoPlaneEmbedding(Block11);
     if TheRecEmbed.eBlock=TwoPlanes and Block12=NullMat(4,n-4) then
-        Print("INDEF_FORM_GetApproximateModel, case 2\n");
+#        Print("INDEF_FORM_GetApproximateModel, case 2\n");
         QmatExt:=LORENTZ_AssembleDiagBlocks([TwoPlanes, Block22]);
-        Print("QmatExt=", QmatExt, "\n");
+#        Print("QmatExt=", QmatExt, "\n");
         eEmbed:=LORENTZ_AssembleDiagBlocks([TheRecEmbed.eEmbed, IdentityMat(n-4)]);
         if eEmbed * QmatExt * TransposedMat(eEmbed) <> QmatRed then
             Error("eEmned fails");
@@ -701,14 +701,14 @@ INDEF_FORM_GetApproximateModel:=function(Qmat)
         if eProdEmbed * QmatExt * TransposedMat(eProdEmbed) <> Qmat then
             Error("eProdEmbed fails");
         fi;
-        Print("eEmbed=", eEmbed, "\n");
-        Print("Before INDEF_FORM_GetApproximateModel, case 1\n");
+#        Print("eEmbed=", eEmbed, "\n");
+#        Print("Before INDEF_FORM_GetApproximateModel, case 1\n");
         RecApprox:=INDEF_FORM_GetApproximateModel(QmatExt);
-        Print("We have RecApprox\n");
+#        Print("We have RecApprox\n");
         RecStab_RightCoset:=LinearSpace_Stabilizer_RightCoset(RecApprox.ApproximateGroup, eEmbed);
-        Print("We have RecStab_RightCoset\n");
+#        Print("We have RecStab_RightCoset\n");
         ListCoset:=LinearSpace_ExpandListListCoset(n, RecStab_RightCoset.ListListCoset);
-        Print("We have ListCoset\n");
+#        Print("We have ListCoset\n");
         ListGenerators:=[IdentityMat(n)];
         for eGen in GeneratorsOfGroup(RecStab_RightCoset.GRPmatr)
         do
@@ -721,7 +721,7 @@ INDEF_FORM_GetApproximateModel:=function(Qmat)
             fi;
             Add(ListGenerators, fGen);
         od;
-        Print("We have ListGenerators\n");
+#        Print("We have ListGenerators\n");
         GetCoveringOrbitRepresentatives:=function(X)
             local ListRepr, eRepr, eCos, fRepr, eSol, fSol;
             ListRepr:=[];
@@ -951,7 +951,7 @@ INDEF_FORM_GetVectorStructure:=function(Qmat, v)
         do
             Pmat[n][j]:=v[j];
         od;
-        Print("INDEF_FORM_GetVectorStructure |Pmat|=", DeterminantMat(Pmat), "\n");
+#        Print("INDEF_FORM_GetVectorStructure |Pmat|=", DeterminantMat(Pmat), "\n");
         PmatInv:=Inverse(Pmat);
     fi;
     MapOrthogonalSublatticeEndomorphism:=function(eEndoRed)
@@ -965,7 +965,7 @@ INDEF_FORM_GetVectorStructure:=function(Qmat, v)
         else
             Subspace1:=eEndoRed * NSP;
             Subspace2:=NSP;
-            Print("Before calling LORENTZ_ExtendOrthogonalIsotropicIsomorphism_Dim1 in INDEF_FORM_GetVectorStructure\n");
+#            Print("Before calling LORENTZ_ExtendOrthogonalIsotropicIsomorphism_Dim1 in INDEF_FORM_GetVectorStructure\n");
             RetMat:=LORENTZ_ExtendOrthogonalIsotropicIsomorphism_Dim1(Qmat, Subspace1, Qmat, Subspace2);
             vImg:=v * RetMat;
             if vImg <> v and vImg <> -v then
@@ -1043,7 +1043,7 @@ INDEF_FORM_GetRec_IsotropicKplane:=function(Qmat, Plane)
             Add(ListD, GetDenominatorMatrix(RetMat));
         od;
         TheDen:=Lcm(ListD);
-        Print("ListD=", ListD, " TheDen=", TheDen, "\n");
+#        Print("ListD=", ListD, " TheDen=", TheDen, "\n");
         TheRec:=LORENTZ_ExtendOrthogonalIsotropicIsomorphism(Qmat, Subspace1, Qmat, Subspace1);
         TheKer:=TheRec.get_kernel_generating_set(TheDen);
 #        Print("TheKer=", TheKer, "\n");
@@ -1253,7 +1253,7 @@ INDEF_FORM_Machinery_AllFct:=function()
         fi;
         Block1:=INDEF_FORM_GetAttackScheme(Qmat1);
         Block2:=INDEF_FORM_GetAttackScheme(Qmat2);
-        Print("Beginning of INDEF_FORM_TestEquivalence Block1.h=", Block1.h, " Block2.h=", Block2.h, "\n");
+#        Print("Beginning of INDEF_FORM_TestEquivalence Block1.h=", Block1.h, " Block2.h=", Block2.h, "\n");
         if Block1.h = 0 then
             return INDEF_FORM_TestEquivalence_PosNeg(Qmat1, Qmat2);
         fi;
@@ -1264,13 +1264,13 @@ INDEF_FORM_Machinery_AllFct:=function()
             fi;
             return test;
         fi;
-        Print("Before INDEF_FORM_GetApproximateModel, case 2\n");
+#        Print("Before INDEF_FORM_GetApproximateModel, case 2\n");
         ApproxModel1:=INDEF_FORM_GetApproximateModel(Qmat1);
         eRec1:=GetFirstNorm(ApproxModel1);
         X:=eRec1.X;
         v1:=eRec1.eVect;
-        Print("X=", X, " v1=", v1, "\n");
-        Print("Before INDEF_FORM_GetApproximateModel, case 3\n");
+#        Print("X=", X, " v1=", v1, "\n");
+#        Print("Before INDEF_FORM_GetApproximateModel, case 3\n");
         ApproxModel2:=INDEF_FORM_GetApproximateModel(Qmat2);
         ListCand:=ApproxModel2.GetCoveringOrbitRepresentatives(X);
         for v2 in ListCand
@@ -1280,7 +1280,7 @@ INDEF_FORM_Machinery_AllFct:=function()
                 return test;
             fi;
         od;
-        Print("Found not isomorphic because of no vector equivalence found |ListCand|=", Length(ListCand), "\n");
+#        Print("Found not isomorphic because of no vector equivalence found |ListCand|=", Length(ListCand), "\n");
         return fail;
     end;
     INDEF_FORM_TestEquivalence_Reduction:=function(Qmat1, Qmat2)
@@ -1295,7 +1295,7 @@ INDEF_FORM_Machinery_AllFct:=function()
             Error("We should have Qmat1 and Qmat2 of full rank");
         fi;
         if INDEF_FORM_Invariant(Qmat1)<>INDEF_FORM_Invariant(Qmat2) then
-            Print("Found not isomorphic because of different invariants\n");
+#            Print("Found not isomorphic because of different invariants\n");
             return fail;
         fi;
         # RecRed1:=IndefiniteReductionTrivial(Qmat1);
@@ -1352,7 +1352,7 @@ INDEF_FORM_Machinery_AllFct:=function()
     INDEF_FORM_AutomorphismGroup_Kernel:=function(Qmat)
         local eBlock, ListGenerators, ApproxModel, eRec, X, v1, v2, test, eGen, f_insert;
         eBlock:=INDEF_FORM_GetAttackScheme(Qmat);
-        Print("Beginning of INDEF_FORM_AutomorphismGroup Block.h=", eBlock.h, "\n");
+#        Print("Beginning of INDEF_FORM_AutomorphismGroup Block.h=", eBlock.h, "\n");
         if eBlock.h = 0 then
             return INDEF_FORM_AutomorphismGroup_PosNeg(Qmat);
         fi;
@@ -1366,12 +1366,12 @@ INDEF_FORM_Machinery_AllFct:=function()
             fi;
             AddSet(ListGenerators, eGen);
         end;
-        Print("Before INDEF_FORM_GetApproximateModel, case 4\n");
+#        Print("Before INDEF_FORM_GetApproximateModel, case 4\n");
         ApproxModel:=INDEF_FORM_GetApproximateModel(Qmat);
         eRec:=GetFirstNorm(ApproxModel);
         X:=eRec.X;
         v1:=eRec.eVect;
-        Print("X=", X, " v1=", v1, "\n");
+#        Print("X=", X, " v1=", v1, "\n");
         for eGen in GeneratorsOfGroup(ApproxModel.ApproximateGroup)
         do
             f_insert(eGen);
@@ -1436,7 +1436,7 @@ INDEF_FORM_Machinery_AllFct:=function()
     #
     INDEF_FORM_GetOrbitRepresentative:=function(Qmat, X)
         local ApproxModel, ListRepr, FuncInsert, ListCand, eCand;
-        Print("Before INDEF_FORM_GetApproximateModel, case 5\n");
+#        Print("Before INDEF_FORM_GetApproximateModel, case 5\n");
         if INDEF_FORM_GetAttackScheme(Qmat).h = 0 then
             return INDEF_FORM_GetOrbitRepresentative_PosNeg(Qmat, X);
         fi;
@@ -1468,7 +1468,7 @@ INDEF_FORM_Machinery_AllFct:=function()
     end;
     INDEF_FORM_StabilizerVector:=function(Qmat, v)
         local n, eRec, GRP1, GRP2;
-        Print("Beginning of INDEF_FORM_StabilizerVector\n");
+#        Print("Beginning of INDEF_FORM_StabilizerVector\n");
         n:=Length(Qmat);
         if RankMat(Qmat) <> n then
             Error("Right now INDEF_FORM_StabilizerVector requires Qmat to be full dimensional");
@@ -1480,7 +1480,7 @@ INDEF_FORM_Machinery_AllFct:=function()
     end;
     Kernel_Equivalence_Qmat:=function(Qmat1, Qmat2, EquivRat, eRec1, fTest, f_stab)
         local n, GRP1_A, GRP1_B, HasNonIntegralMatrix, eGen, TheRet, ListGen;
-        Print("Beginning of Kernel_Equivalence_Qmat\n");
+#        Print("Beginning of Kernel_Equivalence_Qmat\n");
         n:=Length(Qmat1);
         if EquivRat * Qmat1 * TransposedMat(EquivRat) <> Qmat2 then
             Error("EquivRat not mapping Qmat1 to Qmat2");
@@ -1489,9 +1489,9 @@ INDEF_FORM_Machinery_AllFct:=function()
             return EquivRat;
         fi;
         GRP1_A:=f_stab(eRec1);
-        Print("We have GRP1_A\n");
+#        Print("We have GRP1_A\n");
         GRP1_B:=eRec1.MapOrthogonalSublatticeGroup(GRP1_A);
-        Print("Kernel_Equivalence_Qmat before MatrixIntegral_Equivalence_Bis\n");
+#        Print("Kernel_Equivalence_Qmat before MatrixIntegral_Equivalence_Bis\n");
         # Find a g1 in GRP1_B such that EquivRat * g1 in GL(n,Z)
         TheRet:=MatrixIntegral_Equivalence_Bis(GRP1_B, EquivRat);
 #        Print("Invariant(GRP1_B)=", InvariantSpaceOfGroup(n, GRP1_B), "\n");
@@ -1509,10 +1509,10 @@ INDEF_FORM_Machinery_AllFct:=function()
     INDEF_FORM_EquivalenceVector:=function(Qmat1, Qmat2, v1, v2)
         local n, eNorm, eRec1, eRec2, test, EquivRat, GRP1_A, GRP1_B, eGen, TheRet, Subspace1, Subspace2, fTest;
         if INDEF_FORM_InvariantVector(Qmat1, v1) <> INDEF_FORM_InvariantVector(Qmat2, v2) then
-            Print("INDEF_FORM_EquivalenceVector returns fail due to different invariants\n");
+#            Print("INDEF_FORM_EquivalenceVector returns fail due to different invariants\n");
             return fail;
         fi;
-        Print("INDEF_FORM_EquivalenceVector v1=", v1, " v2=", v2, "\n");
+#        Print("INDEF_FORM_EquivalenceVector v1=", v1, " v2=", v2, "\n");
         n:=Length(Qmat1);
         if RankMat(Qmat1)<>n then
             Error("Right now INDEF_FORM_EquivalenceVector requires Qmat1 to be full dimensional");
@@ -1522,7 +1522,7 @@ INDEF_FORM_Machinery_AllFct:=function()
         eRec2:=INDEF_FORM_GetVectorStructure(Qmat2, v2);
         test:=INDEF_FORM_TestEquivalence(eRec1.GramMatRed, eRec2.GramMatRed);
         if test=fail then
-            Print("INDEF_FORM_EquivalenceVector returns fail because of not equivalent GramMatRed\n");
+#            Print("INDEF_FORM_EquivalenceVector returns fail because of not equivalent GramMatRed\n");
             return fail;
         fi;
         if eNorm<>0 then
@@ -1530,7 +1530,7 @@ INDEF_FORM_Machinery_AllFct:=function()
         else
             Subspace1:=Inverse(test) * eRec2.NSP;
             Subspace2:=eRec1.NSP;
-            Print("Before calling LORENTZ_ExtendOrthogonalIsotropicIsomorphism, case 2\n");
+#            Print("Before calling LORENTZ_ExtendOrthogonalIsotropicIsomorphism, case 2\n");
             EquivRat:=LORENTZ_ExtendOrthogonalIsotropicIsomorphism_Dim1(Qmat1, Subspace1, Qmat2, Subspace2);
             if v1 * Inverse(EquivRat) = -v2 then
                 EquivRat:=-EquivRat;
@@ -1555,21 +1555,21 @@ INDEF_FORM_Machinery_AllFct:=function()
     end;
     INDEF_FORM_Equivalence_IsotropicKstuff_Kernel:=function(Qmat1, Qmat2, Plane1, Plane2, f_equiv, f_stab)
         local eRec1, eRec2, test, Subspace1, Subspace2, EquivRat, fTest, TheRec;
-        Print("Beginning of INDEF_FORM_Equivalence_IsotropicKplane\n");
+#        Print("Beginning of INDEF_FORM_Equivalence_IsotropicKplane\n");
         if INDEF_FORM_Invariant_IsotropicKstuff_Kernel(Qmat1, Plane1, f_stab) <> INDEF_FORM_Invariant_IsotropicKstuff_Kernel(Qmat2, Plane2, f_stab) then
-            Print("INDEF_FORM_Equivalence_IsotropicKplane returns fail due to different invariants\n");
+#            Print("INDEF_FORM_Equivalence_IsotropicKplane returns fail due to different invariants\n");
             return fail;
         fi;
         eRec1:=INDEF_FORM_GetRec_IsotropicKplane(Qmat1, Plane1);
         eRec2:=INDEF_FORM_GetRec_IsotropicKplane(Qmat2, Plane2);
         test:=f_equiv(eRec1, eRec2);
         if test=fail then
-            Print("INDEF_FORM_EquivalenceVector returns fail because of not equivalent GramMatRed\n");
+#            Print("INDEF_FORM_EquivalenceVector returns fail because of not equivalent GramMatRed\n");
             return fail;
         fi;
         Subspace1:=Inverse(test) * eRec2.NSP;
         Subspace2:=eRec1.NSP;
-        Print("Before calling LORENTZ_ExtendOrthogonalIsotropicIsomorphism, case 2\n");
+#        Print("Before calling LORENTZ_ExtendOrthogonalIsotropicIsomorphism, case 2\n");
         TheRec:=LORENTZ_ExtendOrthogonalIsotropicIsomorphism(Qmat1, Subspace1, Qmat2, Subspace2);
         EquivRat:=TheRec.get_one_transformation();
         if TestEqualitySpace(Plane1 * Inverse(EquivRat), Plane2) = false then
@@ -1597,7 +1597,7 @@ INDEF_FORM_Machinery_AllFct:=function()
     end;
     INDEF_FORM_Stabilizer_IsotropicKstuff_Kernel:=function(Qmat, Plane, f_stab)
         local n, eRec, GRP1, GRP2;
-        Print("Beginning of INDEF_FORM_StabilizerVector\n");
+#        Print("Beginning of INDEF_FORM_StabilizerVector\n");
         n:=Length(Qmat);
         if RankMat(Qmat) <> n then
             Error("Right now INDEF_FORM_StabilizerVector requires Qmat to be full dimensional");
@@ -1616,7 +1616,7 @@ INDEF_FORM_Machinery_AllFct:=function()
         # -- The group stabilizing ePlane
         # -- The group stabilizing ePlane^{perp} and its mapping to the full group.
         # The group stabilizing ePlane^{perp} can be injected 
-        Print("Beginning of INDEF_FORM_StabilizerVector\n");
+#        Print("Beginning of INDEF_FORM_StabilizerVector\n");
         n:=Length(Qmat);
         if RankMat(Qmat) <> n then
             Error("Right now INDEF_FORM_StabilizerVector requires Qmat to be full dimensional");
@@ -1659,7 +1659,7 @@ INDEF_FORM_Machinery_AllFct:=function()
         local eNorm, ListOrbit, iK, ListRecReprKplane, fInsert, fGetRepresentatives, eRepr, iRepr, eRecReprExp;
         eNorm:=0;
         ListOrbit:=List(INDEF_FORM_GetOrbitRepresentative(Qmat, eNorm), x->[x]);
-        Print("k=1 ListOrbit=", ListOrbit, "\n");
+#        Print("k=1 ListOrbit=", ListOrbit, "\n");
         for iK in [2..k]
         do
             ListRecReprKplane:=[];
@@ -1675,7 +1675,7 @@ INDEF_FORM_Machinery_AllFct:=function()
                     fi;
                 od;
                 Add(ListRecReprKplane, fRecReprKplane);
-                Print("iK=", iK, " now |ListRecReprKplane|=", Length(ListRecReprKplane), "\n");
+#                Print("iK=", iK, " now |ListRecReprKplane|=", Length(ListRecReprKplane), "\n");
             end;
             fGetRepresentatives:=function(Qmat, ePlane)
                 local NSP, dimNSP, ePlane_expr, eV, eSol, ComplBasisInNSP, NSP_sub, QmatRed, ListOrbitF, ListRecReprRet, eVect, eVectB, eVectC, ListRightCosets, eCos, ePlaneB, eInv;
@@ -1711,9 +1711,9 @@ INDEF_FORM_Machinery_AllFct:=function()
                 NSP_sub:=ComplBasisInNSP * NSP;
                 QmatRed:=NSP_sub * Qmat * TransposedMat(NSP_sub);
                 ListOrbitF:=INDEF_FORM_GetOrbitRepresentative(QmatRed, eNorm);
-                Print("|ListOrbitF|=", Length(ListOrbitF), "\n");
+#                Print("|ListOrbitF|=", Length(ListOrbitF), "\n");
                 ListRightCosets:=RecF.f_coset(Qmat, ePlane);
-                Print("|ListRightCosets|=", Length(ListRightCosets), "\n");
+#                Print("|ListRightCosets|=", Length(ListRightCosets), "\n");
                 ListRecReprRet:=[];
                 for eVect in ListOrbitF
                 do
@@ -1738,7 +1738,7 @@ INDEF_FORM_Machinery_AllFct:=function()
             for eRepr in ListOrbit
             do
                 iRepr:=iRepr+1;
-                Print("At iK=", iK, " iRepr=", iRepr, " eRepr=", eRepr, "\n");
+#                Print("At iK=", iK, " iRepr=", iRepr, " eRepr=", eRepr, "\n");
                 for eRecReprExp in fGetRepresentatives(Qmat, eRepr)
                 do
                     fInsert(eRecReprExp);

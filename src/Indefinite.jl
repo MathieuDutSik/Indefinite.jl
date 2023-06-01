@@ -3,7 +3,7 @@ module Indefinite
 import Oscar
 import GAP
 import Hecke
-import Nemo
+using Nemo
 import polyhedral_jll
 using BinaryWrappers
 

@@ -83,7 +83,7 @@ ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayData
   FuncInsert:=function(EXT)
     local MyInv, iDelaunay, reply, TheStab, TheEXT, TheTest;
     MyInv:=DataLattice.FuncInvariant(DataLattice, EXT);
-    Print("|Database|=", DelaunayDatabase.FuncDelaunayGetNumber(), "\n");
+#    Print("|Database|=", DelaunayDatabase.FuncDelaunayGetNumber(), "\n");
     for iDelaunay in [1..DelaunayDatabase.FuncDelaunayGetNumber()]
     do
       if MyInv=DelaunayDatabase.FuncDelaunayGetINV(iDelaunay) then
@@ -95,17 +95,17 @@ ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayData
         fi;
       fi;
     od;
-    Print("Find polyhedral object with |EXT|=", Length(EXT), "\n");
+#    Print("Find polyhedral object with |EXT|=", Length(EXT), "\n");
     TheTest:=DataLattice.KillingDelaunay(EXT, MyInv);
     if TheTest<>false then
       return rec(success:=0, Reason:=TheTest);
     fi;
     TheStab:=DataLattice.FuncStabilizerDelaunay(DataLattice, EXT);
     DelaunayDatabase.FuncInsertDelaunay(EXT, MyInv, TheStab);
-    Print("Find Delaunay: ");
-    Print(" |V|=", Length(EXT), " ");
-    Print(" |LattIsom|=", Order(TheStab.PermutationStabilizer));
-    Print("\n");
+#    Print("Find Delaunay: ");
+#    Print(" |V|=", Length(EXT), " ");
+#    Print(" |LattIsom|=", Order(TheStab.PermutationStabilizer));
+#    Print("\n");
     return rec(success:=1, result:=rec(eBigMat:=IdentityMat(n+1), iDelaunay:=DelaunayDatabase.FuncDelaunayGetNumber()));
   end;
   EXT:=DataLattice.FindDelaunayPolytope();
@@ -134,16 +134,16 @@ ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayData
     if IsFinished=false then
       TheStab:=DelaunayDatabase.FuncDelaunayGetGroup(iOrbSelect);
       EXT:=DelaunayDatabase.FuncDelaunayGetEXT(iOrbSelect);
-      Print("Starting the analysis of Delaunay ", iOrbSelect, " with ", Length(EXT), " vertices\n");
-      Print("Beginning the polyhedral computation\n");
+#      Print("Starting the analysis of Delaunay ", iOrbSelect, " with ", Length(EXT), " vertices\n");
+#      Print("Beginning the polyhedral computation\n");
       ListOrbit:=__ListFacetByAdjacencyDecompositionMethod(EXT, TheStab.PermutationStabilizer, DataPolyhedral, BF);
-      Print("   Ending the polyhedral computation, |ListOrbit|=", Length(ListOrbit), "\n");
+#      Print("   Ending the polyhedral computation, |ListOrbit|=", Length(ListOrbit), "\n");
       #
       #
       Adjacencies:=[];
       for iOrbAdj in [1..Length(ListOrbit)]
       do
-          Print("iOrbAdj=", iOrbAdj, "/", Length(ListOrbit), "\n");
+#          Print("iOrbAdj=", iOrbAdj, "/", Length(ListOrbit), "\n");
           eOrb:=ListOrbit[iOrbAdj];
           EXTnew:=DataLattice.FindAdjacentDelaunay(EXT, eOrb);
           TheTestAdj:=DataLattice.KillingAdjacency(EXT, EXTnew);
@@ -158,7 +158,7 @@ ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayData
           TheAdj.eInc:=eOrb;
           Add(Adjacencies, TheAdj);
       od;
-      Print("Adjacency work finished for Orbit ", iOrbSelect, "/", DelaunayDatabase.FuncDelaunayGetNumber(), " orbits\n");
+#      Print("Adjacency work finished for Orbit ", iOrbSelect, "/", DelaunayDatabase.FuncDelaunayGetNumber(), " orbits\n");
       #
       #
       DelaunayDatabase.FuncInsertAdjacencies(iOrbSelect, Adjacencies);
@@ -166,6 +166,6 @@ ComputeDelaunayDecomposition:=function(DataLattice, DataPolyhedral, DelaunayData
       break;
     fi;
   od;
-  Print("Delaunay computation finished\n");
+#  Print("Delaunay computation finished\n");
   return "all was ok";
 end;

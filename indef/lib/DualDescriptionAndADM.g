@@ -102,60 +102,60 @@ __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, Ba
   if Data.IsRespawn(OrdGRP, EXT, Data.TheDepth)=false then
     ReturnedList:=Data.DualDescriptionFunction(EXT, Data.GroupFormalism.ToPermGroup(EXT, GivenSymmetry));
     if Data.IsBankSave(OrdGRP, EXT, Data.TheDepth)=true then
-      Print("Before FuncCreateAccount\n");
+#      Print("Before FuncCreateAccount\n");
       BankFormalism.FuncCreateAccount(EXT, GivenSymmetry, ReturnedList);
-      Print("After FuncCreateAccount\n");
+#      Print("After FuncCreateAccount\n");
     fi;
   else
     TheDim:=RankMat(EXT)-1;
-    Print("RESPAWN a new ADM computation |GRP|=", OrdGRP, " TheDim=", TheDim, " |EXT|=", Length(EXT), "\n");
+#    Print("RESPAWN a new ADM computation |GRP|=", OrdGRP, " TheDim=", TheDim, " |EXT|=", Length(EXT), "\n");
     RPL:=Data.GroupFormalism.OrbitGroupFormalism(EXT, WorkingSymGroup);
-    Print("nbOrbit=", RPL.FuncNumberOrbit(), "\n");
+#    Print("nbOrbit=", RPL.FuncNumberOrbit(), "\n");
     if RPL.FuncNumberOrbit()=0 then
       for eInc in Data.GetInitialRays(EXT, 10)
       do
         RPL.FuncInsert(eInc);
       od;
     fi;
-    Print("Running the adjacency method recursively\n");
+#    Print("Running the adjacency method recursively\n");
     while(true)
     do
       eSetUndone:=RPL.ComputeIntersectionUndone();
       nbUndone:=RPL.FuncNumberUndone();
       if RPL.FuncNumberOrbitDone()>0 then
         if nbUndone<=TheDim-1 or Length(eSetUndone)>0 then
-          Print("End of computation, nbObj=", RPL.FuncNumber(), " nbOrbit=", RPL.FuncNumberOrbit(), " nbUndone=", nbUndone, " |eSetUndone|=", Length(eSetUndone), " Depth=", Data.TheDepth, " |EXT|=", Length(EXT), "\n");
+#          Print("End of computation, nbObj=", RPL.FuncNumber(), " nbOrbit=", RPL.FuncNumberOrbit(), " nbUndone=", nbUndone, " |eSetUndone|=", Length(eSetUndone), " Depth=", Data.TheDepth, " |EXT|=", Length(EXT), "\n");
           break;
         fi;
       fi;
       SelectedOrbit:=RPL.FuncGetMinimalUndoneOrbit();
       eInc:=RPL.FuncRecord(SelectedOrbit);
-      Print("\n");
+#      Print("\n");
       RedStab:=Data.GroupFormalism.Stabilizer(EXT, WorkingSymGroup, eInc);
-      Print("Considering orbit ", SelectedOrbit, " |inc|=", Length(eInc), " Depth=", Data.TheDepth, " |stab|=", Order(RedStab), " dim=", TheDim, "\n");
+#      Print("Considering orbit ", SelectedOrbit, " |inc|=", Length(eInc), " Depth=", Data.TheDepth, " |stab|=", Order(RedStab), " dim=", TheDim, "\n");
       RPLift:=__ProjectionLiftingFramework(EXT, eInc);
       NewData:=ShallowCopy(Data);
       NewData.TheDepth:=NewData.TheDepth+1;
       Ladj:=__ListFacetByAdjacencyDecompositionMethod(EXT{eInc}, RedStab, NewData, BankFormalism);
-      Print("We treat ", Length(Ladj), " orbits\n");
+#      Print("We treat ", Length(Ladj), " orbits\n");
       for fInc in Ladj
       do
         RPL.FuncInsert(RPLift.FuncLift(fInc));
       od;
       RPL.FuncPutOrbitAsDone(SelectedOrbit);
       nbUndone:=RPL.FuncNumberUndone();
-      Print("We have ", RPL.FuncNumberOrbit(), " orbits");
-      Print("  Nr treated=", RPL.FuncNumberOrbitDone(), " orbits");
-      Print("  nbUndone=", nbUndone);
-      Print("\n");
+#      Print("We have ", RPL.FuncNumberOrbit(), " orbits");
+#      Print("  Nr treated=", RPL.FuncNumberOrbitDone(), " orbits");
+#      Print("  nbUndone=", nbUndone);
+#      Print("\n");
     od;
     LRES:=RPL.FuncListOrbitIncidence();
     ReturnedList:=Data.GroupFormalism.LiftingOrbits(EXT, LRES, GivenSymmetry, WorkingSymGroup);
-    Print("LRES=", Length(LRES), " |ReturnedList|=", Length(ReturnedList), " |GivenSymmetry|=", Order(GivenSymmetry), " |WorkingSymGroup|=", Order(WorkingSymGroup), "\n");
+#    Print("LRES=", Length(LRES), " |ReturnedList|=", Length(ReturnedList), " |GivenSymmetry|=", Order(GivenSymmetry), " |WorkingSymGroup|=", Order(WorkingSymGroup), "\n");
     if Data.IsBankSave(OrdGRP, EXT, Data.TheDepth)=true then
-      Print("Before FuncCreateAccount\n");
+#      Print("Before FuncCreateAccount\n");
       BankFormalism.FuncCreateAccount(EXT, WorkingSymGroup, LRES);
-      Print("After FuncCreateAccount\n");
+#      Print("After FuncCreateAccount\n");
     fi;
   fi;
   return ReturnedList;
