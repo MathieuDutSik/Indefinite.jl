@@ -517,7 +517,7 @@ end;
 GetEichlerHyperplaneBasis:=function(Qmat)
     local Basis1, NSP, Qmat2, Basis2, HyperBasis, NSP2, FullBasis;
 #    Print("GetEichlerHyperplaneBasis, step 1\n");
-    PrintArray(Qmat);
+#    PrintArray(Qmat);
 #    PrintArray(Qmat);
     Basis1:=GetHyperbolicPlane(Qmat);
 #    Print("GetEichlerHyperplaneBasis, step 2\n");

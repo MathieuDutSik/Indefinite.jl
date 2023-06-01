@@ -836,7 +836,7 @@ LORENTZ_Kernel_Flipping:=function(LorMat, CritSet, eNSPbas, eNSPdir, TheOption)
   end;
   while(true)
   do
-    Print("TheLowerBound=", TheLowerBound, " TheUpperBound=", TheUpperBound, "\n");
+#    Print("TheLowerBound=", TheLowerBound, " TheUpperBound=", TheUpperBound, "\n");
     TheMidVal:=GetMidVal(TheLowerBound, TheUpperBound);
     eNSPtest:=eNSPbas + TheMidVal * eNSPdir;
     eVectTest:=RemoveFraction(eNSPtest{[2..n+1]}*Inverse(LorMat));
@@ -1008,7 +1008,7 @@ LORENTZ_GetOnePerfect:=function(LorMat, TheOption)
     local eRec, n, pos, eVect, eScal, CritSet, eNSPbas, EXT, NSP, eVEctB, eNSPdir, eRecB, rnk, eVectB, CentralVect, IsInCone, ListDir, GetOneOutsideRay, Viso, CheckVectorEXT;
     n:=Length(LorMat);
 #    Print("Beginning of LORENTZ_GetOnePerfect, TheOption=", TheOption, "LorMat=\n");
-    PrintArray(LorMat);
+#    PrintArray(LorMat);
     if LORENTZ_IsLorentzian(LorMat)=false then
         Error("LorMat should be Lorentzian");
     fi;

@@ -429,7 +429,8 @@ function GRP_LinPolytope_Automorphism(EXT::Nemo.QQMatrix)
     opt2 = FileEXT
     opt3 = "Oscar"
     opt4 = FileGroup
-    run(`$TheCommand $opt1 $opt2 $opt3 $opt4`)
+    command = `$TheCommand $opt1 $opt2 $opt3 $opt4`
+    execute_and_redirect(command)
     GRP = ReadGroup_from_file(FileGroup)
     rm(FileEXT)
     rm(FileGroup)
@@ -453,7 +454,8 @@ function GRP_LinPolytope_Automorphism_GramMat(EXT::Nemo.QQMatrix, GramMat::Nemo.
     opt3 = FileGram
     opt4 = "Oscar"
     opt5 = FileGroup
-    run(`$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5`)
+    command = `$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5`
+    execute_and_redirect(command)
     GRP = ReadGroup_from_file(FileGroup)
     rm(FileEXT)
     rm(FileGram)
@@ -484,7 +486,8 @@ function GRP_LinPolytope_Isomorphism_GramMat(EXT1::Nemo.QQMatrix, GramMat1::Nemo
     opt4 = FileGram2
     opt5 = "Oscar"
     opt6 = FileOut
-    run(`$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5 $opt6`)
+    command = `$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5 $opt6`
+    execute_and_redirect(command)
     TheEquiv = ReadVector_from_file(FileOut)
     rm(FileEXT1)
     rm(FileGram1)
@@ -511,7 +514,8 @@ function GRP_ListMat_Subset_EXT_Automorphism(EXT::Nemo.QQMatrix, ListGramMat::Ve
     opt1 = FileInput
     opt2 = "Oscar"
     opt3 = FileGroup
-    run(`$TheCommand $opt1 $opt2 $opt3`)
+    command = `$TheCommand $opt1 $opt2 $opt3`
+    execute_and_redirect(command)
     GRP = ReadGroup_from_file(FileGroup)
     rm(FileInput)
     rm(FileGroup)
@@ -534,7 +538,8 @@ function GRP_ListMat_Subset_EXT_Invariant(EXT::Nemo.QQMatrix, ListGramMat::Vecto
     TheCommand = "GRP_ListMat_Subset_EXT_Invariant"
     opt1 = FileInput
     opt2 = FileOut
-    run(`$TheCommand $opt1 $opt2`)
+    command = `$TheCommand $opt1 $opt2`
+    execute_and_redirect(command)
     f = open(FileOut, "r")
     result = readline(f)
     close(f)
@@ -563,7 +568,8 @@ function GRP_ListMat_Subset_EXT_Isomorphism(EXT1::Nemo.QQMatrix, ListGramMat1::V
     opt1 = FileInput
     opt2 = "Oscar"
     opt3 = FileOut
-    run(`$TheCommand $opt1 $opt2 $opt3`)
+    command = `$TheCommand $opt1 $opt2 $opt3`
+    execute_and_redirect(command)
     eVect = ReadVector_from_file(FileOut)
     rm(FileInput)
     rm(FileOut)
@@ -595,7 +601,8 @@ function LATT_near(GramMat::Nemo.QQMatrix, eV::Nemo.QQMatrix, Dist_mat::Nemo.QQM
     opt4 = FileV
     opt5 = "Oscar"
     opt6 = FileOut
-    run(`$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5 $opt6`)
+    command = `$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5 $opt6`
+    execute_and_redirect(command)
     MatVector = ReadMatrix_from_file(FileOut)
     rm(FileGram)
     rm(FileV)
@@ -623,7 +630,8 @@ function POLY_dual_description_group(method::String, EXT::Nemo.QQMatrix, GRP::GA
     opt4 = FileGRP
     opt5 = "Oscar"
     opt6 = FileOut
-    run(`$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5 $opt6`)
+    command = `$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5 $opt6`
+    execute_and_redirect(command)
     MatVector = ReadMatrix_from_file(FileOut)
     rm(FileEXT)
     rm(FileGRP)
@@ -648,7 +656,8 @@ function IndefiniteReduction(GramMat::Nemo.QQMatrix)
     opt1 = FileGram
     opt2 = "Oscar"
     opt3 = FileOut
-    run(`$TheCommand $opt1 $opt2 $opt3`)
+    command = `$TheCommand $opt1 $opt2 $opt3`
+    execute_and_redirect(command)
     #
     f = open(FileOut, "r")
     B = ReadMatrix_from_stream(f)
@@ -674,7 +683,8 @@ function LATT_Automorphism(ListGramMat::Vector{Nemo.QQMatrix})
     opt1 = FileListGram
     opt2 = "Oscar"
     opt3 = FileOut
-    run(`$TheCommand $opt1 $opt2 $opt3`)
+    command = `$TheCommand $opt1 $opt2 $opt3`
+    execute_and_redirect(command)
     ListGens = ReadListMatrix_from_file(FileOut)
     rm(FileListGram)
     rm(FileOut)
@@ -698,7 +708,8 @@ function LATT_Isomorphism(ListGramMat1::Vector{Nemo.QQMatrix}, ListGramMat2::Vec
     opt2 = FileListGram2
     opt3 = "Oscar"
     opt4 = FileOut
-    run(`$TheCommand $opt1 $opt2 $opt3 $opt4`)
+    command = `$TheCommand $opt1 $opt2 $opt3 $opt4`
+    execute_and_redirect(command)
     TheEquiv = ReadMatrix_from_file(FileOut)
     rm(FileListGram1)
     rm(FileListGram2)
@@ -724,7 +735,8 @@ function LinearProgramming(InequalitySet::Nemo.QQMatrix, ToBeMinimized::Nemo.QQM
     opt3 = FileIneq
     opt4 = "Oscar"
     opt5 = FileOut
-    run(`$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5`)
+    command = `$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5`
+    execute_and_redirect(command)
     f = open(FileOut, "r")
     answer = readline(f)
     optimal_value = ReadScalar_from_stream(f)
@@ -753,7 +765,8 @@ function POLY_sampling_facets(FAC::Nemo.QQMatrix, command::String)
     opt3 = FileFAC
     opt4 = "Oscar"
     opt5 = FileOut
-    run(`$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5`)
+    command = `$TheCommand $opt1 $opt2 $opt3 $opt4 $opt5`
+    execute_and_redirect(command)
     ListIncd = ReadMatrix_from_file(FileOut)
     rm(FileFAC)
     rm(FileOut)
