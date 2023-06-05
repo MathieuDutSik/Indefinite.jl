@@ -75,88 +75,114 @@ end;
 
 
 __ListFacetByAdjacencyDecompositionMethod:=function(EXT, GivenSymmetry, Data, BankFormalism)
-  local RECListOrbit, IsFinished, eOrb, eInc, Ladj, SelectedOrbit, jOrb, MiniINCD, RPL, RPLift, testBank, OrdGRP, TheDim, WorkingSymGroup, LRES, NewData, RedStab, TestNeedMoreSymmetry, ReturnedList, eSetUndone, nbUndone, testSym, fInc;
-  testBank:=BankFormalism.FuncRetrieveObject(EXT, GivenSymmetry);
-  if testBank<>false then
-    return Data.GroupFormalism.LiftingOrbits(EXT, testBank.ListOrbitFacet, GivenSymmetry, testBank.GRP);
-  fi;
-  # we would like to use IsBankSave but it is not possible with EllaspedTime
-  TestNeedMoreSymmetry:=function(EXT)
-    if Length(EXT)> RankMat(EXT)+4 then
-      return true;
-    else
-      return false;
+    local RECListOrbit, IsFinished, eOrb, eInc, Ladj, SelectedOrbit, jOrb, MiniINCD, RPL, RPLift, testBank, OrdGRP, TheDim, WorkingSymGroup, LRES, NewData, RedStab, TestNeedMoreSymmetry, ReturnedList, eSetUndone, nbUndone, testSym, fInc;
+    testBank:=BankFormalism.FuncRetrieveObject(EXT, GivenSymmetry);
+    if testBank<>false then
+        return Data.GroupFormalism.LiftingOrbits(EXT, testBank.ListOrbitFacet, GivenSymmetry, testBank.GRP);
     fi;
-  end;
-  if IsBound(Data.TestNeedMoreSymmetry)=true then
-    testSym:=Data.TestNeedMoreSymmetry(EXT);
-  else
-    testSym:=TestNeedMoreSymmetry(EXT);
-  fi;
-  if testSym=true then
-    WorkingSymGroup:=Data.GroupFormalism.GroupUnion(BankFormalism.FuncStabilizer(EXT), GivenSymmetry);
-  else
-    WorkingSymGroup:=GivenSymmetry;
-  fi;
-  OrdGRP:=Data.GroupFormalism.Order(WorkingSymGroup);
-  if Data.IsRespawn(OrdGRP, EXT, Data.TheDepth)=false then
-    ReturnedList:=Data.DualDescriptionFunction(EXT, Data.GroupFormalism.ToPermGroup(EXT, GivenSymmetry));
-    if Data.IsBankSave(OrdGRP, EXT, Data.TheDepth)=true then
-#      Print("Before FuncCreateAccount\n");
-      BankFormalism.FuncCreateAccount(EXT, GivenSymmetry, ReturnedList);
-#      Print("After FuncCreateAccount\n");
-    fi;
-  else
-    TheDim:=RankMat(EXT)-1;
-#    Print("RESPAWN a new ADM computation |GRP|=", OrdGRP, " TheDim=", TheDim, " |EXT|=", Length(EXT), "\n");
-    RPL:=Data.GroupFormalism.OrbitGroupFormalism(EXT, WorkingSymGroup);
-#    Print("nbOrbit=", RPL.FuncNumberOrbit(), "\n");
-    if RPL.FuncNumberOrbit()=0 then
-      for eInc in Data.GetInitialRays(EXT, 10)
-      do
-        RPL.FuncInsert(eInc);
-      od;
-    fi;
-#    Print("Running the adjacency method recursively\n");
-    while(true)
-    do
-      eSetUndone:=RPL.ComputeIntersectionUndone();
-      nbUndone:=RPL.FuncNumberUndone();
-      if RPL.FuncNumberOrbitDone()>0 then
-        if nbUndone<=TheDim-1 or Length(eSetUndone)>0 then
-#          Print("End of computation, nbObj=", RPL.FuncNumber(), " nbOrbit=", RPL.FuncNumberOrbit(), " nbUndone=", nbUndone, " |eSetUndone|=", Length(eSetUndone), " Depth=", Data.TheDepth, " |EXT|=", Length(EXT), "\n");
-          break;
+    # we would like to use IsBankSave but it is not possible with EllaspedTime
+    TestNeedMoreSymmetry:=function(EXT)
+        if Length(EXT)> RankMat(EXT)+4 then
+            return true;
+        else
+            return false;
         fi;
-      fi;
-      SelectedOrbit:=RPL.FuncGetMinimalUndoneOrbit();
-      eInc:=RPL.FuncRecord(SelectedOrbit);
-#      Print("\n");
-      RedStab:=Data.GroupFormalism.Stabilizer(EXT, WorkingSymGroup, eInc);
-#      Print("Considering orbit ", SelectedOrbit, " |inc|=", Length(eInc), " Depth=", Data.TheDepth, " |stab|=", Order(RedStab), " dim=", TheDim, "\n");
-      RPLift:=__ProjectionLiftingFramework(EXT, eInc);
-      NewData:=ShallowCopy(Data);
-      NewData.TheDepth:=NewData.TheDepth+1;
-      Ladj:=__ListFacetByAdjacencyDecompositionMethod(EXT{eInc}, RedStab, NewData, BankFormalism);
-#      Print("We treat ", Length(Ladj), " orbits\n");
-      for fInc in Ladj
-      do
-        RPL.FuncInsert(RPLift.FuncLift(fInc));
-      od;
-      RPL.FuncPutOrbitAsDone(SelectedOrbit);
-      nbUndone:=RPL.FuncNumberUndone();
-#      Print("We have ", RPL.FuncNumberOrbit(), " orbits");
-#      Print("  Nr treated=", RPL.FuncNumberOrbitDone(), " orbits");
-#      Print("  nbUndone=", nbUndone);
-#      Print("\n");
-    od;
-    LRES:=RPL.FuncListOrbitIncidence();
-    ReturnedList:=Data.GroupFormalism.LiftingOrbits(EXT, LRES, GivenSymmetry, WorkingSymGroup);
-#    Print("LRES=", Length(LRES), " |ReturnedList|=", Length(ReturnedList), " |GivenSymmetry|=", Order(GivenSymmetry), " |WorkingSymGroup|=", Order(WorkingSymGroup), "\n");
-    if Data.IsBankSave(OrdGRP, EXT, Data.TheDepth)=true then
-#      Print("Before FuncCreateAccount\n");
-      BankFormalism.FuncCreateAccount(EXT, WorkingSymGroup, LRES);
-#      Print("After FuncCreateAccount\n");
+    end;
+    if IsBound(Data.TestNeedMoreSymmetry)=true then
+        testSym:=Data.TestNeedMoreSymmetry(EXT);
+    else
+        testSym:=TestNeedMoreSymmetry(EXT);
     fi;
-  fi;
-  return ReturnedList;
+    if testSym=true then
+        WorkingSymGroup:=Data.GroupFormalism.GroupUnion(BankFormalism.FuncStabilizer(EXT), GivenSymmetry);
+    else
+        WorkingSymGroup:=GivenSymmetry;
+    fi;
+    OrdGRP:=Data.GroupFormalism.Order(WorkingSymGroup);
+    if Data.IsRespawn(OrdGRP, EXT, Data.TheDepth)=false then
+        ReturnedList:=Data.DualDescriptionFunction(EXT, Data.GroupFormalism.ToPermGroup(EXT, GivenSymmetry));
+        if Data.IsBankSave(OrdGRP, EXT, Data.TheDepth)=true then
+            if IndefinitePrint then
+                Print("Before FuncCreateAccount\n");
+            fi;
+            BankFormalism.FuncCreateAccount(EXT, GivenSymmetry, ReturnedList);
+            if IndefinitePrint then
+                Print("After FuncCreateAccount\n");
+            fi;
+        fi;
+    else
+        TheDim:=RankMat(EXT)-1;
+        if IndefinitePrint then
+            Print("RESPAWN a new ADM computation |GRP|=", OrdGRP, " TheDim=", TheDim, " |EXT|=", Length(EXT), "\n");
+        fi;
+        RPL:=Data.GroupFormalism.OrbitGroupFormalism(EXT, WorkingSymGroup);
+        if IndefinitePrint then
+            Print("nbOrbit=", RPL.FuncNumberOrbit(), "\n");
+        fi;
+        if RPL.FuncNumberOrbit()=0 then
+            for eInc in Data.GetInitialRays(EXT, 10)
+            do
+                RPL.FuncInsert(eInc);
+            od;
+        fi;
+        if IndefinitePrint then
+            Print("Running the adjacency method recursively\n");
+        fi;
+        while(true)
+        do
+            eSetUndone:=RPL.ComputeIntersectionUndone();
+            nbUndone:=RPL.FuncNumberUndone();
+            if RPL.FuncNumberOrbitDone()>0 then
+                if nbUndone<=TheDim-1 or Length(eSetUndone)>0 then
+                    if IndefinitePrint then
+                        Print("End of computation, nbObj=", RPL.FuncNumber(), " nbOrbit=", RPL.FuncNumberOrbit(), " nbUndone=", nbUndone, " |eSetUndone|=", Length(eSetUndone), " Depth=", Data.TheDepth, " |EXT|=", Length(EXT), "\n");
+                    fi;
+                    break;
+                fi;
+            fi;
+            SelectedOrbit:=RPL.FuncGetMinimalUndoneOrbit();
+            eInc:=RPL.FuncRecord(SelectedOrbit);
+            if IndefinitePrint then
+                Print("\n");
+            fi;
+            RedStab:=Data.GroupFormalism.Stabilizer(EXT, WorkingSymGroup, eInc);
+            if IndefinitePrint then
+                Print("Considering orbit ", SelectedOrbit, " |inc|=", Length(eInc), " Depth=", Data.TheDepth, " |stab|=", Order(RedStab), " dim=", TheDim, "\n");
+            fi;
+            RPLift:=__ProjectionLiftingFramework(EXT, eInc);
+            NewData:=ShallowCopy(Data);
+            NewData.TheDepth:=NewData.TheDepth+1;
+            Ladj:=__ListFacetByAdjacencyDecompositionMethod(EXT{eInc}, RedStab, NewData, BankFormalism);
+            if IndefinitePrint then
+                Print("We treat ", Length(Ladj), " orbits\n");
+            fi;
+            for fInc in Ladj
+            do
+                RPL.FuncInsert(RPLift.FuncLift(fInc));
+            od;
+            RPL.FuncPutOrbitAsDone(SelectedOrbit);
+            nbUndone:=RPL.FuncNumberUndone();
+            if IndefinitePrint then
+                Print("We have ", RPL.FuncNumberOrbit(), " orbits");
+                Print("  Nr treated=", RPL.FuncNumberOrbitDone(), " orbits");
+                Print("  nbUndone=", nbUndone);
+                Print("\n");
+            fi;
+        od;
+        LRES:=RPL.FuncListOrbitIncidence();
+        ReturnedList:=Data.GroupFormalism.LiftingOrbits(EXT, LRES, GivenSymmetry, WorkingSymGroup);
+        if IndefinitePrint then
+            Print("LRES=", Length(LRES), " |ReturnedList|=", Length(ReturnedList), " |GivenSymmetry|=", Order(GivenSymmetry), " |WorkingSymGroup|=", Order(WorkingSymGroup), "\n");
+        fi;
+        if Data.IsBankSave(OrdGRP, EXT, Data.TheDepth)=true then
+            if IndefinitePrint then
+                Print("Before FuncCreateAccount\n");
+            fi;
+            BankFormalism.FuncCreateAccount(EXT, WorkingSymGroup, LRES);
+            if IndefinitePrint then
+                Print("After FuncCreateAccount\n");
+            fi;
+        fi;
+    fi;
+    return ReturnedList;
 end;

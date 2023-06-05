@@ -1,6 +1,6 @@
 # DeclareAutoPackage("indefinite", "1.0", true);
 # DeclarePackageAutoDocumentation("indefinite", "doc");
-
+IndefinitePrint:=false;
 
 full_install_indefinite:=function(indefinitedir)
     local FCT;

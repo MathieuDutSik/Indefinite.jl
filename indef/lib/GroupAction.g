@@ -32,7 +32,9 @@ end;
 
 LLLMatrixGroupReduction:=function(n, GRPmatr)
     local PosDefMat, LGen, eMat, eProd, eRec, Pmat, PmatInv, ListMatrNew, eMatNew;
-#    Print("Begin of LLLMatrixGroupReduction\n");
+    if IndefinitePrint then
+        Print("Begin of LLLMatrixGroupReduction\n");
+    fi;
     PosDefMat:=IdentityMat(n);
     LGen:=GeneratorsOfGroup(GRPmatr);
     for eMat in LGen
@@ -51,7 +53,9 @@ LLLMatrixGroupReduction:=function(n, GRPmatr)
         eMatNew:=Pmat * eMat * PmatInv;
         Add(ListMatrNew, eMatNew);
     od;
-#    Print("End of LLLMatrixGroupReduction\n");
+    if IndefinitePrint then
+        Print("End of LLLMatrixGroupReduction\n");
+    fi;
     return rec(GRPred:=Group(ListMatrNew), Pmat:=Pmat);
 end;
 
@@ -111,8 +115,10 @@ LinearSpace_GetDivisor:=function(TheSpace)
     if IsOK=true then
       return eDiv;
     fi;
-#    Print("eDiv=", eDiv, "\n");
-   eDiv:=eDiv+1;
+    if IndefinitePrint then
+        Print("eDiv=", eDiv, "\n");
+    fi;
+    eDiv:=eDiv+1;
   od;
   Error("We should never reach that stage");
 end;
@@ -135,7 +141,9 @@ OrbitComputationGeneral_limited:=function(GRPmatr, start_obj, TheAction, MaxSize
     while(true)
     do
         len:=Length(TheList);
-#        Print("OrbitComputationGeneral_limited len=", len, "\n");
+        if IndefinitePrint then
+            Print("OrbitComputationGeneral_limited len=", len, "\n");
+        fi;
         for eGen in ListGen
         do
             for idx in [CurrPos..len]
@@ -144,7 +152,9 @@ OrbitComputationGeneral_limited:=function(GRPmatr, start_obj, TheAction, MaxSize
                 f_insert(new_obj);
             od;
             if MaxSize > 0 and Length(TheList) > MaxSize then
-#                Print("Orbit enumeration terminated because of too large size\n");
+                if IndefinitePrint then
+                    Print("Orbit enumeration terminated because of too large size\n");
+                fi;
                 return fail;
             fi;
         od;
@@ -174,7 +184,9 @@ OrbitComputation_limited:=function(GRPmatr, start_vect, TheMod, MaxSize)
     while(true)
     do
         len:=Length(TheList);
-#        Print("OrbitComputation_limited len=", len, "\n");
+        if IndefinitePrint then
+            Print("OrbitComputation_limited len=", len, "\n");
+        fi;
         for eGen in ListGen
         do
             for idx in [CurrPos..len]
@@ -184,7 +196,9 @@ OrbitComputation_limited:=function(GRPmatr, start_vect, TheMod, MaxSize)
                 f_insert(eVect2);
             od;
             if MaxSize > 0 and Length(TheList) > MaxSize then
-#                Print("Orbit enumeration terminated because of too large size\n");
+                if IndefinitePrint then
+                    Print("Orbit enumeration terminated because of too large size\n");
+                fi;
                 return fail;
             fi;
         od;
@@ -259,36 +273,44 @@ end;
 
 
 LinearSpace_ModStabilizer:=function(GRPmatr, TheSpace, TheMod)
-  local n, TheSpaceMod, RecSpace, TheAction, GRPret, test, O, ListMatrGens, ListPermGens, eGen, eList, GRPperm, eSet, eStab, phi, ePerm1, ePerm2, eListImg, MaxSize;
-  n:=Length(TheSpace);
-#  Print("TheMod=", TheMod, "\n");
-  TheSpaceMod:=Concatenation(TheSpace, TheMod*IdentityMat(n));
-  RecSpace:=rec(TheSpace:=TheSpace, TheSpaceMod:=TheSpaceMod, TheMod:=TheMod);
-  TheAction:=function(eClass, eElt)
-    local eVect;
-    eVect:=eClass*eElt;
-    return List(eVect, x->x mod TheMod);
-  end;
-  GRPret:=Group(GeneratorsOfGroup(GRPmatr));
-  MaxSize:=100000;
-#  Print("Order(GRPmatr)=", Order(GRPmatr), "\n");
-  while(true)
-  do
-    test:=IsStabilizingMod(GRPret, RecSpace);
-    if test=true then
-      return GRPret;
+    local n, TheSpaceMod, RecSpace, TheAction, GRPret, test, O, ListMatrGens, ListPermGens, eGen, eList, GRPperm, eSet, eStab, phi, ePerm1, ePerm2, eListImg, MaxSize;
+    n:=Length(TheSpace);
+    if IndefinitePrint then
+        Print("TheMod=", TheMod, "\n");
     fi;
-    O:=OrbitComputation_limited(GRPret, test, TheMod, MaxSize);
-    if O=fail then
-        return -1;
+    TheSpaceMod:=Concatenation(TheSpace, TheMod*IdentityMat(n));
+    RecSpace:=rec(TheSpace:=TheSpace, TheSpaceMod:=TheSpaceMod, TheMod:=TheMod);
+    TheAction:=function(eClass, eElt)
+        local eVect;
+        eVect:=eClass*eElt;
+        return List(eVect, x->x mod TheMod);
+    end;
+    GRPret:=Group(GeneratorsOfGroup(GRPmatr));
+    MaxSize:=100000;
+    if IndefinitePrint then
+        Print("Order(GRPmatr)=", Order(GRPmatr), "\n");
     fi;
-    ListMatrGens:=GeneratorsOfGroup(GRPret);
-    ListPermGens:=MapToPermutationOrderedOrbit(ListMatrGens, TheAction, O);
-    eSet:=Filtered([1..Length(O)], x->SolutionIntMat(TheSpaceMod, O[x])<>fail);
-#    Print("|O|=", Length(O), " |eSet|=", Length(eSet), "\n");
-    GRPret:=Stabilizer(GRPret, eSet, ListMatrGens, ListPermGens, OnSets);
-#    Print("|O|=", Length(O), " |eSet|=", Length(eSet), " |ListPermGens|=", Length(ListPermGens), " |ListGen(GRPret)|=", Length(GeneratorsOfGroup(GRPret)), " |GRPperm|=", Order(Group(ListPermGens)), " |Oset|=", Length(Orbit(Group(ListPermGens), eSet, OnSets)), "\n");
-  od;
+    while(true)
+    do
+        test:=IsStabilizingMod(GRPret, RecSpace);
+        if test=true then
+            return GRPret;
+        fi;
+        O:=OrbitComputation_limited(GRPret, test, TheMod, MaxSize);
+        if O=fail then
+            return -1;
+        fi;
+        ListMatrGens:=GeneratorsOfGroup(GRPret);
+        ListPermGens:=MapToPermutationOrderedOrbit(ListMatrGens, TheAction, O);
+        eSet:=Filtered([1..Length(O)], x->SolutionIntMat(TheSpaceMod, O[x])<>fail);
+        if IndefinitePrint then
+            Print("|O|=", Length(O), " |eSet|=", Length(eSet), "\n");
+        fi;
+        GRPret:=Stabilizer(GRPret, eSet, ListMatrGens, ListPermGens, OnSets);
+        if IndefinitePrint then
+            Print("|O|=", Length(O), " |eSet|=", Length(eSet), " |ListPermGens|=", Length(ListPermGens), " |ListGen(GRPret)|=", Length(GeneratorsOfGroup(GRPret)), " |GRPperm|=", Order(Group(ListPermGens)), " |Oset|=", Length(Orbit(Group(ListPermGens), eSet, OnSets)), "\n");
+        fi;
+    od;
 end;
 
 
@@ -312,7 +334,9 @@ LinearSpace_ModStabilizer_RightCoset:=function(RecMatr, TheSpace, TheMod)
       return rec(ListListCoset:=ListListCoset, GRPmatr:=GRPret);
     fi;
     O:=Set(Orbit(GRPret, test, TheAction));
-#    Print("|O|=", Length(O), "\n");
+    if IndefinitePrint then
+        Print("|O|=", Length(O), "\n");
+    fi;
     ListMatrGens:=GeneratorsOfGroup(GRPret);
     ListPermGens:=MapToPermutationOrderedOrbit(ListMatrGens, TheAction, O);
     eSet:=Filtered([1..Length(O)], x->SolutionIntMat(TheSpaceMod, O[x])<>fail);
@@ -324,27 +348,29 @@ end;
 
 
 LinearSpace_Stabilizer_RightCoset:=function(GRPmatr, TheSpace_pre)
-  local TheSpace, LFact, eList, GRPret, TheMod, i, RecGRP;
-  TheSpace:=LLLReducedBasis(TheSpace_pre).basis;
-  RecGRP:=rec(ListListCoset:=[], GRPmatr:=PersoGroup(GeneratorsOfGroup(GRPmatr), Identity(GRPmatr)));
-  if IsStabilizing(GRPmatr, TheSpace) then
-    return RecGRP;
-  fi;
-  LFact:=LinearSpace_GetDivisor(TheSpace);
-  eList:=FactorsInt(LFact);
-#  Print("LFact=", LFact, " eList=", eList, "\n");
-  for i in [1..Length(eList)]
-  do
-    TheMod:=Product(eList{[1..i]});
-    RecGRP:=LinearSpace_ModStabilizer_RightCoset(RecGRP, TheSpace, TheMod);
-    if IsStabilizing(RecGRP.GRPmatr, TheSpace) then
-      return RecGRP;
+    local TheSpace, LFact, eList, GRPret, TheMod, i, RecGRP;
+    TheSpace:=LLLReducedBasis(TheSpace_pre).basis;
+    RecGRP:=rec(ListListCoset:=[], GRPmatr:=PersoGroup(GeneratorsOfGroup(GRPmatr), Identity(GRPmatr)));
+    if IsStabilizing(GRPmatr, TheSpace) then
+        return RecGRP;
     fi;
-  od;
-  if IsStabilizing(RecGRP.GRPmatr, TheSpace)=false then
-    Error("Algorithm error");
-  fi;
-  return RecGRP;
+    LFact:=LinearSpace_GetDivisor(TheSpace);
+    eList:=FactorsInt(LFact);
+    if IndefinitePrint then
+        Print("LFact=", LFact, " eList=", eList, "\n");
+    fi;
+    for i in [1..Length(eList)]
+    do
+        TheMod:=Product(eList{[1..i]});
+        RecGRP:=LinearSpace_ModStabilizer_RightCoset(RecGRP, TheSpace, TheMod);
+        if IsStabilizing(RecGRP.GRPmatr, TheSpace) then
+            return RecGRP;
+        fi;
+    od;
+    if IsStabilizing(RecGRP.GRPmatr, TheSpace)=false then
+        Error("Algorithm error");
+    fi;
+    return RecGRP;
 end;
 
 
@@ -369,12 +395,16 @@ end;
 
 LinearSpace_Stabilizer_Direct:=function(GRPmatr, TheSpace)
     local TheSpaceCan, TheAction;
-#    Print("Beginning of LinearSpace_Stabilizer_Direct\n");
+    if IndefinitePrint then
+        Print("Beginning of LinearSpace_Stabilizer_Direct\n");
+    fi;
     TheSpaceCan:=HermiteNormalFormIntegerMat(TheSpace);
     TheAction:=function(eSpace, eElt)
         return HermiteNormalFormIntegerMat(eSpace * eElt);
     end;
-#    Print("|O|=", Length(OrbitComputationGeneral_limited(GRPmatr, TheSpaceCan, TheAction, -1)), "\n");
+    if IndefinitePrint then
+        Print("|O|=", Length(OrbitComputationGeneral_limited(GRPmatr, TheSpaceCan, TheAction, -1)), "\n");
+    fi;
     return Stabilizer(GRPmatr, TheSpaceCan, TheAction);
 end;
 
@@ -402,7 +432,9 @@ LinearSpace_Stabilizer_Kernel_Reduced:=function(GRPmatr, TheSpace_pre)
   fi;
   GRPret:=PersoGroup(GeneratorsOfGroup(GRPmatr), Identity(GRPmatr));
   LFact:=LinearSpace_GetDivisor(TheSpace);
-#  Print("LFact=", LFact, "\n");
+  if IndefinitePrint then
+      Print("LFact=", LFact, "\n");
+  fi;
   eList:=FactorsInt(LFact);
   for i in [1..Length(eList)]
   do
@@ -439,7 +471,9 @@ LinearSpace_ComputeOrbit:=function(GRPmatr, TheSpace)
         n_new:=n_new+1;
         Add(ListSpaces, eSpaceCan);
         quot:=(n_old + 0.0) / (n_new + 0.0);
-#        Print("Now |ListSpaces|=", Length(ListSpaces), " n_old=", n_old, " n_new=", n_new, " quot=", quot, "\n");
+        if IndefinitePrint then
+            Print("Now |ListSpaces|=", Length(ListSpaces), " n_old=", n_old, " n_new=", n_new, " quot=", quot, "\n");
+        fi;
     end;
     f_insert(TheSpace);
     ListGen:=GeneratorsOfGroup(GRPmatr);
@@ -473,7 +507,9 @@ LinearSpace_Stabilizer_Kernel:=function(GRPmatr, TheSpace_pre)
     PmatInv:=Inverse(Pmat);
     TheSpace_B:=TheSpace_pre * PmatInv;
     TheSpace_C:=LLLbasisReduction(TheSpace_B).LattRed;
-#    Print("|ListSpaces|=", Length(LinearSpace_ComputeOrbit(eRec.GRPred, TheSpace_C)), "\n");
+    if IndefinitePrint then
+        Print("|ListSpaces|=", Length(LinearSpace_ComputeOrbit(eRec.GRPred, TheSpace_C)), "\n");
+    fi;
     GRPret:=LinearSpace_Stabilizer_Kernel_Reduced(eRec.GRPred, TheSpace_C);
     ListGenNew:=[];
     for eGen in GeneratorsOfGroup(GRPret)
@@ -495,12 +531,14 @@ end;
 
 LinearSpace_ModEquivalence:=function(GRPmatr, NeedStabilizer, TheSpace1, TheSpace2, TheMod)
     local MaxSize, n, TheSpace1Mod, TheSpace2Mod, RecSpace2, TheAction, IsEquiv, GRPwork, eElt, test, eVect, O, ListMatrGens, ListPermGens, eGen, eList, GRPperm, eSet1, eSet2, eTest, eStab, eMat, TheSpace1work, GenerateGroupInfo, GetFace, GrpInf, test1, test2;
-#    Print("LinearSpace_ModEquivalence, TheMod=", TheMod, "\n");
-#    Print("TheSpace1=\n");
-#    PrintArray(TheSpace1);
-#    Print("TheSpace2=\n");
-#    PrintArray(TheSpace2);
-#    Print("det(TheSpace1)=", DeterminantMat(TheSpace1), " det(TheSpace2)=", DeterminantMat(TheSpace2), "\n");
+    if IndefinitePrint then
+        Print("LinearSpace_ModEquivalence, TheMod=", TheMod, "\n");
+        Print("TheSpace1=\n");
+        PrintArray(TheSpace1);
+        Print("TheSpace2=\n");
+        PrintArray(TheSpace2);
+        Print("det(TheSpace1)=", DeterminantMat(TheSpace1), " det(TheSpace2)=", DeterminantMat(TheSpace2), "\n");
+    fi;
     MaxSize:=100000;
     n:=Length(TheSpace1);
     TheSpace1Mod:=Concatenation(TheSpace1, TheMod*IdentityMat(n));
@@ -523,27 +561,31 @@ LinearSpace_ModEquivalence:=function(GRPmatr, NeedStabilizer, TheSpace1, TheSpac
         return true;
     end;
     GenerateGroupInfo:=function(test)
-      local ListMatrGens, ListPermGens, eGen, eList, eListImg, ePerm1, ePerm2;
-      O:=OrbitComputation_limited(GRPwork, test, TheMod, MaxSize);
-      if O=fail then
-          return -1;
-      fi;
-#      Print("|O|=", Length(O), "\n");
-      ListMatrGens:=GeneratorsOfGroup(GRPwork);
-      ListPermGens:=[];
-      for eGen in ListMatrGens
-      do
-          eListImg:=List(O, x->TheAction(x, eGen));
-          ePerm1:=SortingPerm(eListImg);
-          eList:=List(O, x->Position(O, TheAction(x, eGen)));
-          ePerm2:=PermList(eList);
-          if ePerm1<>ePerm2 then
-              Error("ePerm1 <> ePerm2");
-          fi;
-          Add(ListPermGens, ePerm2);
-      od;
-#      Print("ListPermGens built\n");
-      return rec(O:=O, ListMatrGens:=ListMatrGens, ListPermGens:=ListPermGens);
+        local ListMatrGens, ListPermGens, eGen, eList, eListImg, ePerm1, ePerm2;
+        O:=OrbitComputation_limited(GRPwork, test, TheMod, MaxSize);
+        if O=fail then
+            return -1;
+        fi;
+        if IndefinitePrint then
+            Print("|O|=", Length(O), "\n");
+        fi;
+        ListMatrGens:=GeneratorsOfGroup(GRPwork);
+        ListPermGens:=[];
+        for eGen in ListMatrGens
+        do
+            eListImg:=List(O, x->TheAction(x, eGen));
+            ePerm1:=SortingPerm(eListImg);
+            eList:=List(O, x->Position(O, TheAction(x, eGen)));
+            ePerm2:=PermList(eList);
+            if ePerm1<>ePerm2 then
+                Error("ePerm1 <> ePerm2");
+            fi;
+            Add(ListPermGens, ePerm2);
+        od;
+        if IndefinitePrint then
+            Print("ListPermGens built\n");
+        fi;
+        return rec(O:=O, ListMatrGens:=ListMatrGens, ListPermGens:=ListPermGens);
     end;
     GetFace:=function(TheO, TheSpace)
         return Filtered([1..Length(TheO)], x->SolutionIntMat(TheSpace, TheO[x])<>fail);
@@ -552,143 +594,193 @@ LinearSpace_ModEquivalence:=function(GRPmatr, NeedStabilizer, TheSpace1, TheSpac
     eElt:=IdentityMat(n);
     while(true)
     do
-#      Print("Before test1, test2 equivalence\n");
-      test1:=IsEquiv(eElt);
-      if NeedStabilizer=false then
-          test2:=true;
-      else
-          test2:=IsStabilizingMod(GRPwork, RecSpace2);
-      fi;
-#      Print("test1=true=", test1=true, " test2=true=", test2=true, "\n");
-      if test1=true and test2=true then
-#          Print("Returning from LinearSpace_ModEquivalence\n");
-          return rec(GRPwork:=GRPwork, eEquiv:=eElt);
-      fi;
-      if test1<>true then
-        GrpInf:=GenerateGroupInfo(test1);
-        if GrpInf=-1 then
-          return -1;
+        if IndefinitePrint then
+            Print("Before test1, test2 equivalence\n");
         fi;
-        TheSpace1work:=TheSpace1Mod*eElt;
-        eSet1:=GetFace(GrpInf.O, TheSpace1work);
-        eSet2:=GetFace(GrpInf.O, TheSpace2Mod);
-#        Print("|eSet1|=", Length(eSet1), " |eSet2|=", Length(eSet2), " |GrpInf.O|=", Length(GrpInf.O), " |GrpInf.ListMatrGens|=", Length(GrpInf.ListMatrGens), "\n");
-        eMat:=RepresentativeAction(GRPwork, eSet1, eSet2, GrpInf.ListMatrGens, GrpInf.ListPermGens, OnSets);
-#        Print("We have eMat\n");
-        if eMat=fail then
-            return fail;
+        test1:=IsEquiv(eElt);
+        if NeedStabilizer=false then
+            test2:=true;
+        else
+            test2:=IsStabilizingMod(GRPwork, RecSpace2);
         fi;
-#        Print("Before computing GRPwork\n");
-        GRPwork:=Stabilizer(GRPwork, eSet2, GrpInf.ListMatrGens, GrpInf.ListPermGens, OnSets);
-#        Print("After stabilization |GRPwork|=", Order(GRPwork), "\n");
-        eElt:=eElt*eMat;
-      fi;
-      if test2<>true then
-#        Print("Before GrpInf\n");
-        GrpInf:=GenerateGroupInfo(test2);
-        if GrpInf=-1 then
-          return -1;
+        if IndefinitePrint then
+            Print("test1=true=", test1=true, " test2=true=", test2=true, "\n");
         fi;
-#        Print("We have GrpInf\n");
-        eSet2:=GetFace(GrpInf.O, TheSpace2Mod);
-#        Print("|eSet2|=", Length(eSet2), " |GrpInf.O|=", Length(GrpInf.O), "\n");
-        GRPwork:=Stabilizer(GRPwork, eSet2, GrpInf.ListMatrGens, GrpInf.ListPermGens, OnSets);
-#        Print("We have GRPwork\n");
-      fi;
+        if test1=true and test2=true then
+            if IndefinitePrint then
+                Print("Returning from LinearSpace_ModEquivalence\n");
+            fi;
+            return rec(GRPwork:=GRPwork, eEquiv:=eElt);
+        fi;
+        if test1<>true then
+            GrpInf:=GenerateGroupInfo(test1);
+            if GrpInf=-1 then
+                return -1;
+            fi;
+            TheSpace1work:=TheSpace1Mod*eElt;
+            eSet1:=GetFace(GrpInf.O, TheSpace1work);
+            eSet2:=GetFace(GrpInf.O, TheSpace2Mod);
+            if IndefinitePrint then
+                Print("|eSet1|=", Length(eSet1), " |eSet2|=", Length(eSet2), " |GrpInf.O|=", Length(GrpInf.O), " |GrpInf.ListMatrGens|=", Length(GrpInf.ListMatrGens), "\n");
+            fi;
+            eMat:=RepresentativeAction(GRPwork, eSet1, eSet2, GrpInf.ListMatrGens, GrpInf.ListPermGens, OnSets);
+            if IndefinitePrint then
+                Print("We have eMat\n");
+            fi;
+            if eMat=fail then
+                return fail;
+            fi;
+            if IndefinitePrint then
+                Print("Before computing GRPwork\n");
+            fi;
+            GRPwork:=Stabilizer(GRPwork, eSet2, GrpInf.ListMatrGens, GrpInf.ListPermGens, OnSets);
+            if IndefinitePrint then
+                Print("After stabilization |GRPwork|=", Order(GRPwork), "\n");
+            fi;
+            eElt:=eElt*eMat;
+        fi;
+        if test2<>true then
+            if IndefinitePrint then
+                Print("Before GrpInf\n");
+            fi;
+            GrpInf:=GenerateGroupInfo(test2);
+            if GrpInf=-1 then
+                return -1;
+            fi;
+            if IndefinitePrint then
+                Print("We have GrpInf\n");
+            fi;
+            eSet2:=GetFace(GrpInf.O, TheSpace2Mod);
+            if IndefinitePrint then
+                Print("|eSet2|=", Length(eSet2), " |GrpInf.O|=", Length(GrpInf.O), "\n");
+            fi;
+            GRPwork:=Stabilizer(GRPwork, eSet2, GrpInf.ListMatrGens, GrpInf.ListPermGens, OnSets);
+            if IndefinitePrint then
+                Print("We have GRPwork\n");
+            fi;
+        fi;
     od;
 end;
 
 
 LinearSpace_Equivalence_Kernel_Reduced:=function(GRPmatr, TheSpace1_pre, TheSpace2_pre)
-  local TheSpace1, TheSpace2, n, LFact1, LFact2, eList, IsEquivalence, GRPwork, eElt, TheMod, TheSpace1Img, eTest, i, eDet1, eDet2, NeedStabilizer;
-  TheSpace1:=LLLReducedBasis(TheSpace1_pre).basis;
-  TheSpace2:=LLLReducedBasis(TheSpace2_pre).basis;
-  n:=Length(TheSpace1);
-  LFact1:=LinearSpace_GetDivisor(TheSpace1);
-  LFact2:=LinearSpace_GetDivisor(TheSpace2);
-#  eDet1:=AbsInt(DeterminantMat(TheSpace1));
-#  eDet2:=AbsInt(DeterminantMat(TheSpace2));
-#  Print("eDet1=", eDet1, " eDet2=", eDet2, "\n");
-#  Print("LFact1=", LFact1, " LFact2=", LFact2, "\n");
-  if LFact1<>LFact2 then
-    return fail;
-  fi;
-  eList:=FactorsInt(LFact1);
-  IsEquivalence:=function(eEquiv)
-    local eVect, eSol;
-#    Print("Beginning of IsEquivalence\n");
-    for eVect in TheSpace1
+    local TheSpace1, TheSpace2, n, LFact1, LFact2, eList, IsEquivalence, GRPwork, eElt, TheMod, TheSpace1Img, eTest, i, eDet1, eDet2, NeedStabilizer;
+    TheSpace1:=LLLReducedBasis(TheSpace1_pre).basis;
+    TheSpace2:=LLLReducedBasis(TheSpace2_pre).basis;
+    n:=Length(TheSpace1);
+    LFact1:=LinearSpace_GetDivisor(TheSpace1);
+    LFact2:=LinearSpace_GetDivisor(TheSpace2);
+    if IndefinitePrint then
+        eDet1:=AbsInt(DeterminantMat(TheSpace1));
+        eDet2:=AbsInt(DeterminantMat(TheSpace2));
+        Print("eDet1=", eDet1, " eDet2=", eDet2, "\n");
+        Print("LFact1=", LFact1, " LFact2=", LFact2, "\n");
+    fi;
+    if LFact1<>LFact2 then
+        return fail;
+    fi;
+    eList:=FactorsInt(LFact1);
+    IsEquivalence:=function(eEquiv)
+        local eVect, eSol;
+        if IndefinitePrint then
+            Print("Beginning of IsEquivalence\n");
+        fi;
+        for eVect in TheSpace1
+        do
+            eSol:=SolutionIntMat(TheSpace2, eVect*eEquiv);
+            if eSol=fail then
+                if IndefinitePrint then
+                    Print("Returning false from IsEquivalence\n");
+                fi;
+                return false;
+            fi;
+        od;
+        if IndefinitePrint then
+            Print("Returning true from IsEquivalence\n");
+        fi;
+        return true;
+    end;
+    GRPwork:=PersoGroup(GeneratorsOfGroup(GRPmatr), Identity(GRPmatr));
+    eElt:=IdentityMat(n);
+    for i in [1..Length(eList)]
     do
-      eSol:=SolutionIntMat(TheSpace2, eVect*eEquiv);
-      if eSol=fail then
-#        Print("Returning false from IsEquivalence\n");
-        return false;
-      fi;
-    od;
-#    Print("Returning true from IsEquivalence\n");
-    return true;
-  end;
-  GRPwork:=PersoGroup(GeneratorsOfGroup(GRPmatr), Identity(GRPmatr));
-  eElt:=IdentityMat(n);
-  for i in [1..Length(eList)]
-  do
-    TheMod:=Product(eList{[1..i]});
-#    Print("i=", i, " TheMod=", TheMod, "\n");
-    if IsEquivalence(eElt) then
-#      Print("Returning eElt 1\n");
-      return eElt;
-    fi;
-    TheSpace1Img:=List(TheSpace1, x->x*eElt);
-    NeedStabilizer:=true;
-    if i = Length(eList) then
-        NeedStabilizer:=false;
-    fi;
-    eTest:=LinearSpace_ModEquivalence(GRPwork, NeedStabilizer, TheSpace1Img, TheSpace2, TheMod);
-    if eTest=-1 then
-#        Print("Using the direct approach\n");
-        eTest:=LinearSpace_Equivalence_Direct(GRPwork, TheSpace1Img, TheSpace2);
+        TheMod:=Product(eList{[1..i]});
+        if IndefinitePrint then
+            Print("i=", i, " TheMod=", TheMod, "\n");
+        fi;
+        if IsEquivalence(eElt) then
+            if IndefinitePrint then
+                Print("Returning eElt 1\n");
+            fi;
+            return eElt;
+        fi;
+        TheSpace1Img:=List(TheSpace1, x->x*eElt);
+        NeedStabilizer:=true;
+        if i = Length(eList) then
+            NeedStabilizer:=false;
+        fi;
+        eTest:=LinearSpace_ModEquivalence(GRPwork, NeedStabilizer, TheSpace1Img, TheSpace2, TheMod);
+        if eTest=-1 then
+            if IndefinitePrint then
+                Print("Using the direct approach\n");
+            fi;
+            eTest:=LinearSpace_Equivalence_Direct(GRPwork, TheSpace1Img, TheSpace2);
+            if eTest=fail then
+                if IndefinitePrint then
+                    Print("Returning fail by direct approach\n");
+                fi;
+                return fail;
+            fi;
+            eElt:=eElt * eTest;
+            if IsEquivalence(eElt)=false then
+                Error("Algorithm error 1");
+            fi;
+            return eElt;
+        fi;
+        if IndefinitePrint then
+            Print("We have eTest\n");
+        fi;
         if eTest=fail then
-#            Print("Returning fail by direct approach\n");
+            if IndefinitePrint then
+                Print("Returning fail\n");
+            fi;
             return fail;
         fi;
-        eElt:=eElt * eTest;
-        if IsEquivalence(eElt)=false then
-            Error("Algorithm error 1");
+        eElt:=eElt*eTest.eEquiv;
+        if NeedStabilizer then
+            GRPwork:=eTest.GRPwork;
         fi;
-        return eElt;
+    od;
+    if IsEquivalence(eElt)=false then
+        Error("Algorithm error 2");
     fi;
-#    Print("We have eTest\n");
-    if eTest=fail then
-#      Print("Returning fail\n");
-      return fail;
+    if IndefinitePrint then
+        Print("Returning eElt 2\n");
     fi;
-    eElt:=eElt*eTest.eEquiv;
-    if NeedStabilizer then
-        GRPwork:=eTest.GRPwork;
-    fi;
-  od;
-  if IsEquivalence(eElt)=false then
-    Error("Algorithm error 2");
-  fi;
-#  Print("Returning eElt 2\n");
-  return eElt;
+    return eElt;
 end;
 
 
 LinearSpace_Equivalence_Kernel:=function(GRPmatr, TheSpace1_pre, TheSpace2_pre)
     local n, eRec, Pmat, PmatInv, TheSpace1_B, TheSpace2_B, TheSpace1_C, TheSpace2_C, opt, RetMat;
     n:=Length(TheSpace1_pre);
-#    Print("Generators(GRPmatr)=", GeneratorsOfGroup(GRPmatr), "\n");
+    if IndefinitePrint then
+        Print("Generators(GRPmatr)=", GeneratorsOfGroup(GRPmatr), "\n");
+    fi;
     eRec:=LLLMatrixGroupReduction(n, GRPmatr);
-#    Print("Generators(eRec.GRPred)=", GeneratorsOfGroup(eRec.GRPred), "\n");
+    if IndefinitePrint then
+        Print("Generators(eRec.GRPred)=", GeneratorsOfGroup(eRec.GRPred), "\n");
+    fi;
     Pmat:=eRec.Pmat;
     PmatInv:=Inverse(Pmat);
     TheSpace1_B:=TheSpace1_pre * PmatInv;
     TheSpace2_B:=TheSpace2_pre * PmatInv;
     TheSpace1_C:=LLLbasisReduction(TheSpace1_B).LattRed;
     TheSpace2_C:=LLLbasisReduction(TheSpace2_B).LattRed;
-#    Print("TheSpace1_C=", TheSpace1_C, "\n");
-#    Print("TheSpace2_C=", TheSpace2_C, "\n");
+    if IndefinitePrint then
+        Print("TheSpace1_C=", TheSpace1_C, "\n");
+        Print("TheSpace2_C=", TheSpace2_C, "\n");
+    fi;
     opt:=LinearSpace_Equivalence_Kernel_Reduced(eRec.GRPred, TheSpace1_C, TheSpace2_C);
     if opt=fail then
         return fail;
@@ -722,7 +814,9 @@ MatrixIntegral_GetInvariantSpace:=function(n, GRPrat)
     local LGen, LGenTot, TheSpace, TheDet, IncreaseSpace;
     LGen:=GeneratorsOfGroup(GRPrat);
     LGenTot:=Set(Concatenation(LGen, List(LGen, Inverse)));
-#    Print("LGen|=", Length(LGen), " |LGenTot|=", Length(LGenTot), "\n");
+    if IndefinitePrint then
+        Print("LGen|=", Length(LGen), " |LGenTot|=", Length(LGenTot), "\n");
+    fi;
     TheSpace:=IdentityMat(n);
     TheDet:=1;
     IncreaseSpace:=function()
@@ -799,9 +893,13 @@ MatrixIntegral_RightCosets:=function(n, GRPrat)
     ListGenInt:=List(LGen, x->TheSpace * x * TheSpaceInv);
     GRPint:=Group(ListGenInt);
     RecStab_RightCoset:=LinearSpace_Stabilizer_RightCoset(GRPint, TheSpaceInv);
-#    Print("RecStab_RightCoset=", RecStab_RightCoset, "\n");
+    if IndefinitePrint then
+        Print("RecStab_RightCoset=", RecStab_RightCoset, "\n");
+    fi;
     ListCoset:=LinearSpace_ExpandListListCoset(n, RecStab_RightCoset.ListListCoset);
-#    Print("ListCoset=", ListCoset, "\n");
+    if IndefinitePrint then
+        Print("ListCoset=", ListCoset, "\n");
+    fi;
     ListCosetRet:=List(ListCoset, x->TheSpaceInv * x * TheSpace);
     return ListCosetRet;
 end;
@@ -812,7 +910,9 @@ MatrixIntegral_Equivalence_TestFeasibility:=function(GRPrat, EquivRat)
     TheDenEquiv:=ReducePrimeMultiplicity(GetDenominatorMatrix(EquivRat));
     TheDenGRP:=GetRationalInvariant(GRPrat);
     if IsInt(TheDenGRP / TheDenEquiv) = false then
-#        Print("Some prime numbers in the equivalence are not in the group. No equivalence possible");
+        if IndefinitePrint then
+            Print("Some prime numbers in the equivalence are not in the group. No equivalence possible");
+        fi;
         return false;
     fi;
     return true;
@@ -828,7 +928,9 @@ MatrixIntegral_Equivalence:=function(GRPrat, EquivRat)
     n:=Length(EquivRat);
     LGen:=GeneratorsOfGroup(GRPrat);
     TheSpace:=MatrixIntegral_GetInvariantSpace(n, GRPrat);
-#    Print("DeterminantMat(TheSpace)=", DeterminantMat(TheSpace), "\n");
+    if IndefinitePrint then
+        Print("DeterminantMat(TheSpace)=", DeterminantMat(TheSpace), "\n");
+    fi;
     # We have TheSpace * g in TheSpace
     # So, in other words TheSpace * g = g_int * TheSpace
     # which gets us TheSpace * g * TheSpaceInv = g_int
@@ -852,7 +954,9 @@ MatrixIntegral_Equivalence:=function(GRPrat, EquivRat)
         return fail;
     fi;
     eSpaceEquiv:=LinearSpace_Equivalence(GRPspace, TheSpaceInv, TheSpaceImgInv);
-#    Print("Invariant(GRPspace)=", InvariantSpaceOfGroup(n, GRPspace), "\n");
+    if IndefinitePrint then
+        Print("Invariant(GRPspace)=", InvariantSpaceOfGroup(n, GRPspace), "\n");
+    fi;
     if eSpaceEquiv=fail then
         return fail;
     fi;

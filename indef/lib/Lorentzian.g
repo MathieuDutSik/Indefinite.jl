@@ -116,15 +116,19 @@ LORENTZ_ExtendOrthogonalIsotropicIsomorphism:=function(G1, Subspace1, G2, Subspa
     local dim, rnk, dimSpace, dimCompl, TheCompl1, TheCompl2, eVect1, eProd1, eProd2, Vscal, NSP1, NSP2, ProdMat1, ProdMat2, eVect2, Trans1, Trans1Inv, Trans2, eEquiv, eEquivInv, MatScal1, MatScal2, MatScalCand2, G1_tr, ListVectCand2, DiffScal, LambdaMat, LScal1, LScal2, eVectCand2, SMat1, SMat2, denomSol, test_transformation, check_transformation, get_one_transformation, get_kernel_generating_set;
     dim:=Length(G1);
     rnk:=RankMat(Subspace1);
-#    Print("------------------------------\n");
-#    Print("Subspace1:=", Subspace1, ";\n");
-#    Print("Subspace2:=", Subspace2, ";\n");
+    if IndefinitePrint then
+        Print("------------------------------\n");
+        Print("Subspace1:=", Subspace1, ";\n");
+        Print("Subspace2:=", Subspace2, ";\n");
+    fi;
     if Length(Subspace1)<>rnk then
         Error("Inconsistent input: We should have Subspace1 of full rank");
     fi;
     dimSpace:=rnk;
     dimCompl:=dim - dimSpace;
-#    Print("dim:=", dim, ", dimSpace:=", dimSpace, ", dimCompl:=", dimCompl, ";\n");
+    if IndefinitePrint then
+        Print("dim:=", dim, ", dimSpace:=", dimSpace, ", dimCompl:=", dimCompl, ";\n");
+    fi;
     # Checking the input
     eProd1:=Subspace1 * G1;
     eProd2:=Subspace2 * G2;
@@ -184,11 +188,15 @@ LORENTZ_ExtendOrthogonalIsotropicIsomorphism:=function(G1, Subspace1, G2, Subspa
         eEqInv:=Inverse(eEq);
         G1_tr:=eEqInv * G1 * TransposedMat(eEqInv);
         if G1_tr<>G2 then
-#            Print("G1 was not mapped to G2\n");
+            if IndefinitePrint then
+                Print("G1 was not mapped to G2\n");
+            fi;
             return false;
         fi;
         if Subspace1*eEq <> Subspace2 then
-#            Print("Subspace1 is not mapped to Subspace2\n");
+            if IndefinitePrint then
+                Print("Subspace1 is not mapped to Subspace2\n");
+            fi;
             return false;
         fi;
         return true;
@@ -216,7 +224,9 @@ LORENTZ_ExtendOrthogonalIsotropicIsomorphism:=function(G1, Subspace1, G2, Subspa
     end;
     get_kernel_generating_set:=function(d)
         local TheRec, ListEquiv_terms1, ListEquiv_terms2, ListEquiv_terms3, ListEquiv_terms4, ListEquiv_terms5, eGen;
-#        Print("Beginning of get_kernel_generating_set\n");
+        if IndefinitePrint then
+            Print("Beginning of get_kernel_generating_set\n");
+        fi;
         if G1<>G2 or Subspace1<>Subspace2 then
             Error("We should have G1=G2 and Subspace1=Subspace2 in order for kernel to make sense");
         fi;
@@ -243,17 +253,21 @@ end;
 # this is a set of functions related to Lorentzian lattice computation
 # in one way or another.
 LORENTZ_IsLorentzian:=function(LorMat)
-  local eRec;
-  eRec:=DiagonalizeSymmetricMatrix(LorMat);
-  if eRec.nbPlus<>1 then
-#    Print("Cannot be lorentzian. Plus space should be one-dimensional\n");
-    return false;
-  fi;
-  if eRec.nbZero<>0 then
-#    Print("Cannot be lorentzian. Should be nondegenerate\n");
-    return false;
-  fi;
-  return true;
+    local eRec;
+    eRec:=DiagonalizeSymmetricMatrix(LorMat);
+    if eRec.nbPlus<>1 then
+        if IndefinitePrint then
+            Print("Cannot be lorentzian. Plus space should be one-dimensional\n");
+        fi;
+        return false;
+    fi;
+    if eRec.nbZero<>0 then
+        if IndefinitePrint then
+            Print("Cannot be lorentzian. Should be nondegenerate\n");
+        fi;
+        return false;
+    fi;
+    return true;
 end;
 
 
@@ -307,96 +321,104 @@ end;
 #
 # OnlyShortest is true if we return only the vectors of minimal values fVect * LorMat * eVect
 LORENTZ_FindPositiveVectors:=function(LorMat, eVect, MaxScal, TheOption, OnlyShortest)
-  local eNorm, Ubasis, GramMat, TheRec, eValMax, TotalListSol, eVal, eBasSol, alpha, eTrans, eSol, eSquareDist, ListSol, eSolA, eSolB, eSolC, fScal, fNorm;
-#  Print("Beginning of LORENTZ_FindPositiveVectors\n");
-  eNorm:=eVect*LorMat*eVect;
-  if MaxScal<=0 then
-    Print("MaxScal=", MaxScal, "\n");
-    Error("We should have MaxScal > 0");
-  fi;
-  if TheOption<>"isotrop" and TheOption<>"total" then
-    Print("TheOption=", TheOption, "\n");
-    Error("AllowedValues for TheOption are isotrop or total");
-  fi;
-  if eNorm <= 0 then
-    Print("eNorm=", eNorm, "\n");
-    Error("Wrong norm of vector, will not work 1");
-  fi;
-  if IsIntegralVector(eVect)=false then
-    Print("eVect=", eVect, "\n");
-    Error("Vector should be integral.");
-  fi;
-  Ubasis:=NullspaceIntMat(TransposedMat([eVect*LorMat]));
-  GramMat:=-Ubasis*LorMat*TransposedMat(Ubasis);
-  if IsPositiveDefiniteSymmetricMatrix(GramMat)=false then
-    Error("deep error");
-  fi;
-  TheRec:=GcdVector(eVect*LorMat);
-  if TheRec.TheGcd<0 then
-    Error("deep error 2");
-  fi;
-  eValMax:=LowerInteger(MaxScal/TheRec.TheGcd);
-#  Print("MaxScal=", MaxScal, " TheRec.TheGcd=", TheRec.TheGcd, " eValMax=", eValMax, "\n");
-  TotalListSol:=[];
-  for eVal in [1..eValMax]
-  do
-    eBasSol:=eVal*TheRec.ListCoef; # a solution of eVect * LorMat * fVect = TheGcd * eVal
-    alpha:=eVal*TheRec.TheGcd/eNorm;
-    eTrans:=eBasSol - alpha*eVect;
-    eSol:=SolutionMat(Ubasis, eTrans);
-    if eSol=fail then
-      Error("Please debug from here Lorentian 1");
+    local eNorm, Ubasis, GramMat, TheRec, eValMax, TotalListSol, eVal, eBasSol, alpha, eTrans, eSol, eSquareDist, ListSol, eSolA, eSolB, eSolC, fScal, fNorm;
+    if IndefinitePrint then
+        Print("Beginning of LORENTZ_FindPositiveVectors\n");
     fi;
-    eSquareDist:=alpha*alpha*eNorm;
-    ListSol:=ClosestAtDistanceVallentinProgram(GramMat, -eSol, eSquareDist);
-    for eSolA in ListSol
+    eNorm:=eVect*LorMat*eVect;
+    if MaxScal<=0 then
+        Print("MaxScal=", MaxScal, "\n");
+        Error("We should have MaxScal > 0");
+    fi;
+    if TheOption<>"isotrop" and TheOption<>"total" then
+        Print("TheOption=", TheOption, "\n");
+        Error("AllowedValues for TheOption are isotrop or total");
+    fi;
+    if eNorm <= 0 then
+        Print("eNorm=", eNorm, "\n");
+        Error("Wrong norm of vector, will not work 1");
+    fi;
+    if IsIntegralVector(eVect)=false then
+        Print("eVect=", eVect, "\n");
+        Error("Vector should be integral.");
+    fi;
+    Ubasis:=NullspaceIntMat(TransposedMat([eVect*LorMat]));
+    GramMat:=-Ubasis*LorMat*TransposedMat(Ubasis);
+    if IsPositiveDefiniteSymmetricMatrix(GramMat)=false then
+        Error("deep error");
+    fi;
+    TheRec:=GcdVector(eVect*LorMat);
+    if TheRec.TheGcd<0 then
+        Error("deep error 2");
+    fi;
+    eValMax:=LowerInteger(MaxScal/TheRec.TheGcd);
+    if IndefinitePrint then
+        Print("MaxScal=", MaxScal, " TheRec.TheGcd=", TheRec.TheGcd, " eValMax=", eValMax, "\n");
+    fi;
+    TotalListSol:=[];
+    for eVal in [1..eValMax]
     do
-      eSolB:=eSolA*Ubasis;
-      eSolC:=eBasSol+eSolB;
-      fScal:=eSolC*LorMat*eVect;
-      fNorm:=eSolC*LorMat*eSolC;
-      if fNorm < 0 or fScal < 0 or fScal > MaxScal then
-        Error("Error in norm or scalar product");
-      fi;
-      if IsIntegralVector(eSolC)=false then
-        Error("Non integral eSolC, debug ....");
-      fi;
-      if TheOption="total" then
-        Add(TotalListSol, eSolC);
-      else
-        if fNorm=0 then
-          Add(TotalListSol, eSolC);
+        eBasSol:=eVal*TheRec.ListCoef; # a solution of eVect * LorMat * fVect = TheGcd * eVal
+        alpha:=eVal*TheRec.TheGcd/eNorm;
+        eTrans:=eBasSol - alpha*eVect;
+        eSol:=SolutionMat(Ubasis, eTrans);
+        if eSol=fail then
+            Error("Please debug from here Lorentian 1");
         fi;
-      fi;
+        eSquareDist:=alpha*alpha*eNorm;
+        ListSol:=ClosestAtDistanceVallentinProgram(GramMat, -eSol, eSquareDist);
+        for eSolA in ListSol
+        do
+            eSolB:=eSolA*Ubasis;
+            eSolC:=eBasSol+eSolB;
+            fScal:=eSolC*LorMat*eVect;
+            fNorm:=eSolC*LorMat*eSolC;
+            if fNorm < 0 or fScal < 0 or fScal > MaxScal then
+                Error("Error in norm or scalar product");
+            fi;
+            if IsIntegralVector(eSolC)=false then
+                Error("Non integral eSolC, debug ....");
+            fi;
+            if TheOption="total" then
+                Add(TotalListSol, eSolC);
+            else
+                if fNorm=0 then
+                    Add(TotalListSol, eSolC);
+                fi;
+            fi;
+        od;
+        if OnlyShortest and Length(TotalListSol)>0 then
+            return TotalListSol;
+        fi;
     od;
-    if OnlyShortest and Length(TotalListSol)>0 then
-      return TotalListSol;
-    fi;
-  od;
-  return TotalListSol;
+    return TotalListSol;
 end;
 
 
 LORENTZ_SearchInitialVectorOpt:=function(LorMat, PosVect, TheOption, OnlyShortest)
-  local n, MaxScal, ListPosVect, ListIsotrop, ListScal, eScal, eSet;
-  n:=Length(LorMat);
-  MaxScal:=PosVect*LorMat*PosVect;
-#  Print("Beginning of LORENTZ_SearchInitialVector\n");
-#  Print("LorMat=\n");
-#  PrintArray(LorMat);
-#  Print("PosVect=", PosVect, " MaxScal=", MaxScal, "\n");
-  while(true)
-  do
-    ListPosVect:=LORENTZ_FindPositiveVectors(LorMat, PosVect, MaxScal, TheOption, OnlyShortest);
-#    Print("LORENTZ_SearchInitialVector MaxScal=", MaxScal, " |ListPosVect|=", Length(ListPosVect), "\n");
-    if Length(ListPosVect)>0 then
-      ListScal:=List(ListPosVect, x->x*LorMat*PosVect);
-      eScal:=Minimum(Difference(Set(ListScal), [0]));
-      eSet:=Filtered([1..Length(ListScal)], x->ListScal[x]=eScal);
-      return ListPosVect{eSet};
+    local n, MaxScal, ListPosVect, ListIsotrop, ListScal, eScal, eSet;
+    n:=Length(LorMat);
+    MaxScal:=PosVect*LorMat*PosVect;
+    if IndefinitePrint then
+        Print("Beginning of LORENTZ_SearchInitialVector\n");
+        Print("LorMat=\n");
+        PrintArray(LorMat);
+        Print("PosVect=", PosVect, " MaxScal=", MaxScal, "\n");
     fi;
-    MaxScal:=MaxScal+1;
-  od;
+    while(true)
+    do
+        ListPosVect:=LORENTZ_FindPositiveVectors(LorMat, PosVect, MaxScal, TheOption, OnlyShortest);
+        if IndefinitePrint then
+            Print("LORENTZ_SearchInitialVector MaxScal=", MaxScal, " |ListPosVect|=", Length(ListPosVect), "\n");
+        fi;
+        if Length(ListPosVect)>0 then
+            ListScal:=List(ListPosVect, x->x*LorMat*PosVect);
+            eScal:=Minimum(Difference(Set(ListScal), [0]));
+            eSet:=Filtered([1..Length(ListScal)], x->ListScal[x]=eScal);
+            return ListPosVect{eSet};
+        fi;
+        MaxScal:=MaxScal+1;
+    od;
 end;
 
 
@@ -417,162 +439,182 @@ end;
 
 
 LORENTZ_GetDeterminingVectFamily:=function(LorMat, eFamEXT)
-  local eVectDef, ListScal, MaxScal, ListVect, TheDet, AffBas, TheSel, ListCollScal, LColl, LSize, LType, nbCase, iCase, ePerm, LTypeS, ListVectB, CurrDet, eListSel, TestVect, NewDet, OnlyShortest;
-#  Print("Running LORENTZ_GetDeterminingVectFamily |eFamEXT|=", Length(eFamEXT), "\n");
-  eVectDef:=LORENTZ_GetDefiningIneq(LorMat, eFamEXT);
-  ListScal:=List(eFamEXT, x->x*LorMat*eVectDef);
-  if Length(Set(ListScal))<>1 then
-    Error("We are wrong");
-  fi;
-  MaxScal:=ListScal[1];
-  TheDet:=AbsInt(DeterminantMat(BaseIntMat(eFamEXT)));
-#  Print("MaxScal=", MaxScal, " det=", TheDet, "\n");
-  if TheDet=1 then
-    return eFamEXT;
-  fi;
-  while(true)
-  do
-    OnlyShortest:=false;
-    ListVect:=LORENTZ_FindPositiveVectors(LorMat, eVectDef, MaxScal, "total", OnlyShortest);
-    TheDet:=AbsInt(DeterminantMat(BaseIntMat(ListVect)));
-    if TheDet=1 then
-      AffBas:=GetZbasis(eFamEXT);
-      TheSel:=Filtered(ListVect, x->SolutionIntMat(AffBas, x)=fail);
-      ListCollScal:=List(TheSel, x->Collected(List(eFamEXT, y->y*LorMat*x)));
-      LColl:=Collected(ListCollScal);
-      LSize:=List(LColl, x->x[2]);
-      LType:=List(LColl, x->x[1]);
-      nbCase:=Length(LColl);
-      ePerm:=SortingPerm(LSize);
-      LTypeS:=Permuted(LType, ePerm);
-      ListVectB:=ShallowCopy(eFamEXT);
-      CurrDet:=AbsInt(DeterminantMat(BaseIntMat(eFamEXT)));
-      for iCase in [1..nbCase]
-      do
-        eListSel:=Filtered([1..Length(TheSel)], x->ListCollScal[x]=LTypeS[iCase]);
-        TestVect:=Concatenation(ListVectB, TheSel{eListSel});
-        NewDet:=AbsInt(DeterminantMat(BaseIntMat(TestVect)));
-        if NewDet<CurrDet then
-          ListVectB:=ShallowCopy(TestVect);
-          CurrDet:=NewDet;
-          if CurrDet=1 then
-            return ListVectB;
-          fi;
-        fi;
-      od;
+    local eVectDef, ListScal, MaxScal, ListVect, TheDet, AffBas, TheSel, ListCollScal, LColl, LSize, LType, nbCase, iCase, ePerm, LTypeS, ListVectB, CurrDet, eListSel, TestVect, NewDet, OnlyShortest;
+    if IndefinitePrint then
+        Print("Running LORENTZ_GetDeterminingVectFamily |eFamEXT|=", Length(eFamEXT), "\n");
     fi;
-    MaxScal:=MaxScal+1;
-  od;
+    eVectDef:=LORENTZ_GetDefiningIneq(LorMat, eFamEXT);
+    ListScal:=List(eFamEXT, x->x*LorMat*eVectDef);
+    if Length(Set(ListScal))<>1 then
+        Error("We are wrong");
+    fi;
+    MaxScal:=ListScal[1];
+    TheDet:=AbsInt(DeterminantMat(BaseIntMat(eFamEXT)));
+    if IndefinitePrint then
+        Print("MaxScal=", MaxScal, " det=", TheDet, "\n");
+    fi;
+    if TheDet=1 then
+        return eFamEXT;
+    fi;
+    while(true)
+    do
+        OnlyShortest:=false;
+        ListVect:=LORENTZ_FindPositiveVectors(LorMat, eVectDef, MaxScal, "total", OnlyShortest);
+        TheDet:=AbsInt(DeterminantMat(BaseIntMat(ListVect)));
+        if TheDet=1 then
+            AffBas:=GetZbasis(eFamEXT);
+            TheSel:=Filtered(ListVect, x->SolutionIntMat(AffBas, x)=fail);
+            ListCollScal:=List(TheSel, x->Collected(List(eFamEXT, y->y*LorMat*x)));
+            LColl:=Collected(ListCollScal);
+            LSize:=List(LColl, x->x[2]);
+            LType:=List(LColl, x->x[1]);
+            nbCase:=Length(LColl);
+            ePerm:=SortingPerm(LSize);
+            LTypeS:=Permuted(LType, ePerm);
+            ListVectB:=ShallowCopy(eFamEXT);
+            CurrDet:=AbsInt(DeterminantMat(BaseIntMat(eFamEXT)));
+            for iCase in [1..nbCase]
+            do
+                eListSel:=Filtered([1..Length(TheSel)], x->ListCollScal[x]=LTypeS[iCase]);
+                TestVect:=Concatenation(ListVectB, TheSel{eListSel});
+                NewDet:=AbsInt(DeterminantMat(BaseIntMat(TestVect)));
+                if NewDet<CurrDet then
+                    ListVectB:=ShallowCopy(TestVect);
+                    CurrDet:=NewDet;
+                    if CurrDet=1 then
+                        return ListVectB;
+                    fi;
+                fi;
+            od;
+        fi;
+        MaxScal:=MaxScal+1;
+    od;
 end;
 
 
 LORENTZ_ComputeFundamentalStabInfo:=function(LorMat, eFamEXT, GRPint)
-  local ListPermGen, ListMatrGenB, eGen, eMatr, GRPintMatr, PhiPermMat;
-  ListPermGen:=SmallGeneratingSet(GRPint);
-  ListMatrGenB:=[];
-  for eGen in ListPermGen
-  do
-    eMatr:=FindTransformation(eFamEXT, eFamEXT, eGen);
-    if IsIntegralMat(eMatr)=false then
-      Error("Bug: Non integral matrix");
-    fi;
-    if eMatr*LorMat*TransposedMat(eMatr)<>LorMat then
-      Error("Bug: eMatr does not preserve LorMat");
-    fi;
-    Add(ListMatrGenB, eMatr);
-  od;
-  GRPintMatr:=Group(ListMatrGenB);
-  PhiPermMat:=GroupHomomorphismByImagesNC(GRPint, GRPintMatr, ListPermGen, ListMatrGenB);
-  return rec(GRP_int:=GRPint, GRPintMatr:=GRPintMatr, PhiPermMat:=PhiPermMat);
+    local ListPermGen, ListMatrGenB, eGen, eMatr, GRPintMatr, PhiPermMat;
+    ListPermGen:=SmallGeneratingSet(GRPint);
+    ListMatrGenB:=[];
+    for eGen in ListPermGen
+    do
+        eMatr:=FindTransformation(eFamEXT, eFamEXT, eGen);
+        if IsIntegralMat(eMatr)=false then
+            Error("Bug: Non integral matrix");
+        fi;
+        if eMatr*LorMat*TransposedMat(eMatr)<>LorMat then
+            Error("Bug: eMatr does not preserve LorMat");
+        fi;
+        Add(ListMatrGenB, eMatr);
+    od;
+    GRPintMatr:=Group(ListMatrGenB);
+    PhiPermMat:=GroupHomomorphismByImagesNC(GRPint, GRPintMatr, ListPermGen, ListMatrGenB);
+    return rec(GRP_int:=GRPint, GRPintMatr:=GRPintMatr, PhiPermMat:=PhiPermMat);
 end;
 
 
 LORENTZ_ComputeStabilizer:=function(LorMat, eFamEXT)
-  local GRPrat, ListMatrGen, test, ListVect, GRPtot, ListPermGen, ListMatrGenB, eGen, eMatr, eList, GRPint, GRPintMatr, eVect, testB, ListPGen, PhiPermMat;
-#  Print("|eFamEXT|=", Length(eFamEXT), "\n");
-  GRPrat:=LinPolytope_Automorphism_AddMat(eFamEXT, [LorMat]);
-#  Print("|GRPrat|=", Order(GRPrat), "\n");
-  ListPGen:=GeneratorsOfGroup(GRPrat);
-#  Print("Before ListMatrGen construction\n");
-  ListMatrGen:=List(ListPGen, x->FindTransformation(eFamEXT, eFamEXT, x));
-#  Print("After ListMatrGen construction\n");
-  test:=First(ListMatrGen, x->IsIntegralMat(x)=false);
-  if test=fail then
-    GRPintMatr:=Group(ListMatrGen);
-    PhiPermMat:=GroupHomomorphismByImagesNC(GRPrat, GRPintMatr, ListPGen, ListMatrGen);
-    return rec(GRP_rat:=GRPrat, GRP_int:=GRPrat, GRPintMatr:=GRPintMatr, PhiPermMat:=PhiPermMat);
-  fi;
-  GRPint:=KernelLinPolytopeIntegral_Automorphism_Subspaces(eFamEXT, GRPrat).GRPperm;
-  return LORENTZ_ComputeFundamentalStabInfo(LorMat, eFamEXT, GRPint);
+    local GRPrat, ListMatrGen, test, ListVect, GRPtot, ListPermGen, ListMatrGenB, eGen, eMatr, eList, GRPint, GRPintMatr, eVect, testB, ListPGen, PhiPermMat;
+    if IndefinitePrint then
+        Print("|eFamEXT|=", Length(eFamEXT), "\n");
+    fi;
+    GRPrat:=LinPolytope_Automorphism_AddMat(eFamEXT, [LorMat]);
+    if IndefinitePrint then
+        Print("|GRPrat|=", Order(GRPrat), "\n");
+    fi;
+    ListPGen:=GeneratorsOfGroup(GRPrat);
+    if IndefinitePrint then
+        Print("Before ListMatrGen construction\n");
+    fi;
+    ListMatrGen:=List(ListPGen, x->FindTransformation(eFamEXT, eFamEXT, x));
+    if IndefinitePrint then
+        Print("After ListMatrGen construction\n");
+    fi;
+    test:=First(ListMatrGen, x->IsIntegralMat(x)=false);
+    if test=fail then
+        GRPintMatr:=Group(ListMatrGen);
+        PhiPermMat:=GroupHomomorphismByImagesNC(GRPrat, GRPintMatr, ListPGen, ListMatrGen);
+        return rec(GRP_rat:=GRPrat, GRP_int:=GRPrat, GRPintMatr:=GRPintMatr, PhiPermMat:=PhiPermMat);
+    fi;
+    GRPint:=KernelLinPolytopeIntegral_Automorphism_Subspaces(eFamEXT, GRPrat).GRPperm;
+    return LORENTZ_ComputeFundamentalStabInfo(LorMat, eFamEXT, GRPint);
 end;
 
 
 LORENTZ_GetAnsatzGraphInformation:=function(LorMat, eFamEXT, Qmat, HeuristicScal)
-  local nbVert, ThePartition, TheListAdjacency, i, eList, j, eScal, ScalarMat, DistMat, korig, pos, LineScalar, iVert, jVert, SetV, n, SecVal;
-  nbVert:=Length(eFamEXT);
-#  Print("Computing ScalarMat for nbVert=", nbVert, "\n");
-  ScalarMat:=[];
-  for i in [1..nbVert]
-  do
-    LineScalar:=[];
-    for j in [1..nbVert]
-    do
-      eScal:=[];
-      if HeuristicScal.UseLorMat then
-        Add(eScal, eFamEXT[i] * LorMat * eFamEXT[j]);
-      fi;
-      if HeuristicScal.UseQmat then
-        Add(eScal, eFamEXT[i] * Qmat * eFamEXT[j]);
-      fi;
-      if HeuristicScal.UseAllValues then
-        Add(LineScalar, eScal);
-      else
-        pos:=Position(HeuristicScal.ListAllowedValues, eScal);
-        Add(LineScalar, eScal);
-      fi;
-    od;
-    Add(ScalarMat, LineScalar);
-  od;
-#  Print("We have ScalarMat\n");
-  if HeuristicScal.UseDiagonal then
-#    Print("Using the diagonal\n");
-    DistMat:=MappedScalarMatrixDistanceMatrix(ScalarMat);
-    SetV:=__SetValue(DistMat);
-    korig:=Length(SetV);
-    n:=Length(DistMat);
-    TheListAdjacency:=Method4modelEdgeColoredGraph(DistMat, SetV);
-    ThePartition:=__Method4Partition(korig, n);
-    return rec(ThePartition:=ThePartition, ListAdjacency:=TheListAdjacency);
-  else
-    SetV:=__SetValue(ScalarMat);
-#    Print("Not using the diagonal |SetV|=", Length(SetV), "\n");
-    if Length(SetV)=2 then
-      SecVal:=SetV[2];
-      ThePartition:=[[1..nbVert]];
-      TheListAdjacency:=[];
-      for iVert in [1..nbVert]
-      do
-        eList:=[];
-        for jVert in [1..nbVert]
-        do
-          if iVert<>jVert then
-            if ScalarMat[iVert][jVert]=SecVal then
-              Add(eList, jVert);
-            fi;
-          fi;
-        od;
-        Add(TheListAdjacency, eList);
-      od;
-      return rec(ThePartition:=ThePartition, ListAdjacency:=TheListAdjacency);
-    else
-      SetV:=__SetValue(ScalarMat);
-      korig:=Length(SetV);
-      n:=Length(ScalarMat);
-      TheListAdjacency:=Method4modelEdgeColoredGraph(ScalarMat, SetV);
-      ThePartition:=__Method4Partition(korig, n);
-      return rec(ThePartition:=ThePartition, ListAdjacency:=TheListAdjacency);
+    local nbVert, ThePartition, TheListAdjacency, i, eList, j, eScal, ScalarMat, DistMat, korig, pos, LineScalar, iVert, jVert, SetV, n, SecVal;
+    nbVert:=Length(eFamEXT);
+    if IndefinitePrint then
+        Print("Computing ScalarMat for nbVert=", nbVert, "\n");
     fi;
-  fi;
+    ScalarMat:=[];
+    for i in [1..nbVert]
+    do
+        LineScalar:=[];
+        for j in [1..nbVert]
+        do
+            eScal:=[];
+            if HeuristicScal.UseLorMat then
+                Add(eScal, eFamEXT[i] * LorMat * eFamEXT[j]);
+            fi;
+            if HeuristicScal.UseQmat then
+                Add(eScal, eFamEXT[i] * Qmat * eFamEXT[j]);
+            fi;
+            if HeuristicScal.UseAllValues then
+                Add(LineScalar, eScal);
+            else
+                pos:=Position(HeuristicScal.ListAllowedValues, eScal);
+                Add(LineScalar, eScal);
+            fi;
+        od;
+        Add(ScalarMat, LineScalar);
+    od;
+    if IndefinitePrint then
+        Print("We have ScalarMat\n");
+    fi;
+    if HeuristicScal.UseDiagonal then
+        if IndefinitePrint then
+            Print("Using the diagonal\n");
+        fi;
+        DistMat:=MappedScalarMatrixDistanceMatrix(ScalarMat);
+        SetV:=__SetValue(DistMat);
+        korig:=Length(SetV);
+        n:=Length(DistMat);
+        TheListAdjacency:=Method4modelEdgeColoredGraph(DistMat, SetV);
+        ThePartition:=__Method4Partition(korig, n);
+        return rec(ThePartition:=ThePartition, ListAdjacency:=TheListAdjacency);
+    else
+        SetV:=__SetValue(ScalarMat);
+        if IndefinitePrint then
+            Print("Not using the diagonal |SetV|=", Length(SetV), "\n");
+        fi;
+        if Length(SetV)=2 then
+            SecVal:=SetV[2];
+            ThePartition:=[[1..nbVert]];
+            TheListAdjacency:=[];
+            for iVert in [1..nbVert]
+            do
+                eList:=[];
+                for jVert in [1..nbVert]
+                do
+                    if iVert<>jVert then
+                        if ScalarMat[iVert][jVert]=SecVal then
+                            Add(eList, jVert);
+                        fi;
+                    fi;
+                od;
+                Add(TheListAdjacency, eList);
+            od;
+            return rec(ThePartition:=ThePartition, ListAdjacency:=TheListAdjacency);
+        else
+            SetV:=__SetValue(ScalarMat);
+            korig:=Length(SetV);
+            n:=Length(ScalarMat);
+            TheListAdjacency:=Method4modelEdgeColoredGraph(ScalarMat, SetV);
+            ThePartition:=__Method4Partition(korig, n);
+            return rec(ThePartition:=ThePartition, ListAdjacency:=TheListAdjacency);
+        fi;
+    fi;
 end;
 
 
@@ -616,30 +658,42 @@ end;
 
 
 LORENTZ_TestEquivalence_General:=function(LorMat1, LorMat2, eFamEXT1, eFamEXT2)
-  local eEquiv, eEquivB, eMatr, TheStrategy, ListVect1, ListVect2, eMatrB, GRP2;
-#  Print("Before LinPolytope_Isomorphism_AddMat |eFamEXT1|=", Length(eFamEXT1), " |eFamEXT2|=", Length(eFamEXT2), "\n");
-  eEquiv:=LinPolytope_Isomorphism_AddMat(eFamEXT1, eFamEXT2, [LorMat1], [LorMat2]);
-#  Print("After LinPolytope_Isomorphism_AddMat\n");
-  if eEquiv=false then
-    return false;
-  fi;
-  eMatr:=FindTransformation(eFamEXT1, eFamEXT2, eEquiv);
-  if IsIntegralMat(eMatr) and Inverse(eMatr)*LorMat1*TransposedMat(Inverse(eMatr))=LorMat2 then
-    return eMatr;
-  fi;
-  if AbsInt(DeterminantMat(BaseIntMat(eFamEXT1)))=1 then
-    Error("It should have ended at this stage");
-  fi;
-#  Print("Before LinPolytope_Automorphism_AddMat\n");
-  GRP2:=LinPolytope_Automorphism_AddMat(eFamEXT2, [LorMat2]);
-#  Print("After LinPolytope_Automorphism_AddMat\n");
-  eMatrB:=KernelLinPolytopeIntegral_Isomorphism_Subspaces(eFamEXT1, eFamEXT2, GRP2, eEquiv);
-  if eMatrB=false then
-#    Print("Subspaces algo returns false\n");
-    return false;
-  fi;
-#  Print("We have eMatrB\n");
-  return LORENTZ_TestEquivalence_CheckAndReturn(LorMat1, LorMat2, eFamEXT1, eFamEXT2, eMatrB);
+    local eEquiv, eEquivB, eMatr, TheStrategy, ListVect1, ListVect2, eMatrB, GRP2;
+    if IndefinitePrint then
+        Print("Before LinPolytope_Isomorphism_AddMat |eFamEXT1|=", Length(eFamEXT1), " |eFamEXT2|=", Length(eFamEXT2), "\n");
+    fi;
+    eEquiv:=LinPolytope_Isomorphism_AddMat(eFamEXT1, eFamEXT2, [LorMat1], [LorMat2]);
+    if IndefinitePrint then
+        Print("After LinPolytope_Isomorphism_AddMat\n");
+    fi;
+    if eEquiv=false then
+        return false;
+    fi;
+    eMatr:=FindTransformation(eFamEXT1, eFamEXT2, eEquiv);
+    if IsIntegralMat(eMatr) and Inverse(eMatr)*LorMat1*TransposedMat(Inverse(eMatr))=LorMat2 then
+        return eMatr;
+    fi;
+    if AbsInt(DeterminantMat(BaseIntMat(eFamEXT1)))=1 then
+        Error("It should have ended at this stage");
+    fi;
+    if IndefinitePrint then
+        Print("Before LinPolytope_Automorphism_AddMat\n");
+    fi;
+    GRP2:=LinPolytope_Automorphism_AddMat(eFamEXT2, [LorMat2]);
+    if IndefinitePrint then
+        Print("After LinPolytope_Automorphism_AddMat\n");
+    fi;
+    eMatrB:=KernelLinPolytopeIntegral_Isomorphism_Subspaces(eFamEXT1, eFamEXT2, GRP2, eEquiv);
+    if eMatrB=false then
+        if IndefinitePrint then
+            Print("Subspaces algo returns false\n");
+        fi;
+        return false;
+    fi;
+    if IndefinitePrint then
+        Print("We have eMatrB\n");
+    fi;
+    return LORENTZ_TestEquivalence_CheckAndReturn(LorMat1, LorMat2, eFamEXT1, eFamEXT2, eMatrB);
 end;
 
 
@@ -705,7 +759,9 @@ GetUpperBound:=function(LorMat, eNSPbas, eNSPdir)
     eCstDir:=eNSPdir[1];
     eBas:=eNSPbas{[2..n+1]};
     eDir:=eNSPdir{[2..n+1]};
-#    Print("eCstBas=", eCstBas, " eCstDir=", eCstDir, "\n");
+    if IndefinitePrint then
+        Print("eCstBas=", eCstBas, " eCstDir=", eCstDir, "\n");
+    fi;
     # For an acceptable vector w of length n+1 in return we must have w[1] < 0.
     # Since we have w = u + TheMult * v we have a potential upper bound
     # on TheMult, but only if v[1] > 0
@@ -785,110 +841,130 @@ end;
 #
 LORENTZ_Kernel_Flipping:=function(LorMat, CritSet, eNSPbas, eNSPdir, TheOption)
   local n, EXT, NSP, eVert, eEXT, eNSP, NSPb, eNSPb, eNSPtest, eVectTest, MaxScal, ListTotal, EXTtest, ListIsoTest, NSPtest, eVectB, eNormTest, eVect, OnlyShortest, eDen, aShift, TheLowerBound, TheUpperBound, uVal, vVal, TheMidVal, n_iter, eVectBas, eVectDir, eNormBas, eNormDir, eVectBasDir, eNormBasDir, GetMidVal;
-#  Print("Beginning of LORENTZ_Kernel_Flipping\n");
-#  Print("LorMat=\n");
-#  PrintArray(LorMat);
-#  Print("CritSet=");
-#  PrintArray(CritSet);
-#  Print("eNSPbas=", eNSPbas, "  eNSPdir=", eNSPdir, "\n");
-#  Print("TheOption=", TheOption, "\n");
-  if RankMat([eNSPbas,eNSPdir])<>2 then
-      Error("The vector eNSPbas and eNSPdir should be linearly independent");
-  fi;
-  if First(CritSet, x->Concatenation([1],x)*eNSPbas<>0)<>fail then
-      Error("eNSPbas should have scalar product 0 with all entries in CritSet");
-  fi;
-  if First(CritSet, x->Concatenation([1],x)*eNSPdir<>0)<>fail then
-      Error("eNSPdir should have scalar product 0 with all entries in CritSet");
-  fi;
-  if TheOption="isotrop" then
-    if First(CritSet, x->x*LorMat*x<>0)<>fail then
-      Print("CritSet=", CritSet, "\n");
-      Error("CritSet contains some non-isotrop vectors");
+    if IndefinitePrint then
+        Print("Beginning of LORENTZ_Kernel_Flipping\n");
+        Print("LorMat=\n");
+        PrintArray(LorMat);
+        Print("CritSet=");
+        PrintArray(CritSet);
+        Print("eNSPbas=", eNSPbas, "  eNSPdir=", eNSPdir, "\n");
+        Print("TheOption=", TheOption, "\n");
     fi;
-  fi;
-  n:=Length(LorMat);
-  OnlyShortest:=true;
-  TheLowerBound:=0;
-  TheUpperBound:=GetUpperBound(LorMat, eNSPbas, eNSPdir);
-#  Print("At the beginning TheUpperBound=", TheUpperBound, "\n");
-  n_iter:=0;
-  eVectBas:=RemoveFraction(eNSPbas{[2..n+1]}*Inverse(LorMat));
-  eVectDir:=RemoveFraction(eNSPdir{[2..n+1]}*Inverse(LorMat));
-  eNormBas:=eVectBas * LorMat * eVectBas;
-  eNormDir:=eVectDir * LorMat * eVectDir;
-  eVectBasDir:=eVectBas + eVectDir;
-  eNormBasDir:=eVectBasDir * LorMat * eVectBasDir;
-  GetMidVal:=function(TheLow, TheUpp)
-      local eFrac, TargetLow, TargetUpp, TheSeq, eVal;
-      eFrac:=(TheLow + TheUpp) / 2;
-      TargetLow:=(2*TheLow + TheUpp) / 3;
-      TargetUpp:=(TheLow + 2*TheUpp) / 3;
-      TheSeq:=GetSequenceContinuousFractionApproximant(eFrac);
-#      Print("TheSeq=", TheSeq, "\n");
-      for eVal in TheSeq
-      do
-          if TargetLow <= eVal and eVal <= TargetUpp then
-              return eVal;
-          fi;
-      od;
-      Error("Should never reach that stage");
-  end;
-  while(true)
-  do
-#    Print("TheLowerBound=", TheLowerBound, " TheUpperBound=", TheUpperBound, "\n");
-    TheMidVal:=GetMidVal(TheLowerBound, TheUpperBound);
-    eNSPtest:=eNSPbas + TheMidVal * eNSPdir;
-    eVectTest:=RemoveFraction(eNSPtest{[2..n+1]}*Inverse(LorMat));
-    eNormTest:=eVectTest*LorMat*eVectTest;
-    MaxScal:=CritSet[1]*LorMat*eVectTest;
-#    Print("TheMidVal=", TheMidVal, " eNormTest=", eNormTest, " MaxScal=", MaxScal, " eNSPtest=", eNSPtest, " eVectTest=", eVectTest, "\n");
-#    Print("TheMidVal=", TheMidVal, " eNormTest=", eNormTest, " MaxScal=", MaxScal, " eNSPtest=", eNSPtest, "\n");
-#    Print("eNormBas=", eNormBas, " eNormDir=", eNormDir, " eNormBasDir=", eNormBasDir, "\n");
-    if eNormTest <= 0 or MaxScal <= 0 then
-      TheUpperBound:=TheMidVal;
-    else
-      ListTotal:=LORENTZ_FindPositiveVectors(LorMat, eVectTest, MaxScal, TheOption, OnlyShortest);
-#      Print("ListTotal=", ListTotal, "\n");
-#      Print("  |ListTotal|=", Length(ListTotal), "\n");
-      if IsSubset(CritSet, Set(ListTotal)) and Length(CritSet) > Length(ListTotal) then
-        Error("Bug: if included, it should be equal");
-      fi;
-      if Set(ListTotal)=Set(CritSet) then
-        TheLowerBound:=TheMidVal;
-      else
-        if IsSubset(Set(ListTotal), CritSet) then
-#          Print("EXIT 1 |ListTotal|=", Length(ListTotal), " NSPtest=", eNSPtest, " MaxScal=", MaxScal, "\n");
-          return rec(ListTotal:=ListTotal, eNSPtest:=eNSPtest, eVectTest:=eVectTest, MaxScal:=MaxScal);
-        else
-          break;
+    if RankMat([eNSPbas,eNSPdir])<>2 then
+        Error("The vector eNSPbas and eNSPdir should be linearly independent");
+    fi;
+    if First(CritSet, x->Concatenation([1],x)*eNSPbas<>0)<>fail then
+        Error("eNSPbas should have scalar product 0 with all entries in CritSet");
+    fi;
+    if First(CritSet, x->Concatenation([1],x)*eNSPdir<>0)<>fail then
+        Error("eNSPdir should have scalar product 0 with all entries in CritSet");
+    fi;
+    if TheOption="isotrop" then
+        if First(CritSet, x->x*LorMat*x<>0)<>fail then
+            Print("CritSet=", CritSet, "\n");
+            Error("CritSet contains some non-isotrop vectors");
         fi;
-      fi;
     fi;
+    n:=Length(LorMat);
+    OnlyShortest:=true;
+    TheLowerBound:=0;
+    TheUpperBound:=GetUpperBound(LorMat, eNSPbas, eNSPdir);
+    if IndefinitePrint then
+        Print("At the beginning TheUpperBound=", TheUpperBound, "\n");
+    fi;
+    n_iter:=0;
+    eVectBas:=RemoveFraction(eNSPbas{[2..n+1]}*Inverse(LorMat));
+    eVectDir:=RemoveFraction(eNSPdir{[2..n+1]}*Inverse(LorMat));
+    eNormBas:=eVectBas * LorMat * eVectBas;
+    eNormDir:=eVectDir * LorMat * eVectDir;
+    eVectBasDir:=eVectBas + eVectDir;
+    eNormBasDir:=eVectBasDir * LorMat * eVectBasDir;
+    GetMidVal:=function(TheLow, TheUpp)
+        local eFrac, TargetLow, TargetUpp, TheSeq, eVal;
+        eFrac:=(TheLow + TheUpp) / 2;
+        TargetLow:=(2*TheLow + TheUpp) / 3;
+        TargetUpp:=(TheLow + 2*TheUpp) / 3;
+        TheSeq:=GetSequenceContinuousFractionApproximant(eFrac);
+        if IndefinitePrint then
+            Print("TheSeq=", TheSeq, "\n");
+        fi;
+        for eVal in TheSeq
+        do
+            if TargetLow <= eVal and eVal <= TargetUpp then
+                return eVal;
+            fi;
+        od;
+        Error("Should never reach that stage");
+    end;
+    while(true)
+    do
+        if IndefinitePrint then
+            Print("TheLowerBound=", TheLowerBound, " TheUpperBound=", TheUpperBound, "\n");
+        fi;
+        TheMidVal:=GetMidVal(TheLowerBound, TheUpperBound);
+        eNSPtest:=eNSPbas + TheMidVal * eNSPdir;
+        eVectTest:=RemoveFraction(eNSPtest{[2..n+1]}*Inverse(LorMat));
+        eNormTest:=eVectTest*LorMat*eVectTest;
+        MaxScal:=CritSet[1]*LorMat*eVectTest;
+        if IndefinitePrint then
+            Print("TheMidVal=", TheMidVal, " eNormTest=", eNormTest, " MaxScal=", MaxScal, " eNSPtest=", eNSPtest, " eVectTest=", eVectTest, "\n");
+            Print("TheMidVal=", TheMidVal, " eNormTest=", eNormTest, " MaxScal=", MaxScal, " eNSPtest=", eNSPtest, "\n");
+            Print("eNormBas=", eNormBas, " eNormDir=", eNormDir, " eNormBasDir=", eNormBasDir, "\n");
+        fi;
+        if eNormTest <= 0 or MaxScal <= 0 then
+            TheUpperBound:=TheMidVal;
+        else
+            ListTotal:=LORENTZ_FindPositiveVectors(LorMat, eVectTest, MaxScal, TheOption, OnlyShortest);
+            if IndefinitePrint then
+                Print("ListTotal=", ListTotal, "\n");
+                Print("  |ListTotal|=", Length(ListTotal), "\n");
+            fi;
+            if IsSubset(CritSet, Set(ListTotal)) and Length(CritSet) > Length(ListTotal) then
+                Error("Bug: if included, it should be equal");
+            fi;
+            if Set(ListTotal)=Set(CritSet) then
+                TheLowerBound:=TheMidVal;
+            else
+                if IsSubset(Set(ListTotal), CritSet) then
+                    if IndefinitePrint then
+                        Print("EXIT 1 |ListTotal|=", Length(ListTotal), " NSPtest=", eNSPtest, " MaxScal=", MaxScal, "\n");
+                    fi;
+                    return rec(ListTotal:=ListTotal, eNSPtest:=eNSPtest, eVectTest:=eVectTest, MaxScal:=MaxScal);
+                else
+                    break;
+                fi;
+            fi;
+        fi;
 #    if n_iter > 10 then
 #        Print("n_iter=", n_iter, " is too large\n");
 #        Error("Stop here");
 #    fi;
-    n_iter:=n_iter+1;
-  od;
-#  Print("Going to the second scheme\n");
-  while(true)
-  do
-    eVect:=ListTotal[1];
-    eVert:=Concatenation([1], eVect);
-    ListIsoTest:=Concatenation(CritSet, [eVect]);
-    EXTtest:=List(ListIsoTest, x->Concatenation([1], x));
-    aShift:=-( eNSPbas*eVert) / ( eNSPdir*eVert );
-    eNSPtest:=eNSPbas + aShift*eNSPdir;
-#    Print(" aShift=", aShift, "\n");
-    eVectTest:=RemoveFraction(eNSPtest{[2..n+1]}*Inverse(LorMat));
-    MaxScal:=CritSet[1]*LorMat*eVectTest;
-    ListTotal:=LORENTZ_FindPositiveVectors(LorMat, eVectTest, MaxScal, TheOption, OnlyShortest);
-    if IsSubset(Set(ListTotal), Set(ListIsoTest)) then
-#      Print("EXIT 2 |ListTotal|=", Length(ListTotal), " NSPtest=", eNSPtest, " MaxScal=", MaxScal, "\n");
-      return rec(ListTotal:=ListTotal, eNSPtest:=eNSPtest, eVectTest:=eVectTest, MaxScal:=MaxScal);
+        n_iter:=n_iter+1;
+    od;
+    if IndefinitePrint then
+        Print("Going to the second scheme\n");
     fi;
-  od;
+    while(true)
+    do
+        eVect:=ListTotal[1];
+        eVert:=Concatenation([1], eVect);
+        ListIsoTest:=Concatenation(CritSet, [eVect]);
+        EXTtest:=List(ListIsoTest, x->Concatenation([1], x));
+        aShift:=-( eNSPbas*eVert) / ( eNSPdir*eVert );
+        eNSPtest:=eNSPbas + aShift*eNSPdir;
+        if IndefinitePrint then
+            Print(" aShift=", aShift, "\n");
+        fi;
+        eVectTest:=RemoveFraction(eNSPtest{[2..n+1]}*Inverse(LorMat));
+        MaxScal:=CritSet[1]*LorMat*eVectTest;
+        ListTotal:=LORENTZ_FindPositiveVectors(LorMat, eVectTest, MaxScal, TheOption, OnlyShortest);
+        if IsSubset(Set(ListTotal), Set(ListIsoTest)) then
+            if IndefinitePrint then
+                Print("EXIT 2 |ListTotal|=", Length(ListTotal), " NSPtest=", eNSPtest, " MaxScal=", MaxScal, "\n");
+            fi;
+            return rec(ListTotal:=ListTotal, eNSPtest:=eNSPtest, eVectTest:=eVectTest, MaxScal:=MaxScal);
+        fi;
+    od;
 end;
 
 
@@ -923,7 +999,9 @@ LORENTZ_GetShortPositiveVector:=function(LorMat)
         do
             NewVect:=TheVect + (alpha+1) * DirVect;
             Norm2:=NewVect * LorMat * NewVect;
-#            Print("Norm1=", Norm1, " Norm2=", Norm2, " alpha=", alpha, "\n");
+            if IndefinitePrint then
+                Print("Norm1=", Norm1, " Norm2=", Norm2, " alpha=", alpha, "\n");
+            fi;
             if Norm2 < Norm1 and Norm2 > 0 then
                 Norm1:=Norm2;
                 alpha:=alpha+1;
@@ -943,10 +1021,14 @@ LORENTZ_GetShortPositiveVector:=function(LorMat)
             do
                 alpha:=GetAlpha(ImpVect, eVectBasis);
                 ImpVect:=ImpVect + alpha * eVectBasis;
-#                Print("eVectBasis=", eVectBasis, " alpha=", alpha, "\n");
+                if IndefinitePrint then
+                    Print("eVectBasis=", eVectBasis, " alpha=", alpha, "\n");
+                fi;
                 n_chg:=n_chg + alpha;
             od;
-#            Print("n_chg=", n_chg, "\n");
+            if IndefinitePrint then
+                Print("n_chg=", n_chg, "\n");
+            fi;
             if n_chg = 0 then
                 return ImpVect;
             fi;
@@ -1007,16 +1089,20 @@ end;
 LORENTZ_GetOnePerfect:=function(LorMat, TheOption)
     local eRec, n, pos, eVect, eScal, CritSet, eNSPbas, EXT, NSP, eVEctB, eNSPdir, eRecB, rnk, eVectB, CentralVect, IsInCone, ListDir, GetOneOutsideRay, Viso, CheckVectorEXT;
     n:=Length(LorMat);
-#    Print("Beginning of LORENTZ_GetOnePerfect, TheOption=", TheOption, "LorMat=\n");
-#    PrintArray(LorMat);
+    if IndefinitePrint then
+        Print("Beginning of LORENTZ_GetOnePerfect, TheOption=", TheOption, "LorMat=\n");
+        PrintArray(LorMat);
+    fi;
     if LORENTZ_IsLorentzian(LorMat)=false then
         Error("LorMat should be Lorentzian");
     fi;
     GetOneOutsideRay:=function(SpannBasis, TheSet)
         local TheMat, n_dim, uVect, RetVect, ListScal, eScal, TheNorm, ePerturb, TheMatPerturb;
         TheMat:=SpannBasis * LorMat * TransposedMat(SpannBasis);
-#        Print("From SpannBasis, TheMat=\n");
-#        PrintArray(TheMat);
+        if IndefinitePrint then
+            Print("From SpannBasis, TheMat=\n");
+            PrintArray(TheMat);
+        fi;
         if DiagonalizeSymmetricMatrix(TheMat).nbMinus=0 then
             Error("We should have a negative entry in the matrix");
         fi;
@@ -1028,7 +1114,9 @@ LORENTZ_GetOnePerfect:=function(LorMat, TheOption)
             uVect:=FindNegativeVect(TheMatPerturb);
             RetVect:=uVect * ePerturb * SpannBasis;
             TheNorm:=RetVect * LorMat * RetVect;
-#            Print("TheNorm=", TheNorm, "\n");
+            if IndefinitePrint then
+                Print("TheNorm=", TheNorm, "\n");
+            fi;
             if TheNorm >= 0 then
                 Error("The vector should be outside of the cone and so have negative norm");
             fi;
@@ -1051,27 +1139,39 @@ LORENTZ_GetOnePerfect:=function(LorMat, TheOption)
         fi;
     end;
     CentralVect:=LORENTZ_GetShortPositiveVector(LorMat);
-#    Print("CentralVect=", CentralVect, "\n");
+    if IndefinitePrint then
+        Print("CentralVect=", CentralVect, "\n");
+    fi;
     if n > 4 and false then # In that case an isotropic vector
-#        Print("Running isotropic code\n");
+        if IndefinitePrint then
+            Print("Running isotropic code\n");
+        fi;
         Viso:=INDEF_FindIsotropic(LorMat);
         eScal:=Viso * LorMat * CentralVect;
-#        Print("eScal=", eScal, "\n");
+        if IndefinitePrint then
+            Print("eScal=", eScal, "\n");
+        fi;
         if eScal < 0 then
             Viso:=-Viso;
         fi;
         CritSet:=[Viso];
     else
-#        Print("Running classic SearchInitialVector code\n");
+        if IndefinitePrint then
+            Print("Running classic SearchInitialVector code\n");
+        fi;
         CritSet:=LORENTZ_SearchInitialVector(LorMat, CentralVect, TheOption);
     fi;
     eScal:=CritSet[1]*LorMat*CentralVect;
-#    Print("|CritSet|=", Length(CritSet), " eScal=", eScal, " l_norm=", List(CritSet, x->x*LorMat*x), "\n");
+    if IndefinitePrint then
+        Print("|CritSet|=", Length(CritSet), " eScal=", eScal, " l_norm=", List(CritSet, x->x*LorMat*x), "\n");
+    fi;
     eNSPbas:=Concatenation([-eScal], CentralVect*LorMat);
     while(true)
     do
         rnk:=RankMat(CritSet);
-#        Print("LORENTZ_GetOnePerfect: rnk=", rnk, " ListTotal=", Set(CritSet), "\n");
+        if IndefinitePrint then
+            Print("LORENTZ_GetOnePerfect: rnk=", rnk, " ListTotal=", Set(CritSet), "\n");
+        fi;
         if rnk = n then
             LORENTZ_CheckCorrectnessVectorFamily(CritSet);
             return rec(ListTotal:=CritSet, eNSPtest:=eNSPbas, eVectTest:=CentralVect);
@@ -1082,11 +1182,15 @@ LORENTZ_GetOnePerfect:=function(LorMat, TheOption)
         if Length(NSP)=0 then
             Error("NSP should be non-empty");
         fi;
-#        Print("LORENTZ_GetOnePerfect: |NSP|=", Length(NSP), "\n");
+        if IndefinitePrint then
+            Print("LORENTZ_GetOnePerfect: |NSP|=", Length(NSP), "\n");
+        fi;
         ListDir:=List(NSP, x->RemoveFraction(x{[2..n+1]}*Inverse(LorMat)));
         eNSPdir:=GetOneOutsideRay(ListDir, CritSet);
         CheckVectorEXT(EXT, eNSPdir);
-#        Print("LORENTZ_GetOnePerfect: eNSPdir=", eNSPdir, "\n");
+        if IndefinitePrint then
+            Print("LORENTZ_GetOnePerfect: eNSPdir=", eNSPdir, "\n");
+        fi;
         eRecB:=LORENTZ_Kernel_Flipping(LorMat, CritSet, eNSPbas, eNSPdir, TheOption);
         CritSet:=eRecB.ListTotal;
         eNSPbas:=RemoveFraction(eRecB.eNSPtest);
@@ -1276,38 +1380,42 @@ end;
 # It is very heavy handed (compute all perfect forms ...)
 # but it works
 LORENTZ_TestIsomorphismLorentzianMatrices:=function(LorMat1, LorMat2)
-  local eInv1, eInv2, TheOption, RecInput, eFamEXT2, eInvPerfect, KillingDelaunay, TheResult;
-  eInv1:=LORENTZ_InvariantOfLorentzianForm(LorMat1);
-  eInv2:=LORENTZ_InvariantOfLorentzianForm(LorMat2);
-  if eInv1<>eInv2 then
-    return false;
-  fi;
-  TheOption:="total";
-  eFamEXT2:=LORENTZ_GetOnePerfect(LorMat2, TheOption).ListTotal;
-  eInvPerfect:=LORENTZ_Invariant(LorMat2, eFamEXT2);
-#  Print("|eFamEXT2|=", Length(eFamEXT2), " eInvPerfect=", eInvPerfect, "\n");
-  #
-  KillingDelaunay:=function(eFamEXT1, eInv)
-      local test, testInv;
-#      Print("|eFamEXT1|=", Length(eFamEXT1), " eInv=", eInv, "\n");
-      if eInv=eInvPerfect then
-          test:=LORENTZ_TestEquivalence_General(LorMat1, LorMat2, eFamEXT1, eFamEXT2);
-          if test<>false then
-              testInv:=Inverse(test);
-              if testInv*LorMat1*TransposedMat(testInv)<>LorMat2 then
-                  Error("The program still has some bugs");
-              fi;
-              return rec(TheEquiv:=testInv); # Need to encapsulate the matrix into a record, otherwise it matches the IsList
-          fi;
-      fi;
-      return false;
-  end;
-  RecInput:=rec(TheOption:=TheOption, KillingDelaunay:=KillingDelaunay);
-  TheResult:=LORENTZ_EnumeratePerfect_DelaunayScheme(LorMat1, RecInput);
-  if IsList(TheResult) then # TheResult is then the list of perfect forms
-      return false; # None of the perfect forms matched
-  fi;
-  return TheResult.TheEquiv; # Has to be a record
+    local eInv1, eInv2, TheOption, RecInput, eFamEXT2, eInvPerfect, KillingDelaunay, TheResult;
+    eInv1:=LORENTZ_InvariantOfLorentzianForm(LorMat1);
+    eInv2:=LORENTZ_InvariantOfLorentzianForm(LorMat2);
+    if eInv1<>eInv2 then
+        return false;
+    fi;
+    TheOption:="total";
+    eFamEXT2:=LORENTZ_GetOnePerfect(LorMat2, TheOption).ListTotal;
+    eInvPerfect:=LORENTZ_Invariant(LorMat2, eFamEXT2);
+    if IndefinitePrint then
+        Print("|eFamEXT2|=", Length(eFamEXT2), " eInvPerfect=", eInvPerfect, "\n");
+    fi;
+    #
+    KillingDelaunay:=function(eFamEXT1, eInv)
+        local test, testInv;
+        if IndefinitePrint then
+            Print("|eFamEXT1|=", Length(eFamEXT1), " eInv=", eInv, "\n");
+        fi;
+        if eInv=eInvPerfect then
+            test:=LORENTZ_TestEquivalence_General(LorMat1, LorMat2, eFamEXT1, eFamEXT2);
+            if test<>false then
+                testInv:=Inverse(test);
+                if testInv*LorMat1*TransposedMat(testInv)<>LorMat2 then
+                    Error("The program still has some bugs");
+                fi;
+                return rec(TheEquiv:=testInv); # Need to encapsulate the matrix into a record, otherwise it matches the IsList
+            fi;
+        fi;
+        return false;
+    end;
+    RecInput:=rec(TheOption:=TheOption, KillingDelaunay:=KillingDelaunay);
+    TheResult:=LORENTZ_EnumeratePerfect_DelaunayScheme(LorMat1, RecInput);
+    if IsList(TheResult) then # TheResult is then the list of perfect forms
+        return false; # None of the perfect forms matched
+    fi;
+    return TheResult.TheEquiv; # Has to be a record
 end;
 
 

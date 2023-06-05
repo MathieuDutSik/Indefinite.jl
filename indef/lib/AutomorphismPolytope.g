@@ -311,69 +311,79 @@ end;
 # Function below is buggy. It does not compute correctly the
 # Delaunay in dimension 5 from the Delaunay in dimension 6.
 KernelLinPolytopeIntegral_Isomorphism_Subspaces:=function(EXT1, EXT2, GRP2, eEquiv)
-  local n, eBasis1, eBasis2, EXTbas1, EXTbas2, TheMatEquiv, ListMatrGens, eGen, TheMat, GRPspace, eLatt1, eLatt2, eRec1, eRec2, eSpaceEquiv, eMatFinal;
-#  Print("Begin KernelLinPolytopeIntegral_Isomorphism_Subspaces\n");
-  n:=Length(EXT1[1]);
-  eBasis1:=GetZbasis(EXT1);
-  eBasis2:=GetZbasis(EXT2);
-  EXTbas1:=List(EXT1, x->SolutionMat(eBasis1, x));
-  EXTbas2:=List(EXT2, x->SolutionMat(eBasis2, x));
-  TheMatEquiv:=FindTransformation(EXTbas1, EXTbas2, eEquiv);
-#  Print("After FindTransformation\n");
-  ListMatrGens:=[];
-  for eGen in GeneratorsOfGroup(GRP2)
-  do
-    TheMat:=FindTransformation(EXTbas2, EXTbas2, eGen);
-    Add(ListMatrGens, TheMat);
-  od;
-  if Length(ListMatrGens)=0 then
-      GRPspace:=Group([IdentityMat(n)]);
-  else
-      GRPspace:=Group(ListMatrGens);
-  fi;
-  eLatt1:=Inverse(eBasis1)*TheMatEquiv;
-  eLatt2:=Inverse(eBasis2);
-  eRec1:=RemoveFractionMatrixPlusCoef(eLatt1);
-  eRec2:=RemoveFractionMatrixPlusCoef(eLatt2);
-  if eRec1.TheMult<>eRec2.TheMult then
-    return false;
-  fi;
-#  Print("Before call to LinearSpace_Equivalence\n");
-  eSpaceEquiv:=LinearSpace_Equivalence(GRPspace, eRec1.TheMat, eRec2.TheMat);
-#  Print("After call to LinearSpace_Equivalence\n");
-  if eSpaceEquiv=fail then
-    return false;
-  fi;
-  eMatFinal:=Inverse(eBasis1)*TheMatEquiv*eSpaceEquiv*eBasis2;
-  if IsIntegralMat(eMatFinal)=false then
-    Error("eMatFinal is not integral, BUG");
-  fi;
-  if Set(EXT1*eMatFinal)<>Set(EXT2) then
-    Error("eMatFinal does not map the polytopes, BUG");
-  fi;
-  return eMatFinal;
+    local n, eBasis1, eBasis2, EXTbas1, EXTbas2, TheMatEquiv, ListMatrGens, eGen, TheMat, GRPspace, eLatt1, eLatt2, eRec1, eRec2, eSpaceEquiv, eMatFinal;
+    if IndefinitePrint then
+        Print("Begin KernelLinPolytopeIntegral_Isomorphism_Subspaces\n");
+    fi;
+    n:=Length(EXT1[1]);
+    eBasis1:=GetZbasis(EXT1);
+    eBasis2:=GetZbasis(EXT2);
+    EXTbas1:=List(EXT1, x->SolutionMat(eBasis1, x));
+    EXTbas2:=List(EXT2, x->SolutionMat(eBasis2, x));
+    TheMatEquiv:=FindTransformation(EXTbas1, EXTbas2, eEquiv);
+    if IndefinitePrint then
+        Print("After FindTransformation\n");
+    fi;
+    ListMatrGens:=[];
+    for eGen in GeneratorsOfGroup(GRP2)
+    do
+        TheMat:=FindTransformation(EXTbas2, EXTbas2, eGen);
+        Add(ListMatrGens, TheMat);
+    od;
+    if Length(ListMatrGens)=0 then
+        GRPspace:=Group([IdentityMat(n)]);
+    else
+        GRPspace:=Group(ListMatrGens);
+    fi;
+    eLatt1:=Inverse(eBasis1)*TheMatEquiv;
+    eLatt2:=Inverse(eBasis2);
+    eRec1:=RemoveFractionMatrixPlusCoef(eLatt1);
+    eRec2:=RemoveFractionMatrixPlusCoef(eLatt2);
+    if eRec1.TheMult<>eRec2.TheMult then
+        return false;
+    fi;
+    if IndefinitePrint then
+        Print("Before call to LinearSpace_Equivalence\n");
+    fi;
+    eSpaceEquiv:=LinearSpace_Equivalence(GRPspace, eRec1.TheMat, eRec2.TheMat);
+    if IndefinitePrint then
+        Print("After call to LinearSpace_Equivalence\n");
+    fi;
+    if eSpaceEquiv=fail then
+        return false;
+    fi;
+    eMatFinal:=Inverse(eBasis1)*TheMatEquiv*eSpaceEquiv*eBasis2;
+    if IsIntegralMat(eMatFinal)=false then
+        Error("eMatFinal is not integral, BUG");
+    fi;
+    if Set(EXT1*eMatFinal)<>Set(EXT2) then
+        Error("eMatFinal does not map the polytopes, BUG");
+    fi;
+    return eMatFinal;
 end;
 
 
 LinPolytopeIntegral_Isomorphism_Subspaces:=function(EXT1, EXT2)
-  local n, eEquiv, GRP2;
-  n:=Length(EXT1[1]);
-  if Length(EXT2[1])<>n then
-    Error("The dimension of EXT1 and EXT2 are not the same");
-  fi;
-  if RankMat(EXT1)<>n then
-    Error("EXT1 is not full dimensional");
-  fi;
-  if RankMat(EXT2)<>n then
-    Error("EXT2 is not full dimensional");
-  fi;
-  eEquiv:=LinPolytope_Isomorphism(EXT1, EXT2);
-  if eEquiv=false then
-    return false;
-  fi;
-  GRP2:=LinPolytope_Automorphism(EXT2);
-#  Print("|GRP2|=", Order(GRP2), "\n");
-  return KernelLinPolytopeIntegral_Isomorphism_Subspaces(EXT1, EXT2, GRP2, eEquiv);
+    local n, eEquiv, GRP2;
+    n:=Length(EXT1[1]);
+    if Length(EXT2[1])<>n then
+        Error("The dimension of EXT1 and EXT2 are not the same");
+    fi;
+    if RankMat(EXT1)<>n then
+        Error("EXT1 is not full dimensional");
+    fi;
+    if RankMat(EXT2)<>n then
+        Error("EXT2 is not full dimensional");
+    fi;
+    eEquiv:=LinPolytope_Isomorphism(EXT1, EXT2);
+    if eEquiv=false then
+        return false;
+    fi;
+    GRP2:=LinPolytope_Automorphism(EXT2);
+    if IndefinitePrint then
+        Print("|GRP2|=", Order(GRP2), "\n");
+    fi;
+    return KernelLinPolytopeIntegral_Isomorphism_Subspaces(EXT1, EXT2, GRP2, eEquiv);
 end;
 
 
@@ -385,7 +395,9 @@ KernelLinPolytopeIntegral_Automorphism_Subspaces:=function(EXT, GRP)
   fi;
   eBasis:=GetZbasis(EXT);
   EXTbas:=List(EXT, x->SolutionMat(eBasis, x));
-#  Print("|GRP|=", Order(GRP), "\n");
+  if IndefinitePrint then
+      Print("|GRP|=", Order(GRP), "\n");
+  fi;
   ListPermGens:=GeneratorsOfGroup(GRP);
   ListMatrGens:=[];
   for eGen in ListPermGens

@@ -171,21 +171,23 @@ end;
 
 
 GetSomeNegativeVector:=function(SymMat)
-  local ListNeg, eMult, eVect, eIntVect;
-  ListNeg:=GetSetNegativeOrZeroVector(SymMat);
-  eMult:=1;
-  while(true)
-  do
-    for eVect in ListNeg
+    local ListNeg, eMult, eVect, eIntVect;
+    ListNeg:=GetSetNegativeOrZeroVector(SymMat);
+    eMult:=1;
+    while(true)
     do
-      eIntVect:=List(eMult*eVect, NearestInteger);
-      if eIntVect*SymMat*eIntVect < 0 then
-#        Print("GetSomeNegativeVector, eMult=", eMult, "\n");
-        return eIntVect;
-      fi;
+        for eVect in ListNeg
+        do
+            eIntVect:=List(eMult*eVect, NearestInteger);
+            if eIntVect*SymMat*eIntVect < 0 then
+                if IndefinitePrint then
+                    Print("GetSomeNegativeVector, eMult=", eMult, "\n");
+                fi;
+                return eIntVect;
+            fi;
+        od;
+        eMult:=eMult+1;
     od;
-    eMult:=eMult+1;
-  od;
 end;
 
 

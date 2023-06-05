@@ -593,7 +593,9 @@ GetTranslationClasses:=function(eMat)
     if IsFinished=true then
       break;
     fi;
-#    Print("Now |ListTransClass|=", Length(ListTransClass), "\n");
+    if IndefinitePrint then
+        Print("Now |ListTransClass|=", Length(ListTransClass), "\n");
+    fi;
   od;
   return ListTransClass;
 end;
