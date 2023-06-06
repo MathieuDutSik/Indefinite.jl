@@ -20,15 +20,6 @@ ShortVectorDutourVersion:=function(GramMat, eNorm)
 end;
 
 
-LinPolytope_Automorphism_GramMat:=function(EXT, GramMat)
-    local EXT_oscar, GramMat_oscar;
-    EXT_oscar:=MatrixToOscar(EXT);
-    GramMat_oscar:=MatrixToOscar(GramMat);
-    return Julia.Indefinite.GRP_LinPolytope_Automorphism_GramMat(EXT_oscar, GramMat_oscar);
-end;
-
-
-
 
 __VectorConfigurationFullDim_ScalarMat_AddMat:=function(EXT, ListAddMat)
   local n, Qmat, eEXT, Qinv, ScalarMat, fEXT, eLine, ListMat, LVal;
@@ -197,14 +188,6 @@ Get_QinvMatrix:=function(EXT)
 end;
 
 
-LinPolytope_Automorphism:=function(EXT)
-  local EXTred, n, Qmat, eEXT, Qinv;
-  EXTred:=ColumnReduction(EXT).EXT;
-  Qinv:=Get_QinvMatrix(EXTred);
-  return LinPolytope_Automorphism_GramMat(EXTred, Qinv);
-end;
-
-
 ParseMyOscarPermIsomorphism:=function(eEquiv_oscar)
     local TheMat;
     TheMat:=ReadOscarMatrix(eEquiv_oscar);
@@ -213,28 +196,6 @@ ParseMyOscarPermIsomorphism:=function(eEquiv_oscar)
     else
         return PermList(TheMat[1]);
     fi;
-end;
-
-
-
-LinPolytope_Isomorphism_GramMat:=function(EXT1, GramMat1, EXT2, GramMat2)
-    local EXT1_oscar, GramMat1_oscar, EXT2_oscar, GramMat2_oscar, eEquiv_oscar;
-    EXT1_oscar:=MatrixToOscar(EXT1);
-    GramMat1_oscar:=MatrixToOscar(GramMat1);
-    EXT2_oscar:=MatrixToOscar(EXT2);
-    GramMat2_oscar:=MatrixToOscar(GramMat2);
-    eEquiv_oscar:=Julia.Indefinite.GRP_LinPolytope_Isomorphism_GramMat(EXT1_oscar, GramMat1_oscar, EXT2_oscar, GramMat2_oscar);
-    return ParseMyOscarPermIsomorphism(eEquiv_oscar);
-end;
-
-
-LinPolytope_Isomorphism:=function(EXT1, EXT2)
-  local EXTred1, EXTred2, Qinv1, Qinv2;
-  EXTred1:=ColumnReduction(EXT1).EXT;
-  EXTred2:=ColumnReduction(EXT2).EXT;
-  Qinv1:=Get_QinvMatrix(EXTred1);
-  Qinv2:=Get_QinvMatrix(EXTred2);
-  return LinPolytope_Isomorphism_GramMat(EXTred1, Qinv1, EXTred2, Qinv2);
 end;
 
 
@@ -269,6 +230,13 @@ LinPolytope_Automorphism_AddMat:=function(EXT, ListAddMat)
 end;
 
 
+LinPolytope_Automorphism:=function(EXT)
+  local EXTred, n, Qmat, eEXT, Qinv;
+  EXTred:=ColumnReduction(EXT).EXT;
+  return LinPolytope_Automorphism_AddMat(EXTred, []);
+end;
+
+
 LinPolytope_Isomorphism_AddMat:=function(EXT1, EXT2, ListAddMat1, ListAddMat2)
     local EXT1_oscar, Qinv1, ListMat1, ListMat1_oscar, EXT2_oscar, Qinv2, ListMat2, ListMat2_oscar, eEquiv_oscar, Vdiag1, Vdiag2, Vdiag1_oscar, Vdiag2_oscar;
     EXT1_oscar:=MatrixToOscar(EXT1);
@@ -285,6 +253,14 @@ LinPolytope_Isomorphism_AddMat:=function(EXT1, EXT2, ListAddMat1, ListAddMat2)
     Vdiag2_oscar:=MatrixToOscar(Vdiag2);
     eEquiv_oscar:=Julia.Indefinite.GRP_ListMat_Subset_EXT_Isomorphism(EXT1_oscar, ListMat1_oscar, Vdiag1_oscar, EXT2_oscar, ListMat2_oscar, Vdiag2_oscar);
     return ParseMyOscarPermIsomorphism(eEquiv_oscar);
+end;
+
+
+LinPolytope_Isomorphism:=function(EXT1, EXT2)
+  local EXTred1, EXTred2;
+  EXTred1:=ColumnReduction(EXT1).EXT;
+  EXTred2:=ColumnReduction(EXT2).EXT;
+  return LinPolytope_Isomorphism_AddMat(EXTred1, EXTred2, [], []);
 end;
 
 
